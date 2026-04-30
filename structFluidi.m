@@ -1,14 +1,15 @@
 function [propFluidi] = structFluidi()
 %Proprieta Fluido
+%% 
     Ru = 8314;
     MmOx = 28.97;
     R = Ru / MmOx;
     MmFuel = 321.4964;          %cherosene
-    ROx = R/MmOx;
-    RFuel = R/MmFuel;
+    ROx = Ru/MmOx;
+    RFuel = Ru/MmFuel;
     cpOx = 7/2*ROx;
     cpFuel = 7/2*RFuel;
-    gamma = 1.4;
+    gamma = 1.33;
     cp = (gamma * R) / (gamma - 1);
 
     % Grandezze termodinamiche a 12000 m
