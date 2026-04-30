@@ -1,0 +1,32 @@
+# --- File temporanei di MATLAB ---
+*.asv
+*.autosave
+*.m~
+*.slxc
+*.mex*
+*.p
+*.p.bak
+*.MATLABDriveTag
+
+# --- Cartelle generate automaticamente ---
+slprj/
+codegeneration/
+resources/
+work/
+
+# --- File di sistema e log ---
+*.log
+catdump.txt
+matlab.mat
+
+# --- Dati e preferenze utente ---
+.matlab/
+Desktop.ini
+Thumbs.db
+
+# --- Eventuali cartelle di output pesanti ---
+# Se i tuoi script generano video o dati pesanti, decommenta le righe sotto
+# *.mp4
+# *.avi
+# *.mat
+
