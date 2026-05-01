@@ -26,8 +26,6 @@ function [P0U, T0U, mach, Q, L_turbina, eta_n] = turbina(P0I,T0I, mach, L_compre
     R = cp * (gammaCob - 1)/gammaCob;
    
     %% Calcolo lavoro STADIO1
-    % Calcolo del rendimento isentropico della turbina
-    
 
     %% STADIO 1
     % STATORE
