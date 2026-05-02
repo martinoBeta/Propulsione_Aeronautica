@@ -19,7 +19,7 @@ function [propFluidi] = structFluidi()
     p1 = 19280;  % Pressione a 12 Km
     rho1 = p1 / (R * T1);
     a1 = sqrt(gamma * R * T1); % Velocità del suono
-    v1 = a1 / M1;
+    v1 = a1 * M1;
 
 
 
