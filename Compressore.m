@@ -68,7 +68,8 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
     Rgas  = propFluidi.R;
     cp    = propFluidi.cp;
 
-
+    eta_c = (beta_c^((gamma-1)/gamma) - 1) / (beta_c^((gamma-1)/(gamma*eta_p)) - 1);
+    
     P0U = beta_c * P0I;
 
     T02s = T0I * beta_c^((gamma - 1)/gamma);
@@ -77,7 +78,7 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
     l_comp = cp * (T0U - T0I); % Lavoro specifico
     L_comp = mDot *  l_comp;
 
-    eta_c = (beta_c^((gamma-1)/gamma) - 1) / (beta_c^((gamma-1)/(gamma*eta_p)) - 1);
+    
 
     % Velocità assiale in ingresso
 

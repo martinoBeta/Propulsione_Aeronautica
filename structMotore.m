@@ -1,7 +1,7 @@
 function [propMotore] = structMotore(propTurbina)
 % ritorna le struct con i parametri del motore
     f=1.05;
-    mdot=70;                    % portata in kg/s totale (incluso il combustibile)
+    mdot=49;                    % portata in kg/s totale (incluso il combustibile)
     FO = 0.01;                  % mf/mOx motore 
     mAir = mdot/(1+FO);
     mFuel  = mdot - mAir;

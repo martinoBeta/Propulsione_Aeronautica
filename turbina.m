@@ -3,9 +3,10 @@ function [P0U, T0U, mach, Q, L_turbina, eta_n] = turbina(P0I,T0I, mach, L_compre
     %%
     clear
     clc
+
     propFluidi = structFluidi();
     propMotore = structMotore(structTurbina());
-    L_compressore = 40000;
+    L_compressore = 20.7e6;
     mach = 0.3;
     T0I = propMotore.Tmax;
     P0I = 300000;
@@ -27,88 +28,68 @@ function [P0U, T0U, mach, Q, L_turbina, eta_n] = turbina(P0I,T0I, mach, L_compre
    
     %% Calcolo lavoro STADIO1
 
-    %% STADIO 1
+    %% STADIO 2 (_2)
+    L_stadio2 = L_compressore*propTurbina.LStadio2;
+
+
     % STATORE
     % calcolo velocità di ingresso
-    vz1 = sqrt(T0I*R*gammaCob)*mach;
+    vz1_2 = sqrt(T0I*R*gammaCob)*mach;
 
     %calcolo di aria compresa quella per rafreddare
-    mCool_statore1 = propMotore.mAir*propTurbina.Cooling_statore(T0I);
-    mDot_statore1 = mDot+mCool_statore1;
+    mCoolStatore1_2 = propMotore.mAir*propTurbina.CoolingStatore(T0I);
+    mDotStatore1_2 = mDot+mCoolStatore1_2;
     
     % miscelazione adiabatica non area aggiunta per cooling
-    T02 = (cp*T0I*mDot+cpO*Tcool*mCool_statore1)/(mDot*cp+mCool_statore1*cpO);
-    T03 = T02;
-    
-    % T3 isoentropica 
-    T3_is = T03*2/(1+gammaCob);
-    v3_is = sqrt(gammaCob*R*T3_is);
-    vz3 = vz1;
-    
-    % calcolo della T03 vera della turbina.
-    T3 = (cp*T3_is + propTurbina.eps_stadio(180/pi*acos(vz3/v3_is))*v3_is^2/2)/cp;
+    T02_2 = (cp*T0I*mDot+cpO*Tcool*mCoolStatore1_2)/(mDot*cp+mCoolStatore1_2*cpO);
+    T03_2 = T02_2;
 
-    v3 = sqrt((T03-T3)*2*cp);
-    vt3 = sqrt(v3^2-vz3^2);
+   
 
-    % angolo di variazione velocità
-    alpha = 180/pi*acos(vz3/v3);
-
-    % velocità tangenziale palette (inposto R = 0, e vt5 = 0)
-    U = vt3/2;
-
-    % velocita relativa
-    wt3 = vt3 - U;
-    wz3 = vz3;
-    
 
     % ROTORE
-    mCool_rotore1 = propMotore.mAir*propTurbina.Cooling_rotore(T03);
-    mDot_rotore1 = mDot_statore1 + mCool_rotore1;
-
+    % miscleazione
+    mCoolRotore1_2 = propMotore.mAir*propTurbina.CoolingRotore(T03_2);
+    mDotRotore1_2 = mDotStatore1_2+mCoolRotore1_2;
+    
     % miscelazione adiabatica non area aggiunta per cooling
-    T04 = (cp*T03*mDot_statore1+cpO*Tcool*mCool_statore1)/(mDot_statore1*cp+cpO*mCool_statore1);
-    T4_is = T04 - v3^2/(2*cp);
-
-    % calcolo velocità conoscendo vt5 = 0;
-    v5 = vz3;
-
-    % calcolo v5
-    vz5 = vz3;
-    vt5 = sqrt(v5^2-vz5^2);
-    wt5 = U - vt5;
-    wz5 = vz5;
-    w5 = sqrt(wt5^2+wz5^2);
-    beta = 180/pi*atan(wt5/wz5);
-    deltaA = alpha - beta;
-
-    % calcolo T4 statica per poi potere calcolare;
-    T4 = (T4_is*cp + propTurbina.eps_stadio(deltaA)*w5^2/2)/cp;
-    T5 = T4;
-    T05 = T5 + v5^2/(2*cp);
-
-    L_turbina = mDot_rotore1*cp*(T0I-T05);
-
-    %rendimento totale-totale
-    eta_tt = (T0I - T05) / ((T0I - T05) + (T3 - T3_is) + (T4 - T4_is)); 
-
-    % Temperatura finale isentropica
-    T05s = T0I - (T0I - T05) / eta_tt;
+    T04_2 = (cp*T0I*mDotStatore1_2+cpO*Tcool*mCoolRotore1_2)/(mDotStatore1_2*cp+mCoolRotore1_2*cpO);
     
-    % Ricava la pressione totale d'uscita
-    P05 = P0I * (T05s / T0I)^(gammaCob / (gammaCob - 1));
+    % impongop condizoni del secondo stadio (uscita vel assiale e R = 0.5)
+    U = sqrt(L_stadio2/mDotRotore1_2)
+    vt3_2 = U;
+    vz3_2 = vz1_2;
+    v3 = sqrt(vz3_2^2+vt3_2^2);
 
+    wt3_2 = vt3_2 -U;
+    wz3_2 = vz3_2;
+    w3_2 = sqrt(wz3_2^2+wt3_2^2);
+    alpha = atan(wt3_2/wz3_2);
 
-    
+    T3 = v3^3/(R*gammaCob);
+
+    vz5_2 = vz3_2;
+    vt5_2 = 0;
+    v5_2 = sqrt(vz5_2^2 + vt5_2^2);
+
+    wz5_2 = vz5_2;
+    wt5_2 = U - vt5_2;
+    w5_2 = sqrt(wz5_2^2+wt5_2^2);
+
+    beta = atan(wt5_2/wz5_2);
+  
+    % L=cp​(T04_2−T05_2​); ricavo nuova temperatura totale
+    % T05_2 = T04_2 - L_stadio2/cp;
+    % T5 = T05_2 - v5^2/(2*cp) + propTurbina.epsStadio(abs(alpha-beta)*180/pi)*w5_2^2/2
+    T5_2 = T04_2 - L_stadio2/cp - v5_2^2/(2*cp) + propTurbina.epsStadio(abs(alpha-beta)*180/pi)*w5_2^2/2;
+    T05_2 =  T5_2 + v5_2^2/(2*cp);
 
 
 
     
 
+    
 
-
-    % Lavoro ideale
-    % L_turbina = L_compressore;
 
     
     
