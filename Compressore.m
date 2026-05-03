@@ -9,18 +9,6 @@ propMotore = structMotore(structTurbina());
 % NOTA IMPORTANTE:
 % Le fonti sono da controllare e da approfondire
 
-
-% FONTI RANGE R
-% https://scispace.com/pdf/the-effect-of-reaction-on-axial-flow-compressor-performance-1rtbqaeawx.pdf?utm_source=chatgpt.com
-% https://scholar.afit.edu/cgi/viewcontent.cgi?article=7109&context=etd&utm_source=chatgpt.com
-% https://thesis.unipd.it/retrieve/44c7a9bb-a360-47c8-ba5d-b978c4fff945/Tesi_Crosato.pdf?utm_source=chatgpt.com
-% R è circa 0.5, ho preso un range ampio da 0.3 a 0.7
-% https://asmedigitalcollection.asme.org/turbomachinery/article-abstract/145/12/121008/1167686/Numerical-Investigation-of-the-Influence-of-the?redirectedFrom=fulltext&utm_source=chatgpt.com
-R_range = 0.3:0.05:0.7;     % grado di reazione
-
-U_range = 250:25:400;
-beta_c_range =  6:1:20;    % rapporto di compressione totale
-
 %FONTI RANGE ETA compressore
 % Gas Turbine Engineering Handbook
 
@@ -56,6 +44,8 @@ mDot_range = mDot_base * (0.8:0.05:1.2);
 
 %% Analisis 1: vario beta_c
 
+beta_c_range =  6:1:20;    % rapporto di compressione totale
+
 n = length(beta_c_range);
 T0U_vec = zeros(1,n);
 eta_c_vec = zeros(1,n);
@@ -67,8 +57,8 @@ for i = 1:n
 
     beta_c = beta_c_range(i);
 
-    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = ...
-        compressore(T0I, P0I, mDot_base, beta_c, eta_p_base, U_base, R_base, N_stadi, machIn_base, propFluidi);
+    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, deHaller, Va, beta1, beta2] = ...
+        compressore(T0I, P0I, mDot_base, beta_c, eta_p_base, U_base, N_stadi, machIn_base, propFluidi);
     
     eta_c_vec(i) = eta_c;
     T0U_vec(i) = T0U;
@@ -113,11 +103,16 @@ title('Rendimento globale compressore')
 
 %% Analisi 2: vario U
 
+U_range = 300:25:400;
 n = length(U_range);
 
 Mach_rel_vec = zeros(1,n);
 Mach_abs_vec = zeros(1,n);
 l_stadio_vec = zeros(1,n);
+beta1_vec = zeros(1,n);
+beta2_vec = zeros(1,n);
+Cp_vec = zeros(1,n);
+deHaller_vec = zeros(1,n);
 
 
 
@@ -125,8 +120,8 @@ for i = 1:n
 
     U = U_range(i);
 
-    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = ...
-        compressore(T0I, P0I, mDot_base, beta_c_base, eta_p_base, U, R_base, N_stadi, machIn_base, propFluidi);
+    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, deHaller, Va, beta1, beta2] = ...
+        compressore(T0I, P0I, mDot_base, beta_c_base, eta_p_base, U, N_stadi, machIn_base, propFluidi);
 
     Mach_rel_vec(i) = Mach_rel;
     Mach_abs_vec(i) = Mach_abs;
@@ -135,15 +130,51 @@ for i = 1:n
     l_comp = propFluidi.cp * (T0U - T0I);
     l_stadio_vec(i) = l_comp / N_stadi;
 
+    
+    beta1_vec(i)  = beta1;
+    beta2_vec(i)  = beta2;
+    Cp_vec(i)     = Cp_stadio;
+    deHaller_vec(i) = deHaller;
+
 end
 
 
+% Grafici
+
+figure
+plot(U_range, beta1_vec, 'o-', U_range, beta2_vec, 'o-', 'LineWidth',1.5)
+grid on
+xlabel('U [m/s]')
+ylabel('\beta [deg]')
+legend('\beta_1','\beta_2')
+title('Angoli relativi al variare di U')
+
+figure
+plot(U_range, Cp_vec, 'o-', 'LineWidth',1.5)
+hold on
+yline(0.5,'--','Limite Cp rotore = 0.5')
+grid on
+xlabel('U [m/s]')
+ylabel('Cp')
+title('Coefficiente Cp al variare di U')
+
+figure
+plot(U_range, deHaller_vec, 'o-', 'LineWidth',1.5)
+hold on
+yline(0.72,'--r','Limite De Haller = 0.72')
+grid on
+xlabel('U [m/s]')
+ylabel('W_2 / W_1')
+title('Criterio di De Haller al variare di U')
+legend('W_2/W_1','Limite')
 
 
 
 
 
-function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0I, mDot, beta_c, eta_p, U, R, N_stadi, machIn, propFluidi)
+
+
+function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, deHaller, Va, beta1, beta2, Ain] = compressore(T0I, P0I, mDot, beta_c, eta_p, U, N_stadi, machIn, propFluidi)
 
     gamma = propFluidi.gamma;
     Rgas  = propFluidi.R;
@@ -161,6 +192,8 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
 
     
 
+    
+
     % Velocità assiale in ingresso
 
     T1 = T0I / (1 + (gamma - 1)/2 * machIn^2);
@@ -168,6 +201,8 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
     a1 = sqrt(gamma * Rgas * T1);
 
     Va = machIn * a1;
+
+    Ain = mDot / (rho1 * Va);
 
 
     l_stadio = l_comp / N_stadi; % lavoro specifico per singolo stadio
@@ -187,6 +222,24 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
 
     W1 = sqrt(Va^2 + Wt1^2);
     W2 = sqrt(Va^2 + Wt2^2);
+
+    Cp_stadio = 1 - (W2 / W1)^2;
+
+    deHaller = W2 / W1;
+
+
+
+    % 
+    % % Angoli velocità assoluta ( nonn dovrebbero servire)
+    % alpha1 = atan(Vt1 / Va) * (180/pi);
+    % alpha2 = atan(Vt2 / Va) * (180/pi);
+    % 
+
+    % Angoli velocità relativa
+    beta1 = atan(Wt1 / Va) * (180/pi);
+    beta2 = atan(Wt2 / Va) * (180/pi);
+
+
 
     Mach_abs_1 = V1 / a1;
     Mach_abs_2 = V2 / a1;
