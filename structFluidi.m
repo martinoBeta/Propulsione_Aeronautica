@@ -14,12 +14,17 @@ function [propFluidi] = structFluidi()
 
     % Grandezze termodinamiche a 12000 m
 
-    M1 = 0.85;
-    T1 = 216.65; % Temperatura a 12 km
-    p1 = 19280;  % Pressione a 12 Km
-    rho1 = p1 / (R * T1);
-    a1 = sqrt(gamma * R * T1); % Velocità del suono
-    v1 = a1 * M1;
+    M0 = 0.85;
+    T0 = 216.65; % Temperatura a 12 km
+    T00 = T0 * ((1 + (gamma - 1)/2) * M0^2); % Temperatura totale a 12 km
+
+
+    P0 = 19280;  % Pressione a 12 Km
+    P00 = P0 * ((1 + (gamma - 1)/2) * M0^2)^(gamma/(gamma - 1));
+
+    rho0 = P0 / (R * T0);
+    a0 = sqrt(gamma * R * T0); % Velocità del suono
+    v0 = a0 * M0;
 
 
 
@@ -35,12 +40,14 @@ function [propFluidi] = structFluidi()
     propFluidi.R = R;
     propFluidi.gamma = gamma;
     propFluidi.cp = cp;
-    propFluidi.M1 = M1;
-    propFluidi.T1 = T1;
-    propFluidi.p1 = p1;
-    propFluidi.rho1 = rho1;
-    propFluidi.a1 = a1;
-    propFluidi.v1 = v1;
+    propFluidi.M0 = M0;
+    propFluidi.T0 = T0;
+    propFluidi.T00 = T00;
+    propFluidi.P0 = P0;
+    propFluidi.P00 = P00;
+    propFluidi.rho0 = rho0;
+    propFluidi.a0 = a0;
+    propFluidi.v0 = v0;
     
 
 

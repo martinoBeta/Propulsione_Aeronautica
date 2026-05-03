@@ -43,23 +43,104 @@ Mach_in_range = 0.25:0.05:0.55;   % Mach ingresso compressore
 R_base      = 0.5;
 machIn_base = 0.35;
 beta_c_base   = 12;
-eta_c_base  = 0.85;
+eta_p_base  = 0.9;
 U_base      = 320;
-mDot_base   = mDotDesign;
+N_stadi = 8;
+mDot_base   = propMotore.mdot;
 
-mDot_range = mDot_Design * (0.8:0.05:1.2);
+T0I = propFluidi.T00;
+P0I = propFluidi.P00;
+
+mDot_range = mDot_base * (0.8:0.05:1.2);
 
 
-%Analisi 1: vario pi_c, tengo fissi gli altri
-for beta_c = beta_c_range
-    R      = R_base;
-    machIn = machIn_base;
-    eta_c  = eta_c_base;
-    U      = U_base;
-    mDot   = mDot_base;
+%% Analisis 1: vario beta_c
+
+n = length(beta_c_range);
+T0U_vec = zeros(1,n);
+eta_c_vec = zeros(1,n);
+L_vec   = zeros(1,n);
+Mach_rel_vec = zeros(1,n);
+Mach_abs_vec = zeros(1,n);
+
+for i = 1:n
+
+    beta_c = beta_c_range(i);
+
+    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = ...
+        compressore(T0I, P0I, mDot_base, beta_c, eta_p_base, U_base, R_base, N_stadi, machIn_base, propFluidi);
+    
+    eta_c_vec(i) = eta_c;
+    T0U_vec(i) = T0U;
+    L_vec(i)   = L_comp;
+    Mach_rel_vec(i) = Mach_rel;
+    Mach_abs_vec(i) = Mach_abs;
 
 end
-T02, P02, L_comp, l_comp, N_stadi, Mach_rel, Mach_abs, Va
+
+% Grafici
+
+figure
+plot(beta_c_range, T0U_vec, 'o-', 'LineWidth',1.5)
+grid on
+xlabel('\beta_c')
+ylabel('T_{0U} [K]')
+title('Temperatura uscita compressore')
+
+figure
+plot(beta_c_range, L_vec/1e6, 'o-', 'LineWidth',1.5)
+grid on
+xlabel('\beta_c')
+ylabel('L_{comp} [MW]')
+title('Potenza compressore')
+
+figure
+plot(beta_c_range, Mach_rel_vec, 'o-', 'LineWidth',1.5)
+hold on
+plot(beta_c_range, Mach_abs_vec, 'o-', 'LineWidth',1.5)
+grid on
+xlabel('\beta_c')
+ylabel('Mach')
+legend('Mach relativo','Mach assoluto')
+title('Mach nello stadio')
+
+figure
+plot(beta_c_range, eta_c_vec, 'o-', 'LineWidth',1.5)
+grid on
+xlabel('\beta_c')
+ylabel('\eta_c')
+title('Rendimento globale compressore')
+
+%% Analisi 2: vario U
+
+n = length(U_range);
+
+Mach_rel_vec = zeros(1,n);
+Mach_abs_vec = zeros(1,n);
+l_stadio_vec = zeros(1,n);
+
+
+
+for i = 1:n
+
+    U = U_range(i);
+
+    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = ...
+        compressore(T0I, P0I, mDot_base, beta_c_base, eta_p_base, U, R_base, N_stadi, machIn_base, propFluidi);
+
+    Mach_rel_vec(i) = Mach_rel;
+    Mach_abs_vec(i) = Mach_abs;
+
+    % lavoro per stadio (ricavato fuori funzione)
+    l_comp = propFluidi.cp * (T0U - T0I);
+    l_stadio_vec(i) = l_comp / N_stadi;
+
+end
+
+
+
+
+
 
 
 function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0I, mDot, beta_c, eta_p, U, R, N_stadi, machIn, propFluidi)
@@ -69,7 +150,7 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Va] = compressore(T0I, P0
     cp    = propFluidi.cp;
 
     eta_c = (beta_c^((gamma-1)/gamma) - 1) / (beta_c^((gamma-1)/(gamma*eta_p)) - 1);
-    
+
     P0U = beta_c * P0I;
 
     T02s = T0I * beta_c^((gamma - 1)/gamma);
