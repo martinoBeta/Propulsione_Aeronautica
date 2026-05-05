@@ -16,11 +16,12 @@ function [propFluidi] = structFluidi()
 
     M0 = 0.85;
     T0 = 216.65; % Temperatura a 12 km
-    T00 = T0 * ((1 + (gamma - 1)/2) * M0^2); % Temperatura totale a 12 km
+    T00 = T0 * (1 + (gamma - 1)/2 * M0^2);% Temperatura totale a 12 km
+
 
 
     P0 = 19280;  % Pressione a 12 Km
-    P00 = P0 * ((1 + (gamma - 1)/2) * M0^2)^(gamma/(gamma - 1));
+    P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1));
 
     rho0 = P0 / (R * T0);
     a0 = sqrt(gamma * R * T0); % Velocità del suono
