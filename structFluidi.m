@@ -1,5 +1,5 @@
 function [propFluidi] = structFluidi()
-%Proprieta Fluido
+%Proprietà Fluido
 %% 
     Ru = 8314;
     MmOx = 28.97;
