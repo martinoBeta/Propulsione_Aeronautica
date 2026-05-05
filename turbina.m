@@ -1,56 +1,10 @@
-
-clear
-    clc
-    close all;
-
-
-P0I = 50000;
-T0I = 1100:1:1800;
-mach = 0.3;
-
-propFluidi = structFluidi();%
-propMotore = structMotore(structTurbina());
-L_compressore = 10.7e6;
-mach = 0.3;
-P0I = 300000;
-T3 = 420;
-TCool = T3;
-    
-etan = [];
-coolPecentualeA = [];
-Sota = [];
-
-for i = T0I
-    [P0U, T0U, mach, Q, L_turbina, eta_n,coolPecentuale,SOT] = turbina1(P0I,i, mach, L_compressore,propFluidi,propMotore,TCool);
-    etan = [etan, eta_n];
-    coolPecentualeA = [coolPecentualeA,coolPecentuale];
-    Sota = [Sota, SOT];
-end 
-
-figure();
-plot(T0I,etan,"-");
-figure();
-plot(T0I,coolPecentualeA,"-");
-hold on
-plot(T0I,propMotore.Turbina.CoolingRotore(Sota))
-hold on
-plot(T0I,propMotore.Turbina.CoolingStatore(Sota))
-legend("total","rotore","statore");
-figure
-plot(T0I,Sota)
-
-
-
-
-
-
- function [P0U, T0U, mach, Q, L_turbina, eta_n,coolPecentuale,SOT] = turbina1(P0I,T0I, mach, L_compressore,propFluidi,propMotore,TCool)
+function [P0U, T0U, T05_iso, mach, Q, L_turbina, eta_n,coolPecentuale,SOT,eto] = turbina(P0I,T0I, mach, L_compressore,propFluidi,propMotore,TCool)
     %funzione che calcola prestazione della turbina
     %%
     propTurbina = propMotore.Turbina;
     
     % rendimento meccanico 
-    eta = propTurbina.eta_b; 
+    eta_m = propTurbina.eta_m; 
     etaP = propTurbina.eta_p; 
 
     % portate
@@ -68,23 +22,32 @@ plot(T0I,Sota)
     coolPecentuale = propTurbina.CoolingRotore(SOT) + propTurbina.CoolingStatore(SOT); 
 
     % lavoro turbina 
-    L_turbina = L_compressore/eta;
+    L_turbina = L_compressore/eta_m;
     
-    %Temperatura ad uscita turbina
+    %Temperatura ad uscita turbina isoentropica
     T5 = ((1-coolPecentuale)*cpGas*T0I + coolPecentuale*cpAir*TCool - L_turbina/mDot)/((1-coolPecentuale)*cpGas+coolPecentuale*cpAir);
    
     %miscelamento
     Tm = ((1-coolPecentuale)*cpGas*T0I + coolPecentuale*cpAir*TCool)/((1-coolPecentuale)*cpGas+ coolPecentuale*cpAir);
 
     % Calcolo della pressione a uscita della turbina
-    betaP =  (T5/T0I)^(gammaCob/((gammaCob-1)*etaP));
+    betaP =  (T5/Tm)^(gammaCob/((gammaCob-1)*etaP));
     P0U = P0I * betaP;
 
     % temperatura isoentropica
-    T05_iso = Tm*(P0I/P0U)^((1-gammaCob)/gammaCob);
+    T05_iso = Tm*betaP^((gammaCob-1)/gammaCob);
 
+    % Lavoro isoentropico non rafreddato
+    % cpBalance = cpGas*(1-coolPecentuale) + cpAir*coolPecentuale;    % Cp bilanciato 
+    L_iso_no_raff = cpGas*mDot*(1-coolPecentuale)*(T0I-T05_iso);
+
+    % Lavoro isoenbtropico rafreddato
+    L_iso_raff = mDot*((1-coolPecentuale)*cpGas*(T0I-T05_iso) +(coolPecentuale)*cpAir*(TCool-T05_iso));
+ 
     % rendimento adiabatico
-    eta_n = L_turbina/(mDot*cpGas*(Tm-T05_iso));
+   
+    eta_n = L_turbina/L_iso_raff;
+    eto = L_turbina/L_iso_no_raff;
     T0U = T5;
 
     Q = 0 ;       

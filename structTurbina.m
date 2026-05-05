@@ -1,7 +1,7 @@
 function [propTurbina] = structTurbina()
 % ritorna le struct con i parametri della turbina
  
-    eta_b = 0.92; % rendimento meccanico
+    eta_m = 0.92; % rendimento meccanico
     eta_p = 0.9;% rendimento adiabatico
 
     %% Aria di rafreddamento dalle tabelle
@@ -26,7 +26,7 @@ function [propTurbina] = structTurbina()
 
     %% Impostare struct
 
-    propTurbina.eta_b = eta_b; 
+    propTurbina.eta_m = eta_m; 
     propTurbina.eta_p = eta_p;
     propTurbina.CoolingStatore = CoolingStatore;
     propTurbina.CoolingRotore = CoolingRotore;
