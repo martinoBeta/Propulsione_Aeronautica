@@ -4,7 +4,7 @@ function [propTurbina] = structTurbina()
     eta_b = 0.92; % rendimento meccanico
     eta_p = 0.9;% rendimento adiabatico
 
-    %% Aria di rafreddamento dalle tabello
+    %% Aria di rafreddamento dalle tabelle
     CoolingStatore = @(x)  (x<1100)*0 + ...    %cooling air richiesta per TIN statore è SOT
                             (x>=1100 & x <= 1650).*(0.09/(1600-1100)*(x-1100)) + ...
                             (x>1650).*0.5;
