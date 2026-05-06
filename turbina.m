@@ -1,4 +1,4 @@
-function [P0U, T0U, T05_iso, mach, Q, L_turbina, eta_n,coolPecentuale,SOT,eto] = turbina(P0I,T0I, mach, L_compressore,propFluidi,propMotore,TCool)
+function [P0U, T0U, T05_iso, mach, L_turbina, eta_n,coolPecentuale,SOT,eto] = turbina(P0I,T0I, mach, L_compressore,propFluidi,propMotore,TCool)
     %funzione che calcola prestazione della turbina
     %%
     propTurbina = propMotore.Turbina;
@@ -38,8 +38,7 @@ function [P0U, T0U, T05_iso, mach, Q, L_turbina, eta_n,coolPecentuale,SOT,eto] =
     T05_iso = Tm*betaP^((gammaCob-1)/gammaCob);
 
     % Lavoro isoentropico non rafreddato
-    % cpBalance = cpGas*(1-coolPecentuale) + cpAir*coolPecentuale;    % Cp bilanciato 
-    L_iso_no_raff = cpGas*mDot*(1-coolPecentuale)*(T0I-T05_iso);
+    L_iso_no_raff = cpGas*mDot*(T0I-T05_iso);
 
     % Lavoro isoenbtropico rafreddato
     L_iso_raff = mDot*((1-coolPecentuale)*cpGas*(T0I-T05_iso) +(coolPecentuale)*cpAir*(TCool-T05_iso));
@@ -50,5 +49,8 @@ function [P0U, T0U, T05_iso, mach, Q, L_turbina, eta_n,coolPecentuale,SOT,eto] =
     eto = L_turbina/L_iso_no_raff;
     T0U = T5;
 
-    Q = 0 ;       
+
+    %% STADIO
+    v4z = structMotore
+
 end

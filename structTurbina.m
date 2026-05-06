@@ -19,10 +19,7 @@ function [propTurbina] = structTurbina()
     epsilon_val = [0.016,0.022,0.037,0.058,0.098];      % pagina 16 slide 15-La turbina assiale.pdf
     P  =polyfit(theta_val,epsilon_val,3);
     epsStadio = @(x) polyval(P,x);                     %in gradi
-    
-    % percentuale stadio 1 e 2 di lavoro suddiviso 
-    LStadio1 = 0.6;     
-    LStadio2 = 0.4;
+     
 
     %% Impostare struct
 
@@ -31,8 +28,7 @@ function [propTurbina] = structTurbina()
     propTurbina.CoolingStatore = CoolingStatore;
     propTurbina.CoolingRotore = CoolingRotore;
     propTurbina.epsStadio = epsStadio;
-    propTurbina.LStadio1 = LStadio1;
-    propTurbina.LStadio2 = LStadio2;
+
 
 
 
