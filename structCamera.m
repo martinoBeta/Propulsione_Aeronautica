@@ -1,7 +1,9 @@
 function [propCamera] = structCamera()
-    % Parametri di progetto per il dimensionamento
-    propCamera.r_m = 0.35;        % Raggio medio
-    propCamera.DP_qref = 20;     % Fattore di perdita dinamica
-    propCamera.DP_su_P3_target = 0.06; %
-    propCamera.I_target = 9e6;   % Intensità di combustione target 
+% Parametri di progetto per il dimensionamento della camera di combustione
+
+    propCamera.r_m             = 0.35;  % raggio medio camera anulare [m]
+    propCamera.DP_su_qref      = 20;    % fattore di perdita dinamica  [-]                                  
+    propCamera.DP_su_P3_target = 0.06;  % perdita di pressione totale  [-]
+    propCamera.I               = 9e6;   % intensità di combustione target [W/(m³·Pa)]                                      
+
 end

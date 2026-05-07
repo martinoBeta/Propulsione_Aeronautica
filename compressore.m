@@ -1,7 +1,7 @@
-%TI HO SPOSTATO I CODICI NEL main.m
 function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-          deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, Aout, r_m_out, h_out] = ...
-          compressore(T0I, P0I, mDot, pi_c, eta_p, U, N_stadi, machIn, hubTip, propFluidi)
+          deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, Aout, r_m_out, h_out,...
+          D_rotore, D_statore, R_m, c_m, N_R, N_stadi] = compressore(T0I, P0I, mDot, pi_c,...
+          eta_p, Utip, machIn, hubTip, propFluidi)
 
     gamma = propFluidi.gamma;
     Rgas  = propFluidi.R;
@@ -26,9 +26,19 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
     a1 = sqrt(gamma * Rgas * T1);
     Va = machIn * a1;
 
-    
+    % Geometria ingresso
+    Ain = mDot / (rho1 * Va);
 
-    % Uscita compressore, assumendo Va costante
+    r_t_in = sqrt(Ain/(pi*(1 - hubTip^2)));
+    r_h_in = hubTip * r_t_in;
+    r_m_in = (r_t_in + r_h_in)/2;
+    h_in  = r_t_in - r_h_in;
+
+    % Fisso Utip e ricavo U alla sezione media
+    omega = Utip / r_t_in;
+    U = omega * r_m_in;
+
+    % Uscita compressore
     T_out = T0U - Va^2/(2*cp);
     a_out = sqrt(gamma * Rgas * T_out);
     mach_out = Va / a_out;
@@ -36,14 +46,42 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
     P_out = P0U / (1 + (gamma - 1)/2 * mach_out^2)^(gamma/(gamma - 1));
     rho_out = P_out / (Rgas * T_out);
 
+    % Geometria uscita
+    Aout = mDot / (rho_out * Va);
+
+    r_t_out = sqrt(Aout/(pi*(1 - hubTip^2)));
+    r_h_out = hubTip * r_t_out;
+    r_m_out = (r_t_out + r_h_out)/2;
+    h_out  = r_t_out - r_h_out;
 
     % Primo stadio
+    % Ipotesi: alpha1 = 0 --> Vt1 = 0
+    Vt1 = 0;
+
+    Wt1 = Vt1 - U;
+    W1  = sqrt(Va^2 + Wt1^2);
+
+    % Scelta progettuale: De Haller target
+    deHaller_target = 0.72;
+
+    W2_target = deHaller_target * W1;
+
+ 
+    Wt2 = -sqrt(W2_target^2 - Va^2);
+    Vt2 = Wt2 + U;
+
+    delta_Vt = Vt2 - Vt1;
+
+    l_stadio_teorico = U * delta_Vt;
+
+    N_stadi = ceil(l_comp / l_stadio_teorico);
+
+    % Ricalcolo triangolo con numero di stadi intero
     l_stadio = l_comp / N_stadi;
 
     delta_Vt = l_stadio / U;
 
-    Vt1 = 0;
-    Vt2 = delta_Vt;
+    Vt2 = Vt1 + delta_Vt;
 
     V1 = sqrt(Va^2 + Vt1^2);
     V2 = sqrt(Va^2 + Vt2^2);
@@ -63,21 +101,22 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
     Mach_abs = max([V1/a1, V2/a1]);
     Mach_rel = max([W1/a1, W2/a1]);
 
-    % Geometria ingresso
+    % Sezione media
+    sigma_r = 1.0;
+    sigma_s = 1.25;
 
-    Ain = mDot / (rho1 * Va);
-    r_t_in = sqrt(Ain/(pi*(1 - hubTip^2)));
-    r_h_in = hubTip * r_t_in;
-    r_m_in = (r_t_in + r_h_in)/2;
-    h_in  = r_t_in - r_h_in;
+    D_rotore = 1 - W2/W1 + abs(Vt2 - Vt1)/(2*sigma_r*W1);
+    D_statore = 1 - Va/V2 + abs(Vt2 - Vt1)/(2*sigma_s*V2);
 
-    % Geometria uscita
+    R_m = 1 - (Vt1 + Vt2)/(2*U);
 
-    Aout = mDot / (rho_out * Va);
-    r_t_out = sqrt(Aout/(pi*(1 - hubTip^2)));
-    r_h_out = hubTip * r_t_out;
-    r_m_out = (r_t_out + r_h_out)/2;
-    h_out  = r_t_out - r_h_out;
+    % Numero di pale rotoriche
+    Re_min = 300000;
+    nu1 = 4.67e-5;
 
+    c_m = Re_min * nu1 / W1;
+
+    s_r = c_m / sigma_r;
+    N_R = ceil(2*pi*r_m_in / s_r);
 
 end
