@@ -16,7 +16,7 @@ function [propFluidi] = structFluidi()
     MmFuel = 321.4964;      % massa molare cherosene [kg/kmol]
     RFuel  = Ru / MmFuel;   % costante del gas cherosene [J/(kg·K)]
     cpFuel = 7/2 * RFuel;   % cp cherosene vapore [J/(kg·K)]
-    LHV    = 43.2e6;   %!!!! DA VERIFICARE     % potere calorifico inferiore cherosene [J/kg]
+    LHV    = 44.1e6;        % potere calorifico inferiore JP-7 [J/kg]
                            
 
     % Proprietà gas combusti (miscela aria + prodotti combustione)

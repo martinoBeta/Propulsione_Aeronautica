@@ -25,7 +25,7 @@ mdot = spinta/(v_exitstimata-v_volo);
 
 
 %% ------------------------------------------------------------------------
-%                               COMPRESSORE
+%                                COMPRESSORE
 %--------------------------------------------------------------------------
 propFluidi = structFluidi();
 propMotore = structMotore(structTurbina());
@@ -292,7 +292,7 @@ ylabel('N_{stadi}')
 title('Numero di stadi al variare di M_1')
 
 %% Ricerca configurazione ammissibile più compatta
-% voglio minimizzare le dimensioni del compressore
+% questa ottimizzazione non va bene se vogliamo minimizzare il TSFC
 
 FS = 0.99; % fattore di sicurezza
 
@@ -380,7 +380,7 @@ if best_N_stadi == 100000
     error('Nessuna configurazione valida trovata')
 end
 
-fprintf('\n=========== CONFIGURAZIONE OTTIMA COMPRESSORE ===========\n')
+fprintf('\n=========== CONFIGURAZIONE COMPRESSORE COMPATTO ===========\n')
 fprintf('machIn    = %.2f\n', best_machIn)
 fprintf('Utip      = %.1f m/s\n', best_Utip)
 fprintf('N_stadi   = %d\n', best_N_stadi)
@@ -414,20 +414,62 @@ fprintf('-------------------------------------------------\n')
 %                          CAMERA DI COMBUSTIONE
 % -------------------------------------------------------------------------
 
+% Obiettivo minimizzare il TSFC
+% TSFC = mdot_f / F. 
+% F è un parametro fissato
+% bilancio energetico combustore --> mdot_f
+
+%% ------------------------------------------------------------------------
+%                          CAMERA DI COMBUSTIONE
+% -------------------------------------------------------------------------
+% Parametri da PDF Politecnico di Milano e specifiche JP-7
+propCombust.LHV = 44.1e6;       % JP-7 LHV [J/kg]
+propCamera.I = 8;               % Intensità [MW/(m^3*bar)] (Slide 8) 
+propCamera.r_m = best_R_m;      % Raggio medio dal compressore [cite: 138, 142]
+propCamera.DP_su_qref = 20;     % Valore tipico camera Anulare (Slide 6) [cite: 114]
+propCamera.DP_su_P3_target = 0.06; % Perdita 6% (Slide 6) [cite: 106, 114]
+
+% Sweep sulla pressione d'ingresso (P03)
+P03_vec = linspace(1e5, 10e5, 20); 
+Lc_vec = zeros(size(P03_vec));
+tres_vec = zeros(size(P03_vec));
+
+for j = 1:length(P03_vec)
+    % Nota: T03 deve essere best_T0U calcolato dal compressore
+    [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
+        Camera_di_combustione(P03_vec(j), best_T0U, propCamera, propFluidi, propMotore, propCombust);
+    
+    Lc_vec(j) = cam_out.Lc;
+    tres_vec(j) = cam_out.t_res;
+end
+
+% Visualizzazione Risultati
+figure('Name', 'Analisi Camera di Combustione JP-7');
+subplot(2,1,1);
+plot(P03_vec/1e5, Lc_vec, 'LineWidth', 2);
+ylabel('Lunghezza L_c [m]'); grid on; % [cite: 134, 139]
+title('Dimensionamento Longitudinale');
+
+subplot(2,1,2);
+plot(P03_vec/1e5, tres_vec*1000, 'r', 'LineWidth', 2);
+hold on; 
+yline(8, '--k', 'Target JP-7 (8ms)'); % Limite stabilità JP-7
+ylabel('Tempo residenza \tau_{res} [ms]'); 
+xlabel('P_{03} [bar]'); grid on;
+
+
 %% ------------------------------------------------------------------------
 %                                 TURBINA
 %--------------------------------------------------------------------------
 
-P0I = 50000;
 T0I = 1100:25:1800;
-mach = 0.3;
 
-propFluidi = structFluidi();%
+propFluidi = structFluidi();
 propMotore = structMotore(structTurbina());
-L_compressore = 10.7e6;
-mach = 0.3;
-P0I = 213400;
-T3 = 420;
+L_compressore = best_L_comp;
+mach = best_machIn;
+P0I = best_P0U;
+T3 = best_T0U;
 TCool = T3;
     
 etan = [];
@@ -461,7 +503,9 @@ for i = 1:length(T0I)
 end 
 
 %Rendimento isoentropico
-figure("name","rendimento isoentropico");
+figure("name","Turbina");
+nexttile();
+title("rendimento isoentropico")
 plot(T0I,etan);
 title("Rendimento isoentropico")
 xlabel("T04 (camera di combustione) [K]")
@@ -471,7 +515,8 @@ plot(T0I,etos);
 legend("Isoentropico Raff","Isoentropico Non Raff")
 
 %Percentuale d'aria utilizzata per rafreddamento turbina
-figure("name","aria rafreddamento tubina");
+nexttile();
+title("aria rafreddamento tubina")
 plot(T0I,coolPecentualeA*100);
 hold on
 plot(T0I,propMotore.Turbina.CoolingRotore(Sota)*100)
@@ -483,14 +528,16 @@ xlabel("T04 (camera di combustione) [K]")
 ylabel("Aria spillata per rafreddamento [%]")
 
 %Rendimento al variare della percentuale di aria utilizzata per rafreddamento turbina
-figure("name","rendimento vs rafreddamento")
+nexttile();
+title("rendimento vs rafreddamento")
 plot(coolPecentualeA*100,etos,"-");
 title("Rendimento isoentropico vs aria spillata per rafreddamento")
 xlabel("Aria spillata per rafreddamento [%]")
 ylabel("\eta_n")
 
 % Pressioni Totali e Temperature totali
-figure("name","Pressione e Temperature totali")
+nexttile();
+title("Pressione e Temperature totali")
 yyaxis left
 plot(T0I,P0Is,'b-');
 hold on
@@ -507,7 +554,9 @@ xlabel("T04 (camera di combustione) [K]");
 legend("P0I",'P0U','T0U_iso','T0U');
 
 %Area entrata e uscità
-figure("Name","in e out aree")
+figure("Name","In e Out motore")
+nexttile();
+title("in e out aree")
 plot(T0I,A4s)
 hold on
 plot(T0I,A5s)
@@ -516,7 +565,8 @@ ylabel("area [m^2]")
 legend("In","Out")
 
 %mach
-figure("Name","in e out mach")
+nexttile();
+title("in e out mach")
 plot(T0I,mach*ones(size(T0I)))
 hold on
 plot(T0I,machOut)

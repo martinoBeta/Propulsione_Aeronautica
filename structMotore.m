@@ -1,12 +1,9 @@
-function [propMotore] = structMotore(propTurbina)
+function [propMotore] = structMotore()
 % Parametri globali del motore turbojet-ramjet
 
     % Portate
-    mdot  = 39;             % portata massica totale (aria + combustibile) [kg/s]
-    FO    = 0.01;           % rapporto combustibile/aria  mf/mAir          [-]
-    mAir  = mdot / (1 + FO);   % portata aria [kg/s]
-    mFuel = mdot - mAir;       % portata combustibile [kg/s]
-    f = 1.05;               % rapporto combustibile aria
+    mdot  = 35;             % portata massica totale (aria + combustibile) [kg/s]
+    
 
     % Parametri termodinamici ciclo
     Tmax  = 1700;           % temperatura massima ciclo (TIT) [K]
@@ -37,6 +34,58 @@ function [propMotore] = structMotore(propTurbina)
     propMotore.eta_d_1     = eta_d_1;       
 
     %
-    propMotore.Turbina = propTurbina;
+   
+
+
+    %% TUBINA
+    % ---------------------------------------------------------------------
+
+
+        eta_m = 0.92; % rendimento meccanico
+        eta_p = 0.9;% rendimento adiabatico
+    
+        %% Aria di rafreddamento dalle tabelle
+        CoolingStatore = @(x)  (x<1100)*0 + ...    %cooling air richiesta per TIN statore è SOT
+                                (x>=1100 & x <= 1650).*(0.09/(1600-1100)*(x-1100)) + ...
+                                (x>1650).*0.5;
+    
+        CoolingRotore = @(x)   (x<1250)*0 + ...    %cooling air richiesta per TIN statore la T è SOT
+                                (x>=1250 & x <= 1600).*(0.05/(1400-1250)*(x-1250)) + ...
+                                (x>1600).*0.5;
+
+    
+        %% Impostare struct
+    
+        Turbina.eta_m = eta_m; 
+        Turbina.eta_p = eta_p;
+        Turbina.CoolingStatore = CoolingStatore;
+        Turbina.CoolingRotore = CoolingRotore;
+        Turbina.epsStadio = epsStadio;
+        % Lavoro
+        Turbina.L_turbina = NaN;
+
+        % IN
+        Turbina.machIn = NaN;
+        Turbina.P0I = NaN;
+        Turbina.T0I = NaN;
+
+        % Out
+        Turbina.P0U = NaN;
+        Turbina.T0U = NaN;
+        Turbina.machOut = NaN;
+
+        % Parametri di Rafreddamento
+        Turbina.coolPecentuale = NaN;
+        Turbina.TCool = NaN;
+
+        % Stadio
+        
+        
+
+    % Salvataggio Struct 
+    propMotoTurbinare.Turbina = Turbina;
+    % ---------------------------------------------------------------------
+ 
+
 
 end

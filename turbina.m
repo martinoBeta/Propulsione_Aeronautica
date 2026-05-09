@@ -1,9 +1,19 @@
-function [P0U, T0U, T05_iso, machOut, L_turbina, eta_n,coolPecentuale,SOT,eto,A4,A5] = turbina(P0I,T0I, machIn, L_compressore,propFluidi,propMotore,TCool)
+function [P0U, T0U, T05_iso, machOut, L_turbina, eta_n,coolPecentuale,SOT,eto,A4,A5] = turbina(propFluidi,propMotore)
     %funzione che calcola prestazione della turbina
     %%
+    
+    % INIZIALIZZAZIONE DELLE VARIABILI
     propTurbina = propMotore.Turbina;
     
-    % rendimento meccanico 
+    % TURBINA INPUT
+    T0I = propTurbina.T0I;
+    P0I = propTurbina.P0I;
+    machIn = propTurbina.machIn;
+
+    L_compressore = propMotore.Compressore.Lavoro; % NOTARE CAMBIARE NOME A QUELLO AGGIORNATO
+    TCool =  propTurbina.TCool;
+    
+    % TURBINA CONSTANTI
     eta_m = propTurbina.eta_m; 
     etaP = propTurbina.eta_p; 
 

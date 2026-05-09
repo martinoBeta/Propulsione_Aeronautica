@@ -31,3 +31,5 @@ function [propDiffusore] = structDiffusore(propCompressore)
     propDiffusore.v_out = NaN;   % velocità uscita   [m/s]
 
 end
+
+
