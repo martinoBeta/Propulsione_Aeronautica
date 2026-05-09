@@ -59,29 +59,25 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
     Vt1 = 0;
 
     Wt1 = Vt1 - U;
-    W1  = sqrt(Va^2 + Wt1^2);
+    W1  = sqrt(Va^2 + Wt1^2); % velocità relativa all'ingresso dello stadio
 
     % Scelta progettuale: De Haller target
     deHaller_target = 0.72;
 
     W2_target = deHaller_target * W1;
 
- 
+    % Va = cost lungo lo stadio
     Wt2 = -sqrt(W2_target^2 - Va^2);
     Vt2 = Wt2 + U;
 
-    delta_Vt = Vt2 - Vt1;
-
-    l_stadio_teorico = U * delta_Vt;
+    l_stadio_teorico = U * (Vt2 - Vt1);
 
     N_stadi = ceil(l_comp / l_stadio_teorico);
 
     % Ricalcolo triangolo con numero di stadi intero
     l_stadio = l_comp / N_stadi;
 
-    delta_Vt = l_stadio / U;
-
-    Vt2 = Vt1 + delta_Vt;
+    Vt2 = Vt1 + l_stadio / U;
 
     V1 = sqrt(Va^2 + Vt1^2);
     V2 = sqrt(Va^2 + Vt2^2);
