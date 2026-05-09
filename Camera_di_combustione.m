@@ -1,5 +1,5 @@
 function [P04, T04, Q_dot, propCamera, propCombust] = Camera_di_combustione( ...
-    P03_primo, T03_primo, propCamera, propFluidi, propMotore, propCombust)
+    P03_primo, T03_primo, propCamera, propFluidi, motore, propCombust)
 % CAMERA_DI_COMBUSTIONE
 % Funzione che svolge il ciclo termodinamico reale della camera di combustione,
 % restituendo le condizioni termodinamiche in uscita e le caratteristiche
@@ -10,7 +10,7 @@ function [P04, T04, Q_dot, propCamera, propCombust] = Camera_di_combustione( ...
 %   T03_primo  : temperatura totale in ingresso (dal dump diffuser) [K]
 %   propCamera : struct con parametri geometrici noti della camera
 %   propFluidi : struct con proprietà termodinamiche dei fluidi
-%   propMotore : struct con parametri globali del motore        <<< AGGIUNTO
+%   motore : struct con parametri globali del motore        <<< AGGIUNTO
 %   propCombust: struct con proprietà del combustibile
 %
 % OUTPUT:
@@ -27,11 +27,11 @@ function [P04, T04, Q_dot, propCamera, propCombust] = Camera_di_combustione( ...
     LHV   = propCombust.LHV;        % potere calorifico inferiore JP-7 [J/kg]
 
     % Motore
-    eta_b = propMotore.eta_b;      % rendimento di combustione [-]
-    m_a   = propMotore.mDotCore;   % portata aria che entra in camera [kg/s]
+    eta_b = motore.eta_b;      % rendimento di combustione [-]
+    m_a   = motore.mDotCore;   % portata aria che entra in camera [kg/s]
                                    % NOTA: si usa mDotCore (aria non spillata),
                                    % NON mAir totale né mdot
-    T04   = propMotore.Tmax;       % temperatura target TIT in uscita camera [K]
+    T04   = motore.Tmax;       % temperatura target TIT in uscita camera [K]
 
     % Fluidi
     cp_a  = propFluidi.cpOx;       % cp aria in ingresso [J/(kg·K)]

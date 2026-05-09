@@ -27,22 +27,17 @@ mdot = spinta/(v_exitstimata-v_volo);
 %% ------------------------------------------------------------------------
 %                                COMPRESSORE
 %--------------------------------------------------------------------------
-propFluidi = structFluidi();
-propMotore = structMotore(structTurbina());
-
 
 machIn_range = 0.40:0.05:0.60;
 
 propFluidi = structFluidi();
-propMotore = structMotore(structTurbina());
+motore = structMotore();
 
-mDot = propMotore.mdot;
+mDot = motore.portate.mDotAir;
 
 T0I = propFluidi.T00;
 P0I = propFluidi.P00;
 
-eta_p  = 0.9;
-hubTip = 0.5;
 
 %% ANALISI 1: VARIO pi_c
 
@@ -437,7 +432,7 @@ tres_vec = zeros(size(P03_vec));
 for j = 1:length(P03_vec)
     % Nota: T03 deve essere best_T0U calcolato dal compressore
     [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
-        Camera_di_combustione(P03_vec(j), best_T0U, propCamera, propFluidi, propMotore, propCombust);
+        Camera_di_combustione(P03_vec(j), best_T0U, propCamera, propFluidi, motore, propCombust);
     
     Lc_vec(j) = cam_out.Lc;
     tres_vec(j) = cam_out.t_res;
@@ -465,41 +460,47 @@ xlabel('P_{03} [bar]'); grid on;
 T0I = 1100:25:1800;
 
 propFluidi = structFluidi();
-propMotore = structMotore(structTurbina());
-L_compressore = best_L_comp;
-mach = best_machIn;
-P0I = best_P0U;
-T3 = best_T0U;
-TCool = T3;
+motore = structMotore();
+
+motore.Compressore.L_compressore = best_L_comp;
+motore.Turbina.machIn = best_machIn;
+motore.Turbina.P0I = best_P0U;
+motore.Turbina.TCool = best_T0U;
+
     
-etan = [];
-coolPecentualeA = [];
-Sota = [];
-etos = [];
-P0Is = [];
-P0Us = [];
-T0Is = [];
-T0Us = [];
-spinta = [];
+etan = zeros(size(T0I));
+coolPecentualeA = zeros(size(T0I));
+Sota = zeros(size(T0I));
+etos = zeros(size(T0I));
+P0Is = zeros(size(T0I));
+P0Us = zeros(size(T0I));
+T0Us_in = zeros(size(T0I));
+T0Us = zeros(size(T0I));
+spinta = zeros(size(T0I));
 A4s = zeros(size(T0I));
 A5s = zeros(size(T0I));
 machOut = zeros(size(T0I));
 
 
 for i = 1:length(T0I)
-    [P0U, T0U, T05_iso, machOut(i), L_turbina, eta_n,coolPecentuale,SOT,eto,A4,A5] = turbina(P0I,T0I(i), mach, L_compressore,propFluidi,propMotore,TCool);
-    etan = [etan, eta_n];
-    coolPecentualeA = [coolPecentualeA,coolPecentuale];
-    Sota = [Sota, SOT];
-    etos = [etos, eto];
-    P0Us = [P0Us,P0U];
-    P0Is = [P0Is,P0I];
-    T0Us = [T0Us,T0U];
-    T0Is = [T0Is,T05_iso];
-    A4s(i) = A4;
-    A5s(i) = A5;
-    [P0U, T0U, mach1, Q, L, Ue, eta_n] = ugello(P0U,T0U, machOut(i), propMotore.mdot);
-    spinta = [spinta,propMotore.mdot*(Ue-v_volo)];
+    motore(i) = motore(1);
+    motore(i).Turbina.T0I = T0I(i);
+    [motore(i)] = turbina(propFluidi,motore(i));
+
+    etan(i) = motore(i).Turbina.eta_n;
+    coolPecentualeA(i) = motore(i).Turbina.coolPecentuale;
+    Sota(i) = motore(i).Turbina.SOT;
+    etos(i) = motore(i).Turbina.eta_NC;
+    P0Us(i) = motore(i).Turbina.P0U;
+    P0Is(i) = motore(i).Turbina.P0I;
+    T0Us(i) = motore(i).Turbina.T0U;
+    T0Us_in(i) = motore(i).Turbina.T0U_iso;
+    A4s(i) = motore(i).Turbina.AIn;
+    A5s (i)= motore(i).Turbina.AOut;
+    machOut(i) = motore(i).Turbina.machOut;
+    [P0U, T0U, mach1, Q, L, Ue, eta_n] = ugello(P0Us(i), T0Us(i), machOut(i), motore(i).mdot);
+    spinta(i) = motore(i).mdot * (Ue - v_volo);
+    
 end 
 
 %Rendimento isoentropico
@@ -519,9 +520,9 @@ nexttile();
 title("aria rafreddamento tubina")
 plot(T0I,coolPecentualeA*100);
 hold on
-plot(T0I,propMotore.Turbina.CoolingRotore(Sota)*100)
+plot(T0I,motore(i).Turbina.CoolingRotore(Sota)*100)
 hold on
-plot(T0I,propMotore.Turbina.CoolingStatore(Sota)*100)
+plot(T0I,motore(i).Turbina.CoolingStatore(Sota)*100)
 legend("Totale","Rotore","Statore");
 title("percentuale di aria spillata da compressore per rafreddamento turbina")
 xlabel("T04 (camera di combustione) [K]")
@@ -546,7 +547,7 @@ ylim([min(P0Us)-5000,max(P0Is)+5000]);
 ylabel("pressure [Pa]")
 yyaxis right
 ylabel("Temperature")
-plot(T0I,T0Is,'y-');
+plot(T0I,T0Us_in,'y-');
 hold on
 plot(T0I,T0Us,'r-');
 ylim([min(T0Us)-50,max(T0I)+50]);
@@ -567,7 +568,7 @@ legend("In","Out")
 %mach
 nexttile();
 title("in e out mach")
-plot(T0I,mach*ones(size(T0I)))
+plot(T0I,best_machIn*ones(size(T0I)))
 hold on
 plot(T0I,machOut)
 xlabel("T04 (camera di combustione) [K]")

@@ -1,11 +1,18 @@
-function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-          deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, Aout, r_m_out, h_out,...
-          D_rotore, D_statore, R_m, c_m, N_R, N_stadi] = compressore(T0I, P0I, mDot, pi_c,...
-          eta_p, Utip, machIn, hubTip, propFluidi)
+function [motore] = compressore(motore)
 
-    gamma = propFluidi.gamma;
-    Rgas  = propFluidi.R;
-    cp    = propFluidi.cp;
+
+    % Inizializzazione
+    T0I = motore.presa.T02;
+    P0I = motore.presa.P02;
+    pi_c = motore.compressore.pi_c;
+    mDot = motore.portate.mDotAir;
+    eta_p = motore.compressore.eta_p;
+    Utip = motore.compressore.Utip; 
+    machIn = motore.presa.M2;
+    hubTip = motore.compressore.hubTip;
+
+    gamma = motore.fluidi.aria.gamma;
+    cp = motore.fluidi.aria.cp;
 
     eta_c = (pi_c^((gamma-1)/gamma) - 1) / ...
             (pi_c^((gamma-1)/(gamma*eta_p)) - 1);
@@ -28,11 +35,11 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
 
     % Geometria ingresso
     Ain = mDot / (rho1 * Va);
-
     r_t_in = sqrt(Ain/(pi*(1 - hubTip^2)));
+    
     r_h_in = hubTip * r_t_in;
     r_m_in = (r_t_in + r_h_in)/2;
-    h_in  = r_t_in - r_h_in;
+    h_in = r_t_in - r_h_in;
 
     % Fisso Utip e ricavo U alla sezione media
     omega = Utip / r_t_in;
@@ -114,5 +121,54 @@ function [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
 
     s_r = c_m / sigma_r;
     N_R = ceil(2*pi*r_m_in / s_r);
+
+
+
+
+
+    % OUTPUT COMPRESSORE
+    motore.compressore.T03 = T0U;
+    motore.compressore.P03 = P0U;
+
+    motore.compressore.L_c = L_comp;
+
+    motore.compressore.eta_c = eta_c;
+
+    motore.compressore.Mach_rel = Mach_rel;
+    motore.compressore.Mach_abs = Mach_abs;
+
+    motore.compressore.Cp_stadio = Cp_stadio;
+    motore.compressore.deHaller = deHaller;
+
+    motore.compressore.Va = Va;
+
+    motore.compressore.beta1 = beta1;
+    motore.compressore.beta2 = beta2;
+
+    %motore.compressore.Ain_c = Ain;
+
+    motore.compressore.r_m_in = r_m_in;
+    motore.compressore.h_in = h_in;
+
+    motore.compressore.Aout_c = Aout;
+
+    motore.compressore.r_m_out = r_m_out;
+    motore.compressore.h_out = h_out;
+
+    motore.compressore.D_rotore = D_rotore;
+    motore.compressore.D_statore = D_statore;
+
+    motore.compressore.R_m = R_m;
+
+    motore.compressore.c_m = c_m;
+
+    motore.compressore.N_R = N_R;
+
+    motore.compressore.N_stadi = N_stadi;
+
+
+
+
+
 
 end

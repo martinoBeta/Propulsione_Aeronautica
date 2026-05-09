@@ -1,10 +1,10 @@
-function [P03_primo, T03_primo, propDiffusore] = Diffusore(P03, T03, propDiffusore, propFluidi, propMotore)
+function [P03_primo, T03_primo, propDiffusore] = Diffusore(P03, T03, propDiffusore, propFluidi, motore)
 % DIFFUSORE
 % Svolge il calcolo del rallentamento del flusso tra compressore e camera.
 % Calcola il recupero di pressione e le dimensioni geometriche del condotto.
 
     % 1. INIZIALIZZAZIONE VARIABILI DA STRUCT
-    m_a     = propMotore.mAir;      % Portata aria totale 
+    m_a     = motore.mAir;      % Portata aria totale 
     R       = propFluidi.R;         % Costante del gas 
     gamma   = propFluidi.gamma;     % Rapporto calori specifici
     cp      = propFluidi.cpOx;      % Calore specifico aria 

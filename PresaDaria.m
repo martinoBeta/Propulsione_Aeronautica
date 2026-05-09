@@ -1,35 +1,68 @@
-function [T0I, P0I, T_in, P_in, rho_in, V_in, A0, Ain, pi_d, CPR] = ...
-    presaDaria(T_inf, P_inf, rho_inf, M0, mDot, machIn, eta_d, propFluidi)
+function motore = presa(motore)
 
-    gamma = propFluidi.gamma;
-    Rgas  = propFluidi.R;
+   R = motore.fluidi.aria.R;
+   gamma = motore.fluidi.aria.gamma;
+   
+    % Dati freestream
+    P0   = motore.freestream.P0;
+    rho0 = motore.freestream.rho0;
+    V0   = motore.freestream.V0;
+    T00  = motore.freestream.T00;
+    P00  = motore.freestream.P00;
 
- 
-    a_inf = sqrt(gamma * Rgas * T_inf);
-    V_inf = M0 * a_inf;
+    % Dati presa
+    M2    = motore.presa.M2;
+    eta_d = motore.presa.eta_d;
 
-    T00 = T_inf * (1 + (gamma - 1)/2 * M0^2);
-    P00 = P_inf * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1));
+    % Portata aria
+    mDotAir = motore.portate.mDotAir;
 
-    % Condizioni totali in uscita presa = ingresso compressore
-    T0I = T00;           % presa adiabatica
-    P0I = eta_d * P00;   % perdita di pressione totale
+    % Recupero pressione totale presa subsonica
+    pi_d = eta_d;
 
-    % Condizioni statiche uscita presa / ingresso compressore
-    T_in = T0I / (1 + (gamma - 1)/2 * machIn^2);
-    P_in = P0I / (1 + (gamma - 1)/2 * machIn^2)^(gamma/(gamma - 1));
-    rho_in = P_in / (Rgas * T_in);
+    % Stazione 2: uscita presa / ingresso compressore
+    T02 = T00;           % presa adiabatica
+    P02 = pi_d * P00;   % perdita pressione totale
 
-    a_in = sqrt(gamma * Rgas * T_in);
-    V_in = machIn * a_in;
+    % Condizioni statiche alla stazione 2
+    T2 = T02 / (1 + (gamma - 1)/2 * M2^2);
 
-    % Area cattura  = area di ingresso presa
-    A0  = mDot / (rho_inf * V_inf);
-    % Area ingresso compressore
-    Ain = mDot / (rho_in * V_in);
+    P2 = P02 / (1 + (gamma - 1)/2 * M2^2)^(gamma/(gamma - 1));
 
-    % Coefficiente di recupero pressione statica del diffusore
-    q_inf = 0.5 * rho_inf * V_inf^2;
-    CPR = (P_in - P_inf) / q_inf;
+    rho2 = P2 / (R * T2);
+
+    a2 = sqrt(gamma * R * T2);
+    V2 = M2 * a2;
+
+    % Area di cattura
+    A_cattura = mDotAir / (rho0 * V0);
+
+    % Area ingresso presa
+    % Al punto di progetto subsonico: A_ingresso = A_cattura
+    A_ingresso = A_cattura;
+
+    % Area uscita presa = ingresso compressore
+    A2 = mDotAir / (rho2 * V2);
+
+    % Coefficiente di recupero pressione statica diffusore
+    q0 = 0.5 * rho0 * V0^2;
+    CPR = (P2 - P0) / q0;
+
+    % Salvataggio nella struct
+    motore.presa.pi_d = pi_d;
+
+    motore.presa.T02 = T02;
+    motore.presa.P02 = P02;
+
+    motore.presa.T2 = T2;
+    motore.presa.P2 = P2;
+    motore.presa.rho2 = rho2;
+    motore.presa.V2 = V2;
+
+    motore.presa.A_cattura = A_cattura;
+    motore.presa.A_ingresso = A_ingresso;
+    motore.presa.A2 = A2;
+
+    motore.presa.CPR = CPR;
 
 end

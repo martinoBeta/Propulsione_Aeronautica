@@ -7,4 +7,4 @@ function [propCamera] = structCamera(structCompr)
     propCamera.I               = 80;   % intensità di combustione target [W/(m³·Pa)]                                      
 
 end
-propMotore.comp.
+motore.comp.
