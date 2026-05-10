@@ -136,6 +136,8 @@ motore.presa.CPR = NaN;
 motore.compressore.pi_c = 7;
 motore.compressore.eta_p = 0.9;
 motore.compressore.Utip = 350;
+motore.compressore.U_m = NaN;
+
 
 motore.compressore.hubTip = 0.5;
 
@@ -172,63 +174,115 @@ motore.compressore.N_stadi = NaN;
 %% TUBINA
 % ---------------------------------------------------------------------
 
-%% COSTANTI
-eta_m = 0.92; % rendimento meccanico
-eta_p = 0.9;% rendimento adiabatico
+    %% COSTANTI
+    eta_m   = 0.92; % rendimento meccanico
+    eta_p   = 0.9;% rendimento adiabatico
+    
+    % Aria di rafreddamento dalle tabelle
+    CoolingStatore  = @(x)  (x<1100)*0 + ...    %cooling air richiesta per TIN statore è SOT
+        (x>=1100 & x <= 1650).*(0.09./(1600-1100).*(x-1100)) + ...
+        (x>1650).*0.5;
+    
+    CoolingRotore   = @(x)   (x<1250)*0 + ...    %cooling air richiesta per TIN statore la T è SOT
+        (x>=1250 & x <= 1600).*(0.05./(1400-1250).*(x-1250)) + ...
+        (x>1600).*0.5;
+    
+    
+    %% Impostare struct
+    
+    turbina.eta_m           = eta_m;
+    turbina.eta_p           = eta_p;
+    turbina.CoolingStatore  = CoolingStatore;
+    turbina.CoolingRotore   = CoolingRotore;
+    
+    % Lavoro e Rendimento
+    turbina.L_turbina   = NaN;
+    turbina.eta_n       = NaN;
+    
+    % Rendimento isoentropico rispetto a caso senza rafreddamento
+    turbina.eta_NC  = NaN;
+    
+    
+    % IN
+    turbina.machIn  = NaN;
+    turbina.P04     = NaN;
+    turbina.T04     = NaN;
+    turbina.rho4    = NaN;
 
-% Aria di rafreddamento dalle tabelle
-CoolingStatore = @(x)  (x<1100)*0 + ...    %cooling air richiesta per TIN statore è SOT
-    (x>=1100 & x <= 1650).*(0.09./(1600-1100).*(x-1100)) + ...
-    (x>1650).*0.5;
+    
+    % Out
+    turbina.P05     = NaN;
+    turbina.T05     = NaN;
+    turbina.rho5    = NaN;
+    turbina.mach5   = NaN;
+    turbina.T05_iso = NaN;
+    turbina.rp      = NaN;
 
-CoolingRotore = @(x)   (x<1250)*0 + ...    %cooling air richiesta per TIN statore la T è SOT
-    (x>=1250 & x <= 1600).*(0.05./(1400-1250).*(x-1250)) + ...
-    (x>1600).*0.5;
+    % Parametri di Rafreddamento
+    turbina.coolPecentuale  = NaN;
+    turbina.SOT             = NaN;
+    turbina.TCool           = NaN;
+    
+    % Sezioni
+    turbina.AIn     = NaN;
+    turbina.AOut    = NaN;
+    turbina.hOut    = NaN;
+    turbina.rtOut   = NaN;
+    turbina.rhOut   = NaN;
+    
+    
+    % Stadio
+        %velocità palette
+        turbina.U   = NaN;
+        % grado di reazione
+        turbina.R   = NaN;
+        % lavoro stadio
+        turbina.L_stadio    = NaN;
+        turbina.N_stadi     = NaN;
+        % Statore
+            turbina.statore.a       = NaN;
+            turbina.statore.alpha   = NaN;
+            turbina.statore.AIn     = NaN;
+            turbina.statore.AOut    = NaN;
+            turbina.statore.T       = NaN;
+            turbina.statore.P       = NaN;
+            turbina.statore.rho     = NaN;
+            % velocità
+            turbina.statore.vz      = NaN;
+            turbina.statore.vt      = NaN;
+            turbina.statore.v       = NaN;
+            turbina.statore.wz      = NaN;
+            turbina.statore.wt      = NaN;
+            turbina.statore.w       = NaN;
+    
+        % Rotore
+            turbina.rotore.AIn      = NaN;
+            turbina.rotore.AOut     = NaN;
+            turbina.rotore.T        = NaN;
+            turbina.rotore.T0       = NaN;
+            turbina.rotore.P        = NaN;
+            turbina.rotore.P0       = NaN;
+            turbina.rotore.rho      = NaN;
+            % velocità
+            turbina.rotore.vz       = NaN;
+            turbina.rotore.vt       = NaN;
+            turbina.rotore.v        = NaN;
+            turbina.rotore.wz       = NaN;
+            turbina.rotore.wt       = NaN;
+            turbina.rotore.w        = NaN;
+            turbina.rotore.wmachOut = NaN;
 
-
-%% Impostare struct
-
-Turbina.eta_m = eta_m;
-Turbina.eta_p = eta_p;
-Turbina.CoolingStatore = CoolingStatore;
-Turbina.CoolingRotore = CoolingRotore;
-
-% Lavoro e Rendimento
-Turbina.L_turbina = NaN;
-Turbina.eta_n = NaN;
-
-% Rendimento isoentropico rispetto a caso senza rafreddamento
-Turbina.eta_NC = NaN;
-
-
-% IN
-Turbina.machIn = NaN;
-Turbina.P0I = NaN;
-Turbina.T0I = NaN;
-
-% Out
-Turbina.P0U = NaN;
-Turbina.T0U = NaN;
-Turbina.machOut = NaN;
-Turbina.T0U_iso = NaN;
-
-% Parametri di Rafreddamento
-Turbina.coolPecentuale = NaN;
-Turbina.SOT = NaN;
-Turbina.TCool = NaN;
-
-% Sezioni
-Turbina.AIn = NaN;
-Turbina.AOut = NaN;
-
-
-% Stadio
-
-
-
-% Salvataggio Struct
-motore.turbina = Turbina;
-% ---------------------------------------------------------------------
+            % geometria
+            turbina.rotore.hIn      = NaN;
+            turbina.rotore.rtIn     = NaN;
+            turbina.rotore.rhIn     = NaN;
+    
+    
+    
+    
+    % Salvataggio Struct
+    motore.turbina  = turbina;
+    % ---------------------------------------------------------------------
 
 
 

@@ -6,7 +6,7 @@ function [motore] = turbina(propFluidi,motore)
     %   Vincoli aerodinamici:
     %       T_max           1100 - 1700
     %       machIn          0.3 - 0.4
-    %       machOutRotore   0.8 - 0.9
+    %       rotore.wmachOut 0.8 - 0.9
 
     %   Vincoli Geometrici
     %   
@@ -21,14 +21,22 @@ function [motore] = turbina(propFluidi,motore)
     % ---------------------------------------------------------------------
     % INIZIALIZZAZIONE DELLE VARIABILI
     propTurbina = motore.turbina;
+    statore = propTurbina.statore;
+    rotore = propTurbina.rotore;
+    propTurbina.T04 = motore.camera.T04;
+    propTurbina.P04 = motore.camera.P04;
     
     % TURBINA INPUT
-    T0I = propTurbina.T0I;
-    P0I = propTurbina.P0I;
+   
+    T0I = propTurbina.T04;
+    P0I = propTurbina.P04;
     machIn = propTurbina.machIn;
-
-    L_compressore = motore.compressore.L_c; % NOTARE CAMBIARE NOME A QUELLO AGGIORNATO
-    TCool =  propTurbina.TCool;
+    
+    % DATI DA COMPRESSORE
+    U_m = motore.compressore.U_m;
+    r_m = motore.compressore.r_m_in;
+    L_compressore = motore.compressore.L_c; 
+    TCool = motore.compressore.T03;
     
     % TURBINA CONSTANTI
     eta_m = propTurbina.eta_m; 
@@ -91,52 +99,105 @@ function [motore] = turbina(propFluidi,motore)
     T5 = T05 - v5z^2/(2*cpGas);
     machOut = sqrt((2/(gammaCob-1)) * ((T05/T5) - 1));
     P5 =  P0U / (1 + (gammaCob - 1)/2 * machOut^2)^(gammaCob/(gammaCob - 1));
-    rho4 = P5 / (RGas * T5);
-    AOut = mDot/(rho4*v5z);
+    rho5 = P5 / (RGas * T5);
+    AOut = mDot/(rho5*v5z);
     
+    hOut = AOut/(2*pi*r_m);
+    rtOut = r_m + hOut/2;
+    rhOut = r_m - hOut/2;
+
+
     %% STADIO
-    % Raggio medio uguale a quello del compressore (Quindi anche U) 
-    %{
-    r_m = r_m_out;
-    omega = omega_comp;
-    %} 
+    % Raggio medio uguale a quello del compressore e turbina monoalbero(Quindi anche U) 
+    U = U_m;
+
+    
 
     % STATORE
     % assunzione che cooling viene applicato prima di espandere in turbina
     % espansione in statore fino a mach 1: (tutte queste quantità dopo espansione fino a mach 1)
-        TStatore = T0I/(1+(1+gammaCob)/2);
-        PStatore = P0I / (1 + (gammaCob - 1)/2)^(gammaCob/(gammaCob - 1));
-        rhoStatore =  PStatore / (RGas * TStatore);
+        statore.T = T0I/(1+(gammaCob-1)/2);
+        statore.P = P0I / (1 + (gammaCob - 1)/2)^(gammaCob/(gammaCob - 1));
+        statore.rho = statore.P / (RGas * statore.T);
+        % velocità del suono dopo statore
+        statore.a = sqrt(statore.T*gammaCob*RGas);
         % calcolo velocita all uscita dello statore
-        vzStatore = v4z;
-        vStatore = sqrt(gammaCob*RGas*TStatore);
-        vtStatore = sqrt(vStatore^2-vzStatore^2);
-        % angolo alpha
-        alpha = atan(vtStatore/vzStatore);
+        statore.vz = v4z;
+        statore.v = sqrt(gammaCob*RGas*statore.T);
+        statore.vt = sqrt(statore.v^2-statore.vz^2);
+        % angolo statore.alpha
+        statore.alpha = atan(statore.vt/statore.vz)*180/pi;
         % area all'uscita dello statore
-        AStatore = mDot/(rhoStatore*vStatore);
+        statore.AOut = mDot/(statore.rho*statore.v);
 
         % Velocità Relative
+        statore.wz = statore.vz;
+        statore.wt = statore.vt- U;
+        statore.w = sqrt(statore.wz^2+statore.wt^2);
+        statore.AIn = AIn;
+    
 
-    %{
-        
+    % ROTORE
+      % ricavo w3 da risoluzione problema pagina 20 cioè tutte le velocità
+      % di uscita dal rotore
+      rotore.w = sqrt((statore.a^2 + statore.w^2*(gammaCob-1)/2)/((gammaCob-1)/2+1/(propTurbina.rotore.wmachOut^2)));
+      rotore.vz = statore.vz;
+      rotore.wz = rotore.vz;
+      rotore.wt = sqrt(rotore.w^2-rotore.wz^2);
+      rotore.vt = U - rotore.wt;
+      rotore.v = sqrt(rotore.vt^2+rotore.vz^2);
+
+      % proprietà fluido rotore all'uscita
+      rotore.T0 = T0I - U*(statore.vt-rotore.vt)/cpGas;
+      rotore.T = rotore.T0 - rotore.v^2/cpGas;
+      % P0 e T0 rimane invariata nello statore, statore ideale
+      rotore.P0 = P0I*(rotore.T0/T0I)^(gammaCob/((gammaCob-1)*etaP));
+      rotore.P = rotore.P0/(1+(gammaCob-1)/2*rotore.wmachOut^2)^((gammaCob)/(gammaCob-1));
+      rotore.rho = rotore.P/(RGas*rotore.T);
+      
+
+      
+      % SEZIONI
+      % entrata rotore
+      rotore.AIn = mDot/(statore.rho*statore.vz);
+      rotore.hIn = rotore.AIn/(2*pi*r_m);
+      rotore.rtIn = r_m + rotore.hIn/2;
+      rotore.rhIn = r_m - rotore.hIn/2;
+      % usicta rotore
+      rotore.AOut = mDot/(rotore.rho*rotore.vz);
+
+
+
+
+  % Grado di reazione 
+  R = 1 - (statore.vt + rotore.vt)/(2*U);
+
+  % Lavoro 
+  L_stadio = U*(statore.v-rotore.v)*mDot;
+  N_stadi = ceil(L_turbina/L_stadio)
+
+
     
 
 
 
 
 
-    %} 
+
+    
 
 
     % ---------------------------------------------------------------------
     % AGGIORNAMENTO DEGLI OUTPUT
     % output
-    propTurbina.P0U = P0U;
-    propTurbina.T0U = T0U;
-    propTurbina.T0U_iso = T0U_iso;
-    propTurbina.machOut = machOut;
-
+    propTurbina.P05 = P0U;
+    propTurbina.T05 = T0U;
+    propTurbina.T05_iso = T0U_iso;
+    propTurbina.mach5 = machOut;
+    propTurbina.rho4 = rho4;
+    propTurbina.rho5 = rho5;
+    propTurbina.rp = P0U/P0I;
+    
     % Lavoro e rendimento
     propTurbina.L_turbina = L_turbina;
     propTurbina.eta_n = eta_n;
@@ -147,12 +208,26 @@ function [motore] = turbina(propFluidi,motore)
     % Percentuale raffredamento
     propTurbina.coolPecentuale = coolPecentuale;
     propTurbina.SOT = SOT;
+    propTurbina.TCool = TCool;
 
     % Sezioni
     propTurbina.AIn = AIn;
     propTurbina.AOut = AOut;
+    propTurbina.hOut = hOut;
+    propTurbina.rtOut = rtOut;
+    propTurbina.rhOut = rhOut;
+    
 
+    % STADIO
+    propTurbina.U = U;
+    propTurbina.R = R;
+    propTurbina.L_stadio = L_stadio;
+    propTurbina.N_stadi = N_stadi;
+    
+    
     % Aggiornameto della struct motore  
+    propTurbina.statore = statore;
+    propTurbina.rotore = rotore;
     motore.turbina = propTurbina;
     % ---------------------------------------------------------------------
     

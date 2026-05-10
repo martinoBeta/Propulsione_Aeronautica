@@ -177,6 +177,9 @@ function [motore] = compressore(motore)
     motore.compressore.c_m = c_m;
     motore.compressore.N_R = N_R;
     motore.compressore.N_stadi = N_stadi;
+    motore.compressore.U_m = U;
+
+
 
 
 end

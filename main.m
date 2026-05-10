@@ -459,25 +459,28 @@ xlabel('P_{03} [bar]'); grid on;
 
 % -----
 % variazione della temperatura in ingresso
-T0I = 1100:25:1700;
+T0I = 1100:25:1500;
 
 propFluidi = structFluidi();
 motoreBase = structMotore();
 
 % in caso solo di errore dei codici precendenti
 if (~exist('best_L_comp', 'var'))
-    best_L_comp = 7000000;
+    motoreBase.compressore.L_c = 7000000;
+    motoreBase.camera.P04 = 213000;
+    motoreBase.compressore.T03 = 410;
+    motoreBase.compressore.U_m = 400;
+    motoreBase.compressore.r_m_in = 0.4;
+
+    motoreBase.turbina.machIn = 0.3;
+    motoreBase.turbina.rotore.wmachOut = 0.8;
     best_machIn = 0.3;
-    best_P0U = 213000;
-    best_T0U = 410;
+else 
+    motoreBase.compressore.L_c = best_L_comp;
+    motoreBase.turbina.machIn = best_machIn;
+    motoreBase.turbina.P0I = best_P0U;
+    motoreBase.turbina.TCool = best_T0U;
 end
-
-
-motoreBase.compressore.L_c = best_L_comp;
-motoreBase.turbina.machIn = best_machIn;
-motoreBase.turbina.P0I = best_P0U;
-motoreBase.turbina.TCool = best_T0U;
-
 
 
 N = length(T0I);
@@ -498,7 +501,7 @@ machOut = zeros(1,N);
 
 for i = 1:N
     motore = motoreBase;
-    motore.turbina.T0I = T0I(i);
+    motore.camera.T04 = T0I(i);
 
     motore = turbina(propFluidi, motore);
 
@@ -510,14 +513,14 @@ for i = 1:N
     Sota(i) = T.SOT;
     etos(i) = T.eta_NC;
 
-    P0Us(i) = T.P0U;
-    P0Is(i) = T.P0I;
-    T0Us(i) = T.T0U;
-    T0Us_in(i) = T.T0U_iso;
+    P0Us(i) = T.P05;
+    P0Is(i) = T.P04;
+    T0Us(i) = T.T05;
+    T0Us_in(i) = T.T05_iso;
 
     A4s(i) = T.AIn;
     A5s(i) = T.AOut;
-    machOut(i) = T.machOut;
+    machOut(i) = T.mach5;
 
     [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
 
@@ -607,7 +610,7 @@ yline(25000,'--r','Spinta minima = 25000N')
 % variazione mahc in ingresso
 machIns = 0.3:0.02:0.4;
 
-motoreBase.turbina.T0I = 1400;
+motoreBase.camera.T04 = 1800;
 
 N = length(machIns);
 etan = zeros(1,N);
@@ -637,14 +640,14 @@ for i = 1:N
     Sota(i) = T.SOT;
     etos(i) = T.eta_NC;
 
-    P0Us(i) = T.P0U;
-    P0Is(i) = T.P0I;
-    T0Us(i) = T.T0U;
-    T0Us_in(i) = T.T0U_iso;
+    P0Us(i) = T.P05;
+    P0Is(i) = T.P04;
+    T0Us(i) = T.T05;
+    T0Us_in(i) = T.T05_iso;
 
     A4s(i) = T.AIn;
     A5s(i) = T.AOut;
-    machOut(i) = T.machOut;
+    machOut(i) = T.mach5;
 
     [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
 
