@@ -25,16 +25,16 @@ function [propFluidi] = structFluidi()
     cp     = (gamma * R) / (gamma - 1);  % cp gas combusti [J/(kg·K)]
 
     % % Condizioni atmosferiche a 12000 m (ISA)
-    % M0  = 0.85;             % numero di Mach di volo [-]
-    % T0  = 216.65;           % temperatura statica [K]
-    % P0  = 19280;            % pressione statica [Pa]
-    % 
-    % T00 = T0 * (1 + (gamma - 1)/2 * M0^2);  % temperatura totale [K]
-    % P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1)); % pressione totale [Pa]
-    % 
-    % rho0 = P0 / (R * T0);          % densità statica [kg/m³]
-    % a0   = sqrt(gamma * R * T0);   % velocità del suono [m/s]
-    % v0   = a0 * M0;                % velocità di volo [m/s]
+    M0  = 0.85;             % numero di Mach di volo [-]
+    T0  = 216.65;           % temperatura statica [K]
+    P0  = 19280;            % pressione statica [Pa]
+
+    T00 = T0 * (1 + (gamma - 1)/2 * M0^2);  % temperatura totale [K]
+    P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1)); % pressione totale [Pa]
+
+    rho0 = P0 / (R * T0);          % densità statica [kg/m³]
+    a0   = sqrt(gamma * R * T0);   % velocità del suono [m/s]
+    v0   = a0 * M0;                % velocità di volo [m/s]
 
     % Assegnazione delle struct
     propFluidi.MmOx   = MmOx;

@@ -4,11 +4,11 @@ function motore = presa(motore)
    gamma = motore.fluidi.aria.gamma;
    
     % Dati freestream
-    P0   = motore.freestream.P0;
-    rho0 = motore.freestream.rho0;
-    V0   = motore.freestream.V0;
-    T00  = motore.freestream.T00;
-    P00  = motore.freestream.P00;
+    P0   = motore.freestream.h12km.P0;
+    rho0 = motore.freestream.h12km.rho0;
+    V0   = motore.freestream.h12km.V0;
+    T00  = motore.freestream.h12km.T00;
+    P00  = motore.freestream.h12km.P00;
 
     % Dati presa
     M2    = motore.presa.M2;
@@ -18,7 +18,7 @@ function motore = presa(motore)
     mDotAir = motore.portate.mDotAir;
 
     % Recupero pressione totale presa subsonica
-    pi_d = eta_d;
+    pi_d = motore.presa.pi_d;
 
     % Stazione 2: uscita presa / ingresso compressore
     T02 = T00;           % presa adiabatica

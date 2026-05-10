@@ -1,5 +1,33 @@
 function [motore] = compressore(motore)
 
+%% --------------------------------------------------------------------
+%  LIMITI / VINCOLI DI PROGETTO COMPRESSORE
+
+% Vincoli aerodinamici:
+%   Mach_rel    < 1
+%   deHaller    > 0.72
+%   Cp_stadio   < 0.5
+%   D_rotore    < 0.6
+%   D_statore   < 0.6
+
+
+% Vincoli geometrici indicativi larghi da imporre nell'ottimizzazione:
+%   A2 / Ain_c      < 2.0 m^2      area ingresso compressore max
+%   Aout_c          < 1.5 m^2      area uscita compressore max
+%   r_m_in          < 1.2 m        raggio medio ingresso max
+%   r_m_out         < 1.2 m        raggio medio uscita max
+%   h_in            < 0.60 m       altezza pala ingresso max
+%   h_out           < 0.45 m       altezza pala uscita max
+%   h_in, h_out     > 0.02 m       altezza pala minima
+%   N_stadi         < 20           numero stadi massimo
+%   N_R             < 180          numero pale rotoriche massimo
+%
+% Questi limiti non sono vincoli stringenti: servono solo
+% a scartare configurazioni geometricamente non plausibili.
+%% ------------------------------------------------------------------------
+
+
+
 
     % Inizializzazione
     T0I = motore.presa.T02;
@@ -13,6 +41,7 @@ function [motore] = compressore(motore)
 
     gamma = motore.fluidi.aria.gamma;
     cp = motore.fluidi.aria.cp;
+    Rgas = motore.fluidi.aria.R;
 
     eta_c = (pi_c^((gamma-1)/gamma) - 1) / ...
             (pi_c^((gamma-1)/(gamma*eta_p)) - 1);
@@ -122,26 +151,16 @@ function [motore] = compressore(motore)
     s_r = c_m / sigma_r;
     N_R = ceil(2*pi*r_m_in / s_r);
 
-
-
-
-
-    % OUTPUT COMPRESSORE
+    % Salvataggio nella struct
     motore.compressore.T03 = T0U;
     motore.compressore.P03 = P0U;
-
     motore.compressore.L_c = L_comp;
-
     motore.compressore.eta_c = eta_c;
-
     motore.compressore.Mach_rel = Mach_rel;
     motore.compressore.Mach_abs = Mach_abs;
-
     motore.compressore.Cp_stadio = Cp_stadio;
     motore.compressore.deHaller = deHaller;
-
     motore.compressore.Va = Va;
-
     motore.compressore.beta1 = beta1;
     motore.compressore.beta2 = beta2;
 
@@ -149,26 +168,15 @@ function [motore] = compressore(motore)
 
     motore.compressore.r_m_in = r_m_in;
     motore.compressore.h_in = h_in;
-
     motore.compressore.Aout_c = Aout;
-
     motore.compressore.r_m_out = r_m_out;
     motore.compressore.h_out = h_out;
-
     motore.compressore.D_rotore = D_rotore;
     motore.compressore.D_statore = D_statore;
-
     motore.compressore.R_m = R_m;
-
     motore.compressore.c_m = c_m;
-
     motore.compressore.N_R = N_R;
-
     motore.compressore.N_stadi = N_stadi;
-
-
-
-
 
 
 end
