@@ -1,16 +1,33 @@
 function [motore] = turbina(propFluidi,motore)
     %funzione che calcola prestazione della turbina
-    %%
-    
+    %% --------------------------------------------------------------------
+    %  LIMITI / VINCOLI DI PROGETTO TURBINA
+ 
+    %   Vincoli aerodinamici:
+    %       T_max           1100 - 1700
+    %       machIn          0.3 - 0.4
+    %       machOutRotore   0.8 - 0.9
+
+    %   Vincoli Geometrici
+    %   
+    %   
+
+    %   FATTORI LIMITANTI 
+    %       Temperatura uscita del compressore comporta a un cambiamento di
+    %       prestazioni dato che viene usata per rafreddare la turbina
+    %% --------------------------------------------------------------------
+
+
+    % ---------------------------------------------------------------------
     % INIZIALIZZAZIONE DELLE VARIABILI
-    propTurbina = motore.Turbina;
+    propTurbina = motore.turbina;
     
     % TURBINA INPUT
     T0I = propTurbina.T0I;
     P0I = propTurbina.P0I;
     machIn = propTurbina.machIn;
 
-    L_compressore = motore.Compressore.L_compressore; % NOTARE CAMBIARE NOME A QUELLO AGGIORNATO
+    L_compressore = motore.compressore.L_c; % NOTARE CAMBIARE NOME A QUELLO AGGIORNATO
     TCool =  propTurbina.TCool;
     
     % TURBINA CONSTANTI
@@ -25,7 +42,9 @@ function [motore] = turbina(propFluidi,motore)
     cpGas = propFluidi.cp;
     cpAir = propFluidi.cpOx;
     RGas = propFluidi.R;
+    % ---------------------------------------------------------------------
 
+    %% INIZIO CALCOLI
     % SOT (non temperatura a fine turbina)
     SOT = 2/(gammaCob+1)*T0I;
 
@@ -51,7 +70,7 @@ function [motore] = turbina(propFluidi,motore)
     % Lavoro isoentropico non rafreddato
     L_iso_no_raff = cpGas*mDot*(T0I-T0U_iso);
 
-    % Lavoro isoenbtropico rafreddato
+    % Lavoro isoentropico rafreddato
     L_iso_raff = mDot*((1-coolPecentuale)*cpGas*(T0I-T0U_iso) +(coolPecentuale)*cpAir*(TCool-T0U_iso));
  
     % rendimento adiabatico
@@ -76,22 +95,32 @@ function [motore] = turbina(propFluidi,motore)
     AOut = mDot/(rho4*v5z);
     
     %% STADIO
+    % Raggio medio uguale a quello del compressore (Quindi anche U) 
+    %{
+    r_m = r_m_out;
+    omega = omega_comp;
+    %} 
 
     % STATORE
     % assunzione che cooling viene applicato prima di espandere in turbina
     % espansione in statore fino a mach 1: (tutte queste quantità dopo espansione fino a mach 1)
-    TStatore = T0I/(1+(1+gammaCob)/2);
-    PStatore = P0I / (1 + (gammaCob - 1)/2)^(gammaCob/(gammaCob - 1));
-    rhoStatore =  PStatore / (RGas * TStatore);
-    vzStatore = v4z;
-    vStatore = sqrt(gammaCob*RGas*TStatore);
-    vtStatore = sqrt(vStatore^2-vzStatore^2);
-    alpha = atan(vtStatore/vzStatore);
-    AStatore = mDot/(rhoStatore*vStatore);
-  
+        TStatore = T0I/(1+(1+gammaCob)/2);
+        PStatore = P0I / (1 + (gammaCob - 1)/2)^(gammaCob/(gammaCob - 1));
+        rhoStatore =  PStatore / (RGas * TStatore);
+        % calcolo velocita all uscita dello statore
+        vzStatore = v4z;
+        vStatore = sqrt(gammaCob*RGas*TStatore);
+        vtStatore = sqrt(vStatore^2-vzStatore^2);
+        % angolo alpha
+        alpha = atan(vtStatore/vzStatore);
+        % area all'uscita dello statore
+        AStatore = mDot/(rhoStatore*vStatore);
+
+        % Velocità Relative
+
     %{
         
-
+    
 
 
 
@@ -100,7 +129,7 @@ function [motore] = turbina(propFluidi,motore)
     %} 
 
 
-
+    % ---------------------------------------------------------------------
     % AGGIORNAMENTO DEGLI OUTPUT
     % output
     propTurbina.P0U = P0U;
@@ -123,8 +152,8 @@ function [motore] = turbina(propFluidi,motore)
     propTurbina.AIn = AIn;
     propTurbina.AOut = AOut;
 
-
-
-    motore.Turbina = propTurbina;
-
+    % Aggiornameto della struct motore  
+    motore.turbina = propTurbina;
+    % ---------------------------------------------------------------------
+    
 end

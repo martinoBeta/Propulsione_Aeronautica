@@ -41,7 +41,7 @@ P0I = propFluidi.P00;
 
 %% ANALISI 1: VARIO pi_c
 
-machIn = 0.35;
+machIns = 0.35;
 Utip = 350;
 
 pi_c_range = 8:0.05:11;
@@ -67,7 +67,7 @@ for i = 1:n
      Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
      c_m, N_R, N_stadi] = ...
         compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIn, hubTip, propFluidi);
+                    machIns, hubTip, propFluidi);
 
     T0U_vec(i) = T0U;
     eta_c_vec(i) = eta_c;
@@ -150,7 +150,7 @@ title('Sezione uscita compressore')
 %% ANALISI 2: VARIO U
 
 
-machIn = 0.35;
+machIns = 0.35;
 pi_c = 9;
 
 Utip_range = 390 : 1 : 410;
@@ -173,7 +173,7 @@ for i = 1:n
      Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
      c_m, N_R, N_stadi] = ...
         compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIn, hubTip, propFluidi);
+                    machIns, hubTip, propFluidi);
 
     Mach_rel_vec(i) = Mach_rel;
     Mach_abs_vec(i) = Mach_abs;
@@ -236,14 +236,14 @@ N_stadi_vec = zeros(1,n);
 
 for i = 1:n
 
-    machIn = machIn_range(i);
+    machIns = machIn_range(i);
 
     [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
      deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
      Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
      c_m, N_R, N_stadi] = ...
         compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIn, hubTip, propFluidi);
+                    machIns, hubTip, propFluidi);
 
     Ain_vec(i) = Ain;
     Mach_rel_vec(i) = Mach_rel;
@@ -301,7 +301,7 @@ best_N_stadi = 100000;
 best_Ain     = 100000;
 
 for Utip = Utip_range
-for machIn = machIn_range
+for machIns = machIn_range
     for pi_c = pi_c_range
 
         [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
@@ -309,7 +309,7 @@ for machIn = machIn_range
          Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
          c_m, N_R, N_stadi] = ...
             compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                        machIn, hubTip, propFluidi);
+                        machIns, hubTip, propFluidi);
 
         if Mach_rel < FS*1.0 && ...
            Cp_stadio < FS*0.5 && ...
@@ -331,7 +331,7 @@ for machIn = machIn_range
                 best_N_stadi = N_stadi;
                 best_Ain = Ain;
 
-                best_machIn = machIn;
+                best_machIn = machIns;
                 best_Utip = Utip;
                 best_pi_c = pi_c;
 
@@ -457,51 +457,72 @@ xlabel('P_{03} [bar]'); grid on;
 %                                 TURBINA
 %--------------------------------------------------------------------------
 
-T0I = 1100:25:1800;
+% -----
+% variazione della temperatura in ingresso
+T0I = 1100:25:1700;
 
 propFluidi = structFluidi();
-motore = structMotore();
+motoreBase = structMotore();
 
-motore.Compressore.L_compressore = best_L_comp;
-motore.Turbina.machIn = best_machIn;
-motore.Turbina.P0I = best_P0U;
-motore.Turbina.TCool = best_T0U;
-
-    
-etan = zeros(size(T0I));
-coolPecentualeA = zeros(size(T0I));
-Sota = zeros(size(T0I));
-etos = zeros(size(T0I));
-P0Is = zeros(size(T0I));
-P0Us = zeros(size(T0I));
-T0Us_in = zeros(size(T0I));
-T0Us = zeros(size(T0I));
-spinta = zeros(size(T0I));
-A4s = zeros(size(T0I));
-A5s = zeros(size(T0I));
-machOut = zeros(size(T0I));
+% in caso solo di errore dei codici precendenti
+if (~exist('best_L_comp', 'var'))
+    best_L_comp = 7000000;
+    best_machIn = 0.3;
+    best_P0U = 213000;
+    best_T0U = 410;
+end
 
 
-for i = 1:length(T0I)
-    motore(i) = motore(1);
-    motore(i).Turbina.T0I = T0I(i);
-    [motore(i)] = turbina(propFluidi,motore(i));
+motoreBase.compressore.L_c = best_L_comp;
+motoreBase.turbina.machIn = best_machIn;
+motoreBase.turbina.P0I = best_P0U;
+motoreBase.turbina.TCool = best_T0U;
 
-    etan(i) = motore(i).Turbina.eta_n;
-    coolPecentualeA(i) = motore(i).Turbina.coolPecentuale;
-    Sota(i) = motore(i).Turbina.SOT;
-    etos(i) = motore(i).Turbina.eta_NC;
-    P0Us(i) = motore(i).Turbina.P0U;
-    P0Is(i) = motore(i).Turbina.P0I;
-    T0Us(i) = motore(i).Turbina.T0U;
-    T0Us_in(i) = motore(i).Turbina.T0U_iso;
-    A4s(i) = motore(i).Turbina.AIn;
-    A5s (i)= motore(i).Turbina.AOut;
-    machOut(i) = motore(i).Turbina.machOut;
-    [P0U, T0U, mach1, Q, L, Ue, eta_n] = ugello(P0Us(i), T0Us(i), machOut(i), motore(i).mdot);
-    spinta(i) = motore(i).mdot * (Ue - v_volo);
-    
-end 
+
+
+N = length(T0I);
+
+% preallocazioni
+etan = zeros(1,N);
+coolPecentualeA = zeros(1,N);
+Sota = zeros(1,N);
+etos = zeros(1,N);
+P0Is = zeros(1,N);
+P0Us = zeros(1,N);
+T0Us_in = zeros(1,N);
+T0Us = zeros(1,N);
+spinta = zeros(1,N);
+A4s = zeros(1,N);
+A5s = zeros(1,N);
+machOut = zeros(1,N);
+
+for i = 1:N
+    motore = motoreBase;
+    motore.turbina.T0I = T0I(i);
+
+    motore = turbina(propFluidi, motore);
+
+    % Slavataggio 
+    T = motore.turbina;
+
+    etan(i) = T.eta_n;
+    coolPecentualeA(i) = T.coolPecentuale;
+    Sota(i) = T.SOT;
+    etos(i) = T.eta_NC;
+
+    P0Us(i) = T.P0U;
+    P0Is(i) = T.P0I;
+    T0Us(i) = T.T0U;
+    T0Us_in(i) = T.T0U_iso;
+
+    A4s(i) = T.AIn;
+    A5s(i) = T.AOut;
+    machOut(i) = T.machOut;
+
+    [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
+
+    spinta(i) = motore.mdot * (Ue - v_volo);
+end
 
 %Rendimento isoentropico
 figure("name","Turbina");
@@ -520,9 +541,9 @@ nexttile();
 title("aria rafreddamento tubina")
 plot(T0I,coolPecentualeA*100);
 hold on
-plot(T0I,motore(i).Turbina.CoolingRotore(Sota)*100)
+plot(T0I,motore.turbina.CoolingRotore(Sota)*100)
 hold on
-plot(T0I,motore(i).Turbina.CoolingStatore(Sota)*100)
+plot(T0I,motore.turbina.CoolingStatore(Sota)*100)
 legend("Totale","Rotore","Statore");
 title("percentuale di aria spillata da compressore per rafreddamento turbina")
 xlabel("T04 (camera di combustione) [K]")
@@ -582,9 +603,97 @@ xlabel("T04 (camera di combustione) [K]")
 ylabel("Spinta [N]")
 yline(25000,'--r','Spinta minima = 25000N')
 
+% -----
+% variazione mahc in ingresso
+machIns = 0.3:0.02:0.4;
+
+motoreBase.turbina.T0I = 1400;
+
+N = length(machIns);
+etan = zeros(1,N);
+coolPecentualeA = zeros(1,N);
+Sota = zeros(1,N);
+etos = zeros(1,N);
+P0Is = zeros(1,N);
+P0Us = zeros(1,N);
+T0Us_in = zeros(1,N);
+T0Us = zeros(1,N);
+spinta = zeros(1,N);
+A4s = zeros(1,N);
+A5s = zeros(1,N);
+machOut = zeros(1,N);
+
+for i = 1:N
+    motore = motoreBase;
+    motore.turbina.machIn = machIns(i);
+
+    motore = turbina(propFluidi, motore);
+
+    % Slavataggio 
+    T = motore.turbina;
+
+    etan(i) = T.eta_n;
+    coolPecentualeA(i) = T.coolPecentuale;
+    Sota(i) = T.SOT;
+    etos(i) = T.eta_NC;
+
+    P0Us(i) = T.P0U;
+    P0Is(i) = T.P0I;
+    T0Us(i) = T.T0U;
+    T0Us_in(i) = T.T0U_iso;
+
+    A4s(i) = T.AIn;
+    A5s(i) = T.AOut;
+    machOut(i) = T.machOut;
+
+    [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
+
+    spinta(i) = motore.mdot * (Ue - v_volo);
+end
 
 
 
+
+%Spinta generata al variare della temperatura in camera. 
+figure("name","spinta")
+plot(machIns,spinta)
+xlabel("machIN")
+ylabel("Spinta [N]")
+yline(25000,'--r','Spinta minima = 25000N')
+
+
+figure("name","Turbina");
+nexttile();
+title("rendimento isoentropico")
+plot(machIns,etan);
+title("Rendimento isoentropico")
+xlabel("machIN")
+ylabel("\eta_n")
+hold on
+plot(machIns,etos);
+legend("Isoentropico Raff","Isoentropico Non Raff")
+
+
+%Area entrata e uscità
+figure("Name","In e Out motore")
+nexttile();
+title("in e out aree")
+plot(machIns,A4s)
+hold on
+plot(machIns,A5s)
+xlabel("machIN")
+ylabel("area [m^2]")
+legend("In","Out")
+
+%mach
+nexttile();
+title("in e out mach")
+plot(machIns,machIns)
+hold on
+plot(machIns,machOut)
+xlabel("machIN")
+ylabel("mach]")
+legend("In","Out")
 
 %% ------------------------------------------------------------------------
 %                                 UGELLO

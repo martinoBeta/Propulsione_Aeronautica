@@ -30,6 +30,7 @@ pi_b  = 0.97;           % rapporto di pressione camera di combustione [-]
 % Perdite e spillamenti
 % aria_spillata: frazione di mAir prelevata dopo il compressore
 
+eta_d_1 = 1; % cosa è sto valore???????
 
 % Assemblaggio struct
 
@@ -38,6 +39,7 @@ motore.eta_b       = eta_b;
 motore.pi_b        = pi_b;
 motore.eta_d_1     = eta_d_1;
 motore.mDotCore = 0.9*mdot;
+motore.mdot  = mdot;
 
 
 
@@ -78,10 +80,13 @@ motore.portate.mDotAir = 35; % portata massica totale
 %% FREE STREAM
 %---------------------------------------------------------------------
 
-% Condizioni atmosferiche a 12000 m (ISA)
+%% Condizioni atmosferiche a 12000 m (ISA)
 M0  = 0.85;             % numero di Mach di volo [-]
 T0  = 216.65;           % temperatura statica [K]
 P0  = 19280;            % pressione statica [Pa]
+
+gamma = 1.4;
+R = 287.05;
 
 T00 = T0 * (1 + (gamma - 1)/2 * M0^2);  % temperatura totale [K]
 P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1)); % pressione totale [Pa]
@@ -90,14 +95,14 @@ rho0 = P0 / (R * T0);          % densità statica [kg/m³]
 a0   = sqrt(gamma * R * T0);   % velocità del suono [m/s]
 V0   = a0 * M0;                % velocità di volo [m/s]
 
-motore.freestream.T0 = T0;
-motore.freestream.P0 = P0;
-motore.freestream.T00 = T00;
-motore.freestream.P00 = P00;
-motore.freestream.rho0 = rho0;
-motore.freestream.M0 = M0;
-motore.freestream.V0 = V0;
-motore.freestream.a0 = a0;
+motore.freestream.h12km.T0 = T0;
+motore.freestream.h12km.P0 = P0;
+motore.freestream.h12km.T00 = T00;
+motore.freestream.h12km.P00 = P00;
+motore.freestream.h12km.rho0 = rho0;
+motore.freestream.h12km.M0 = M0;
+motore.freestream.h12km.V0 = V0;
+motore.freestream.h12km.a0 = a0;
 
 %---------------------------------------------------------------------
 %% PRESA D'ARIA
@@ -108,8 +113,8 @@ motore.presa.P2 = NaN;
 motore.presa.T02 = NaN;
 motore.presa.P02 = NaN;
 motore.presa.M2 = 0.35;
-motore.presa.eta_d = 0.99;
-motore.presa.pi_d = NaN;
+motore.presa.eta_d = 0.975;
+motore.presa.pi_d = 0.985;
 
 motore.presa.rho2 = NaN;
 motore.presa.V2 = NaN;
@@ -120,7 +125,7 @@ motore.presa.CPR = NaN;
 
 
 
-T0I, P0I, T_in, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
+% T0I, P0I, T_in, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
 
 
 
@@ -148,7 +153,7 @@ motore.compressore.beta1 = NaN;
 motore.compressore.beta2 = NaN;
 %motore.compressore.Ain_c = NaN; = area uscita presa
 motore.compressore.r_m_in = NaN;
-motore.compressore.h_in = Nan;
+motore.compressore.h_in = NaN;
 motore.compressore.Aout_c = NaN;
 motore.compressore.r_m_out = NaN;
 motore.compressore.h_out = NaN;
@@ -222,7 +227,7 @@ Turbina.AOut = NaN;
 
 
 % Salvataggio Struct
-motore.Turbina = Turbina;
+motore.turbina = Turbina;
 % ---------------------------------------------------------------------
 
 
