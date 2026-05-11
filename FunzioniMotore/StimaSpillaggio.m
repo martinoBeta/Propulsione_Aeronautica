@@ -1,9 +1,9 @@
-function [motore] = stimaSpillaggio(motore,propFluidi)
+function [motore] = StimaSpillaggio(motore)
 %STIMASPILLAGGIO stima lo spillagio dell'aria dal compressore per potere
 %poi raffreddare la turbina
     
     TMax  = motore.camera.T04;
-    gammaGas = propFluidi.gas.gamma;
+    gammaGas = motore.fluidi.gas.gamma;
     propTurbina = motore.turbina;
     mDot = motore.portate.mDot;
 

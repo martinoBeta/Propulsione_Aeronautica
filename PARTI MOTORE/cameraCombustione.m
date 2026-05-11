@@ -32,7 +32,8 @@ function [P04, T04, Q_dot, propCamera, propCombust] = cameraCombustione( ...
                                    % NOTA: si usa mDotCore (aria non spillata),
                                    % NON mAir totale né mdot
     T04   = motore.Tmax;       % temperatura target TIT in uscita camera [K]
-
+    
+    aria = motore.fluidi
     % Fluidi
     cp_a  = propFluidi.cpOx;       % cp aria in ingresso [J/(kg·K)]
     cp_g  = propFluidi.cp;         % cp gas combusti in uscita [J/(kg·K)]

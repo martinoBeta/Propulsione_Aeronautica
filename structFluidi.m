@@ -6,7 +6,6 @@ function [propFluidi] = structFluidi()
     Ru     = 8314;          % costante universale dei gas [J/(kmol·K)]
 
 
-
     % Proprietà aria 
     aria.Mm = 28.97;
     aria.R  = Ru/aria.Mm;    
@@ -25,7 +24,7 @@ function [propFluidi] = structFluidi()
     % Proprietà combustibile (JP-7)
     combustibile.Mm = 321.4964;
     combustibile.R = Ru / combustibile.Mm;
-    combustibile.cp = 7/2 * RFuel;
+    combustibile.cp = 7/2 * combustibile.R;
     combustibile.LHV = 44.1e6;
    
 
@@ -40,7 +39,10 @@ function [propFluidi] = structFluidi()
     R      = ROx;           % costante del gas miscela [J/(kg·K)]
     gamma  = 1.33;          % rapporto calori specifici gas combusti [-]
     cp     = (gamma * R) / (gamma - 1);  % cp gas combusti [J/(kg·K)]
-
+    MmFuel = 321;
+    RFuel = 24;
+    cpFuel = 2000;
+    LHV = 43e6;
     % % Condizioni atmosferiche a 12000 m (ISA)
     M0  = 0.85;             % numero di Mach di volo [-]
     T0  = 216.65;           % temperatura statica [K]
@@ -74,8 +76,8 @@ function [propFluidi] = structFluidi()
     propFluidi.a0     = a0;
     propFluidi.v0     = v0;
 
-    propFluidi.aria
-    propFluidi.gas
-    propFluidi.combustibile
+    propFluidi.aria = aria;
+    propFluidi.gas = gas;
+    propFluidi.combustibile = combustibile;
 
 end

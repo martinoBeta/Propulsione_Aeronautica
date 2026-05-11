@@ -38,26 +38,38 @@ function [motore] = structMotore()
 % % motore.mdot  = mdot;
 % % 
 % 
+%% Costanti universali
+    Ru     = 8314;          % costante universale dei gas [J/(kmol·K)]
+
 
 %% ------------------------------------------------------------------------
 %                           PROPRIETA' FLUIDI
 %--------------------------------------------------------------------------
 
+    % Proprietà aria 
+    aria.Mm = 28.97;
+    aria.R  = Ru/aria.Mm;    
+    aria.cp = 7/2*aria.R;
+    aria.gamma = 1.4;
+    
 
-%% Aria 
-motore.fluidi.aria.R     = 287.05;
-motore.fluidi.aria.gamma = 1.40;
-motore.fluidi.aria.cp    = 1004.5;
+    % Proprietà gas combusti
+    gas.R = aria.R;
+    gas.gamma = 1.33;
+    gas.cp = (gas.gamma * gas.R) / (gas.gamma - 1);
+    gas.cpG = NaN;
 
-%% Combustibile JP-7
-motore.fluidi.fuel.LHV = 43.5e6;   % [J/kg]
 
-%% Gas combusti
-motore.fluidi.gas.R     = 287.05;  
-motore.fluidi.gas.gamma = 1.33;
-motore.fluidi.gas.cp    = motore.fluidi.gas.gamma * motore.fluidi.gas.R / ...
-                          (motore.fluidi.gas.gamma - 1);
+    % Proprietà combustibile (JP-7)
+    combustibile.Mm = 321.4964;
+    combustibile.R = Ru / combustibile.Mm;
+    combustibile.cp = 7/2 *combustibile.R;
+    combustibile.LHV = 44.1e6;
 
+    % salvataggio
+    motore.fluidi.aria     = aria;
+    motore.fluidi.gas      = gas;
+    motore.fluidi.combustibile = combustibile;
 
 
 %---------------------------------------------------------------------
@@ -288,23 +300,28 @@ motore.compressore.N_stadi = NaN;
     % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
     % nel main subito dopo la chiamata a compressore.m.
 
-    motore.Diffusore.v_target_camera = 25;   % velocità target ingresso camera [m/s]
-    motore.Diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
-    motore.Diffusore.theta           = 8;    % semi-angolo di apertura [gradi]
+    motore.diffusore.vTargetCamera = 25;   % velocità target ingresso camera [m/s]
+    motore.diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
+    motore.diffusore.theta           = 8;    % semi-angolo di apertura [gradi]
                                                   % (limite distacco: < 8–10°)
 
     % Aggiornati nel main dopo compressore.m
-    motore.Diffusore.M_in = NaN;  % Mach ingresso (= mach_out compressore) [-]
-    motore.Diffusore.rm   = NaN;  % raggio medio  (= r_m_out compressore)  [m]
+    motore.diffusore.mach3  = NaN;  % Mach ingresso (= mach_out compressore) [-]
+    motore.diffusore.rMedio = NaN;  % raggio medio  (= r_m_out compressore)  [m]
+    motore.diffusore.T03    = NaN;
+    motore.diffusore.P03    = NaN;
+    motore.diffusore.T035   = NaN;
+    motore.diffusore.P035   = NaN;
+    motore.diffusore.mach35 = NaN;
 
     % Calcolati da Diffusore.m
-    motore.Diffusore.Ain   = NaN; % area ingresso          [m²]
-    motore.Diffusore.Aout  = NaN; % area uscita            [m²]
-    motore.Diffusore.hin   = NaN; % altezza canale ingresso [m]
-    motore.Diffusore.hout  = NaN; % altezza canale uscita  [m]
-    motore.Diffusore.LD    = NaN; % lunghezza assiale       [m]
-    motore.Diffusore.v_in  = NaN; % velocità ingresso      [m/s]
-    motore.Diffusore.v_out = NaN; % velocità uscita        [m/s]
+    motore.diffusore.A3     = NaN; % area ingresso          [m²]
+    motore.diffusore.A35    = NaN; % area uscita            [m²]
+    motore.diffusore.h3     = NaN; % altezza canale ingresso [m]
+    motore.diffusore.h35    = NaN; % altezza canale uscita  [m]
+    motore.diffusore.LD     = NaN; % lunghezza assiale       [m]
+    motore.diffusore.v3     = NaN; % velocità ingresso      [m/s]
+    motore.diffusore.v35    = NaN; % velocità uscita        [m/s]
 
 %%  CAMERA DI COMBUSTIONE
 
@@ -324,6 +341,7 @@ motore.compressore.N_stadi = NaN;
     motore.camera.qRef = NaN;  % pressione dinamica di riferimento       [Pa]
     motore.camera.MRef = NaN;  % Mach di riferimento                     [-]
     motore.camera.tRes = NaN;
-    motre.camera.f = NaN;
+    motore.camera.f = NaN;
+    motore.camera.T04 = 1600;
   
 end

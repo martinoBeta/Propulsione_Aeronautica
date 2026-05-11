@@ -127,10 +127,10 @@ function [P04, T04, Q_dot, motore] = Camera_combustione( ...
         
         % --- CHECK 7: Perdita di pressione effettiva ---
         DPEffettiva = 1 - P04/P03Primo;
-        if DPEffettiva < 0.03
-            warning('CAM: perdita di pressione sospettamente bassa — DP/P = %.3f (min 0.03)', DPEffettiva)
-        elseif DPEffettiva > 0.08
-            warning('CAM: perdita di pressione eccessiva — DP/P = %.3f (max 0.08)', DPEffettiva)
+        if DPEffettiva < 0.05
+            warning('CAM: perdita di pressione sospettamente bassa — DP/P = %.3f (min 0.05)', DPEffettiva)
+        elseif DPEffettiva > 0.1
+            warning('CAM: perdita di pressione eccessiva — DP/P = %.3f (max 0.1)', DPEffettiva)
         end
     end
     

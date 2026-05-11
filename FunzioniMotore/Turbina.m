@@ -1,4 +1,4 @@
-function [motore] = turbina(motore,propFluidi)
+function [motore] = Turbina(motore)
     %funzione che calcola prestazione della turbina
     %% --------------------------------------------------------------------
     %  LIMITI / VINCOLI DI PROGETTO TURBINA
@@ -45,10 +45,10 @@ function [motore] = turbina(motore,propFluidi)
     mDot = motore.mdot;                         %Portata massica                        [kg/s]
 
     % proprietà fluidi
-    gammaGas = propFluidi.gamma;                %Gamma gas combusti                     []
-    cpGas = propFluidi.cp;                      %cp Gas combusti                        [J/(kgK)]
-    cpAir = propFluidi.cpOx;                    %cp aria                                [J/(kgK)]
-    RGas = propFluidi.R;                        %Costante specifica di un gas combusti  [J/(kgK)]
+    gammaGas = motore.gas.gamma;                %Gamma gas combusti                     []
+    cpGas = motore.gas.cp;                      %cp Gas combusti                        [J/(kgK)]
+    cpAir = motore.aria.cpOx;                   %cp aria                                [J/(kgK)]
+    RGas = motore.gas.R;                        %Costante specifica di un gas combusti  [J/(kgK)]
     % ---------------------------------------------------------------------
 
     %% INIZIO CALCOLI
