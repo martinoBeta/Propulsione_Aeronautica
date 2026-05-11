@@ -2,22 +2,39 @@ function [propFluidi] = structFluidi()
 % Proprietà termodinamiche dei fluidi di lavoro (aria e cherosene)
 % Condizioni di volo: quota 12000 m, Mach 0.85
 %
-
-
     % Costanti universali
     Ru     = 8314;          % costante universale dei gas [J/(kmol·K)]
 
-    % Proprietà aria (ossidante)
+
+
+    % Proprietà aria 
+    aria.Mm = 28.97;
+    aria.R  = Ru/aria.Mm;    
+    aria.cp = 7/2*aria.R;
+    aria.gamma = 1.4;
+    
+
+    % Proprietà gas combusti
+    gas.R = aria.R;
+    gas.gamma = 1.33;
+    gas.cp = (gas.gamma * gas.R) / (gas.gamma - 1);
+    gas.cpG = NaN;
+
+
+
+    % Proprietà combustibile (JP-7)
+    combustibile.Mm = 321.4964;
+    combustibile.R = Ru / combustibile.Mm;
+    combustibile.cp = 7/2 * RFuel;
+    combustibile.LHV = 44.1e6;
+   
+
+
+    
+
     MmOx   = 28.97;         % massa molare aria [kg/kmol]
     ROx    = Ru / MmOx;     % costante del gas aria [J/(kg·K)]  ≈ 287 J/(kg·K)
     cpOx   = 7/2 * ROx;     % cp aria (gas biatomico, gamma=1.4) [J/(kg·K)]
-
-    % Proprietà JP-7
-    MmFuel = 321.4964;      % massa molare cherosene [kg/kmol]
-    RFuel  = Ru / MmFuel;   % costante del gas cherosene [J/(kg·K)]
-    cpFuel = 7/2 * RFuel;   % cp cherosene vapore [J/(kg·K)]
-    LHV    = 44.1e6;        % potere calorifico inferiore JP-7 [J/kg]
-                           
 
     % Proprietà gas combusti (miscela aria + prodotti combustione)
     R      = ROx;           % costante del gas miscela [J/(kg·K)]
@@ -56,5 +73,9 @@ function [propFluidi] = structFluidi()
     propFluidi.rho0   = rho0;
     propFluidi.a0     = a0;
     propFluidi.v0     = v0;
+
+    propFluidi.aria
+    propFluidi.gas
+    propFluidi.combustibile
 
 end

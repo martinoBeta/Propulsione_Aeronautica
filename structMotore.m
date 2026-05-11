@@ -64,8 +64,9 @@ motore.fluidi.gas.cp    = motore.fluidi.gas.gamma * motore.fluidi.gas.R / ...
 %% PORTATE
 %---------------------------------------------------------------------
 
-motore.portate.mDotAir = 35; % portata massica totale
-
+motore.portate.mDot    = 35;    % portata massica totale
+motore.portate.mDotAir = NaN;    % portata massica in camera di combustione
+motore.portate.mDotRaff= NaN;    % portata masscia per raffredamento turbina
 
 
 
@@ -104,20 +105,20 @@ motore.freestream.h12km.a0 = a0;
 %% PRESA D'ARIA
 %---------------------------------------------------------------------
 
-motore.presa.regime = "subsonico";
-motore.presa.T2 = NaN;
-motore.presa.P2 = NaN;
-motore.presa.T02 = NaN;
-motore.presa.P02 = NaN;
-motore.presa.M2 = 0.35;
-motore.presa.eta_d = 0.975;
-motore.presa.pi_d = 0.985;
+motore.presaAria.regime = "subsonico";
+motore.presaAria.T2 = NaN;
+motore.presaAria.P2 = NaN;
+motore.presaAria.T02 = NaN;
+motore.presaAria.P02 = NaN;
+motore.presaAria.M2 = 0.35;
+motore.presaAria.eta_d = 0.975;
+motore.presaAria.pi_d = 0.985;
 
-motore.presa.rho2 = NaN;
-motore.presa.V2 = NaN;
-motore.presa.A_ingresso = NaN;
-motore.presa.A2 = NaN;
-motore.presa.CPR = NaN;
+motore.presaAria.rho2 = NaN;
+motore.presaAria.V2 = NaN;
+motore.presaAria.A_ingresso = NaN;
+motore.presaAria.A2 = NaN;
+motore.presaAria.CPR = NaN;
 
 
 
@@ -171,8 +172,8 @@ motore.compressore.N_stadi = NaN;
 % ---------------------------------------------------------------------
 
     %% COSTANTI
-    eta_m   = 0.92; % rendimento meccanico
-    eta_p   = 0.9;% rendimento adiabatico
+    etaM   = 0.92; % rendimento meccanico
+    etaP   = 0.9;% rendimento adiabatico
     
     % Aria di rafreddamento dalle tabelle
     CoolingStatore  = @(x)  (x<1100)*0 + ...    %cooling air richiesta per TIN statore è SOT
@@ -182,25 +183,26 @@ motore.compressore.N_stadi = NaN;
     CoolingRotore   = @(x)   (x<1250)*0 + ...    %cooling air richiesta per TIN statore la T è SOT
         (x>=1250 & x <= 1600).*(0.05./(1400-1250).*(x-1250)) + ...
         (x>1600).*0.5;
-    
+
+ 
     
     %% Impostare struct
     
-    turbina.eta_m           = eta_m;
-    turbina.eta_p           = eta_p;
-    turbina.CoolingStatore  = CoolingStatore;
-    turbina.CoolingRotore   = CoolingRotore;
+    turbina.etaM            = etaM;
+    turbina.etaP            = etaP;
+    turbina.coolingStatore  = CoolingStatore;
+    turbina.coolingRotore   = CoolingRotore;
     
     % Lavoro e Rendimento
-    turbina.L_turbina   = NaN;
-    turbina.eta_n       = NaN;
+    turbina.lTurbina    = NaN;
+    turbina.etaN        = NaN;
     
     % Rendimento isoentropico rispetto a caso senza rafreddamento
-    turbina.eta_NC  = NaN;
-    
+    turbina.etaNRaff    = NaN;
+            
     
     % IN
-    turbina.machIn  = NaN;
+    turbina.mach4   = NaN;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -211,20 +213,20 @@ motore.compressore.N_stadi = NaN;
     turbina.T05     = NaN;
     turbina.rho5    = NaN;
     turbina.mach5   = NaN;
-    turbina.T05_iso = NaN;
+    turbina.T05Iso  = NaN;
     turbina.rp      = NaN;
 
     % Parametri di Rafreddamento
-    turbina.coolPecentuale  = NaN;
-    turbina.SOT             = NaN;
-    turbina.TCool           = NaN;
+    turbina.raffPecentuale  = NaN;
+    turbina.Sot             = NaN;
+    turbina.TRaff           = NaN;
     
     % Sezioni
-    turbina.AIn     = NaN;
-    turbina.AOut    = NaN;
-    turbina.hOut    = NaN;
-    turbina.rtOut   = NaN;
-    turbina.rhOut   = NaN;
+    turbina.A4          = NaN;
+    turbina.A5          = NaN;
+    turbina.h5          = NaN;
+    turbina.rt5         = NaN;
+    turbina.rh5         = NaN;
     
     
     % Stadio
@@ -233,8 +235,8 @@ motore.compressore.N_stadi = NaN;
         % grado di reazione
         turbina.R   = NaN;
         % lavoro stadio
-        turbina.L_stadio    = NaN;
-        turbina.N_stadi     = NaN;
+        turbina.lStadio     = NaN;
+        turbina.nStadi      = NaN;
         % Statore
             turbina.statore.a       = NaN;
             turbina.statore.alpha   = NaN;
@@ -281,5 +283,47 @@ motore.compressore.N_stadi = NaN;
     % ---------------------------------------------------------------------
 
 
+    %%  DIFFUSORE ANULARE  (tra compressore e camera)
 
+    % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
+    % nel main subito dopo la chiamata a compressore.m.
+
+    motore.Diffusore.v_target_camera = 25;   % velocità target ingresso camera [m/s]
+    motore.Diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
+    motore.Diffusore.theta           = 8;    % semi-angolo di apertura [gradi]
+                                                  % (limite distacco: < 8–10°)
+
+    % Aggiornati nel main dopo compressore.m
+    motore.Diffusore.M_in = NaN;  % Mach ingresso (= mach_out compressore) [-]
+    motore.Diffusore.rm   = NaN;  % raggio medio  (= r_m_out compressore)  [m]
+
+    % Calcolati da Diffusore.m
+    motore.Diffusore.Ain   = NaN; % area ingresso          [m²]
+    motore.Diffusore.Aout  = NaN; % area uscita            [m²]
+    motore.Diffusore.hin   = NaN; % altezza canale ingresso [m]
+    motore.Diffusore.hout  = NaN; % altezza canale uscita  [m]
+    motore.Diffusore.LD    = NaN; % lunghezza assiale       [m]
+    motore.Diffusore.v_in  = NaN; % velocità ingresso      [m/s]
+    motore.Diffusore.v_out = NaN; % velocità uscita        [m/s]
+
+%%  CAMERA DI COMBUSTIONE
+
+    motore.camera.rMedio             = NaN;  % raggio medio camera anulare   [m]
+    motore.camera.perditaDinamica      = 20;    % fattore perdita dinamica ΔP/q [-]
+    motore.camera.perditaPressione = 0.06;  % perdita pressione totale      [-]
+    motore.camera.I               = 9e6;   % intensità di combustione      [W/(m³·Pa)]
+    motore.camera.eta_b           = 0.98;  % rendimento di combustione     [-]
+    motore.camera.pi_b            = 0.97;  % rapporto di pressione camera  [-]
+
+    % Calcolati da Camera_di_combustione.m
+    motore.camera.ARef = NaN;  % area di riferimento                     [m²]
+    motore.camera.hRef = NaN;  % altezza canale anulare                  [m]
+    motore.camera.V     = NaN;  % volume camera                           [m³]
+    motore.camera.LC    = NaN;  % lunghezza camera                        [m]
+    motore.camera.URef = NaN;  % velocità di riferimento                 [m/s]
+    motore.camera.qRef = NaN;  % pressione dinamica di riferimento       [Pa]
+    motore.camera.MRef = NaN;  % Mach di riferimento                     [-]
+    motore.camera.tRes = NaN;
+    motre.camera.f = NaN;
+  
 end

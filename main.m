@@ -608,14 +608,6 @@ title('Diffusion factor statore')
 % fprintf('Corda c_m        = %.4f m\n', best_c_m)
 % fprintf('Numero pale N_R  = %d\n', best_N_R)
 % fprintf('-------------------------------------------------\n')
-%% ------------------------------------------------------------------------
-%                          CAMERA DI COMBUSTIONE
-% -------------------------------------------------------------------------
-
-% Obiettivo minimizzare il TSFC
-% TSFC = mdot_f / F. 
-% F è un parametro fissato
-% bilancio energetico combustore --> mdot_f
 
 %% ------------------------------------------------------------------------
 %                          CAMERA DI COMBUSTIONE
@@ -635,8 +627,8 @@ tres_vec = zeros(size(P03_vec));
 for j = 1:length(P03_vec)
     % Nota: T03 deve essere best_T0U calcolato dal compressore
     [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
-        Camera_di_combustione(P03_vec(j), best_T0U, propCamera, propFluidi, motore, propCombust);
-    
+    [P04, T04, Q_dot, propCamera, propCombust] = Camera_combustione( ...
+    Motore, modo)
     Lc_vec(j) = cam_out.Lc;
     tres_vec(j) = cam_out.t_res;
 end
@@ -674,14 +666,17 @@ if (~exist('best_L_comp', 'var'))
     motoreBase.compressore.T03 = 410;
     motoreBase.compressore.U_m = 400;
 
-    motoreBase.turbina.machIn = 0.3;
+    motoreBase.turbina.mach4 = 0.3;
     motoreBase.turbina.rotore.wmachOut = 0.8;
     best_machIn = 0.3;
+    motoreBase.mdot = 35;
+    motoreBase.compressore.r_m_in = 0.4;
+
 else 
     motoreBase.compressore.L_c = best_L_comp;
-    motoreBase.turbina.machIn = best_machIn;
-    motoreBase.turbina.P0I = best_P0U;
-    motoreBase.turbina.TCool = best_T0U;
+    motoreBase.turbina.mach4 = best_machIn;
+    motoreBase.turbina.P04 = best_P0U;
+    motoreBase.turbina.TRaff = best_T0U;
 end
 
 
@@ -710,23 +705,23 @@ for i = 1:N
     % Slavataggio 
     T = motore.turbina;
 
-    etan(i) = T.eta_n;
+    etan(i) = T.etaN;
     coolPecentualeA(i) = T.coolPecentuale;
-    Sota(i) = T.SOT;
-    etos(i) = T.eta_NC;
+    Sota(i) = T.Sot;
+    etos(i) = T.etaNRaff;
 
     P0Us(i) = T.P05;
     P0Is(i) = T.P04;
     T0Us(i) = T.T05;
-    T0Us_in(i) = T.T05_iso;
+    T0Us_in(i) = T.T05Iso;
 
-    A4s(i) = T.AIn;
-    A5s(i) = T.AOut;
-    machOut(i) = T.machOut;
+    A4s(i) = T.A4;
+    A5s(i) = T.A5;
+    machOut(i) = T.mach5;
 
-    [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
-
-    spinta(i) = motore.mdot * (Ue - v_volo);
+    % [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
+    % 
+    % spinta(i) = motore.mdot * (Ue - v_volo);
 end
 %%
 %Rendimento isoentropico
@@ -903,4 +898,5 @@ legend("In","Out")
 %% ------------------------------------------------------------------------
 %                                 UGELLO
 %--------------------------------------------------------------------------
+
 

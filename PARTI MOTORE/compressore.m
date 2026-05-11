@@ -1,4 +1,4 @@
-function [motore] = compressore(motore)
+function [motore] = Compressore(motore)
 
 %% --------------------------------------------------------------------
 %  LIMITI / VINCOLI DI PROGETTO COMPRESSORE
@@ -30,13 +30,13 @@ function [motore] = compressore(motore)
 
 
     % Inizializzazione
-    T0I = motore.presa.T02;
-    P0I = motore.presa.P02;
+    T0I = motore.presaAria.T02;
+    P0I = motore.presaAria.P02;
     pi_c = motore.compressore.pi_c;
     mDot = motore.portate.mDotAir;
     eta_p = motore.compressore.eta_p;
     Utip = motore.compressore.Utip; 
-    machIn = motore.presa.M2;
+    machIn = motore.presaAria.M2;
     hubTip = motore.compressore.hubTip;
 
     gamma = motore.fluidi.aria.gamma;
