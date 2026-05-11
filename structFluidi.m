@@ -12,7 +12,7 @@ function [propFluidi] = structFluidi()
     ROx    = Ru / MmOx;     % costante del gas aria [J/(kg·K)]  ≈ 287 J/(kg·K)
     cpOx   = 7/2 * ROx;     % cp aria (gas biatomico, gamma=1.4) [J/(kg·K)]
 
-    % Proprietà cherosene
+    % Proprietà JP-7
     MmFuel = 321.4964;      % massa molare cherosene [kg/kmol]
     RFuel  = Ru / MmFuel;   % costante del gas cherosene [J/(kg·K)]
     cpFuel = 7/2 * RFuel;   % cp cherosene vapore [J/(kg·K)]

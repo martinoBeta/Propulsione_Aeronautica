@@ -2,6 +2,9 @@ clc
 clear 
 close all
 
+
+motore = structMotore();
+
 % calcolo portata necessaria per mach 0.85 e 25Kn di spinta
 rho_12000 = 0.31;
 mach = 0.85;
@@ -13,88 +16,204 @@ v_volo = mach * sqrt(R*gamma*T_12000);
 % Spinta = mdot(ve-v_volo)
 spinta = 25000;
 mdot = spinta/(v_exitstimata-v_volo);
+motore.portate.mDotAir = mdot;
 
 %% ------------------------------------------------------------------------
 %                               PRESA D'ARIA
 %--------------------------------------------------------------------------
+motore.presa.regime = "subsonico";
 
-%IMPORTANTE
-%il range di machIn è solo preliminare/fittizio.
-% I valori reali di M1 ( raccolti nel vettore machIn_range) dovranno arrivare dal modello della presa dinamica
-% variando la geometria della presa.
+
+%% ANALISI 1: vario M2
+M2_range = 0.25:0.01:0.55;
+n = length(M2_range);
+
+A2_vec = zeros(1,n);
+CPR_vec = zeros(1,n);
+P2_vec = zeros(1,n);
+V2_vec = zeros(1,n);
+
+for i = 1:n
+
+    motore.presa.M2 = M2_range(i);
+
+    motore = PresaDaria(motore);
+
+    A2_vec(i) = motore.presa.A2;
+    CPR_vec(i) = motore.presa.CPR;
+    P2_vec(i) = motore.presa.P2;
+    V2_vec(i) = motore.presa.V2;
+
+end
+
+figure
+
+subplot(2,1,1)
+plot(M2_range, A2_vec, 'LineWidth',1.5)
+grid on
+xlabel('M_2')
+ylabel('A_2 [m^2]')
+title('Area uscita presa / ingresso compressore')
+
+subplot(2,1,2)
+plot(M2_range, CPR_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite CPR = 0.6')
+grid on
+xlabel('M_2')
+ylabel('CPR')
+title('Pressure recovery statico')
+
+%% ANALISI 2: vario M0
+M0_range = 0.83:0.005:0.87;
+n = length(M0_range);
+
+A_cattura_vec = zeros(1,n);
+A2_vec = zeros(1,n);
+CPR_vec = zeros(1,n);
+A_ingresso_vec = zeros(1,n);
+
+for i = 1:n
+
+    M0 = M0_range(i);
+
+    motore.freestream.h12km.M0 = M0;
+    motore.freestream.h12km.V0 = M0 * motore.freestream.h12km.a0;
+
+    T0 = motore.freestream.h12km.T0;
+    P0 = motore.freestream.h12km.P0;
+    gamma = motore.fluidi.aria.gamma;
+
+    motore.freestream.h12km.T00 = T0 * (1 + (gamma - 1)/2 * M0^2);
+    motore.freestream.h12km.P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1));
+
+    motore = PresaDaria(motore);
+
+    A_ingresso_vec(i) = motore.presa.A_ingresso;
+    A2_vec(i) = motore.presa.A2;
+    CPR_vec(i) = motore.presa.CPR;
+
+end
+
+figure
+
+subplot(3,1,1)
+plot(M0_range, A_ingresso_vec, 'LineWidth',1.5)
+grid on
+xlabel('M_0')
+ylabel('A_{ingresso} [m^2]')
+title('Area ingresso presa')
+
+subplot(3,1,2)
+plot(M0_range, A2_vec, 'LineWidth',1.5)
+grid on
+xlabel('M_0')
+ylabel('A_2 [m^2]')
+title('Area uscita presa')
+
+subplot(3,1,3)
+plot(M0_range, CPR_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite CPR = 0.6')
+grid on
+xlabel('M_0')
+ylabel('CPR')
+title('CPR al variare di M_0')
+
+
+
+%% ANALISI PRESA 3: VARIO mDotAir
+
+
+mDotAir_range = 25:1:50;
+n = length(mDotAir_range);
+
+A_ingresso_vec = zeros(1,n);
+A2_vec = zeros(1,n);
+
+for i = 1:n
+
+    motore.portate.mDotAir = mDotAir_range(i);
+
+    motore = PresaDaria(motore);
+
+   
+    A_ingresso_vec(i) = motore.presa.A_ingresso;
+    A2_vec(i) = motore.presa.A2;
+
+end
+
+figure
+
+
+plot(mDotAir_range, A_ingresso_vec,  'LineWidth',1.5)
+hold on;
+plot(mDotAir_range, A2_vec, 'LineWidth',1.5)
+grid on
+xlabel('\dot{m}_{air} [kg/s]')
+ylabel('Area [m^2]')
+legend('A_{ingresso}','A_2')
+title('Aree presa al variare della portata aria')
 
 
 %% ------------------------------------------------------------------------
 %                                COMPRESSORE
 %--------------------------------------------------------------------------
 
-machIn_range = 0.40:0.05:0.60;
-
-propFluidi = structFluidi();
-motore = structMotore();
-
-mDot = motore.portate.mDotAir;
-
-T0I = propFluidi.T00;
-P0I = propFluidi.P00;
 
 
-%% ANALISI 1: VARIO pi_c
-
-machIns = 0.35;
-Utip = 350;
-
+%% ANALISI 1: vario il rapporto di compressione
 pi_c_range = 8:0.05:11;
 n = length(pi_c_range);
 
-T0U_vec = zeros(1,n);
+% Inizializzazione vettori
+T03_vec = zeros(1,n);
+P03_vec = zeros(1,n);
 eta_c_vec = zeros(1,n);
 L_vec = zeros(1,n);
+
 Mach_rel_vec = zeros(1,n);
 Mach_abs_vec = zeros(1,n);
 Cp_vec = zeros(1,n);
 deHaller_vec = zeros(1,n);
-Ain_vec = zeros(1,n);
+
 Aout_vec = zeros(1,n);
 N_stadi_vec = zeros(1,n);
 
 for i = 1:n
 
-    pi_c = pi_c_range(i);
+    motore.compressore.pi_c = pi_c_range(i);
 
-    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-     deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
-     Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
-     c_m, N_R, N_stadi] = ...
-        compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIns, hubTip, propFluidi);
+    motore = compressore(motore);
 
-    T0U_vec(i) = T0U;
-    eta_c_vec(i) = eta_c;
-    L_vec(i) = L_comp;
-    Mach_rel_vec(i) = Mach_rel;
-    Mach_abs_vec(i) = Mach_abs;
-    Cp_vec(i) = Cp_stadio;
-    deHaller_vec(i) = deHaller;
-    Ain_vec(i) = Ain;
-    Aout_vec(i) = Aout;
-    N_stadi_vec(i) = N_stadi;
+    T03_vec(i) = motore.compressore.T03;
+    P03_vec(i) = motore.compressore.P03;
+    eta_c_vec(i) = motore.compressore.eta_c;
+    L_vec(i) = motore.compressore.L_c;
+
+    Mach_rel_vec(i) = motore.compressore.Mach_rel;
+    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+    Cp_vec(i) = motore.compressore.Cp_stadio;
+    deHaller_vec(i) = motore.compressore.deHaller;
+
+    Aout_vec(i) = motore.compressore.Aout_c;
+    N_stadi_vec(i) = motore.compressore.N_stadi;
 
 end
 
 figure
 subplot(2,2,1)
-plot(pi_c_range, T0U_vec, 'LineWidth',1.5)
+plot(pi_c_range, T03_vec, 'LineWidth',1.5)
 grid on
 xlabel('\pi_c')
-ylabel('T_{0U} [K]')
+ylabel('T_{03} [K]')
 title('Temperatura uscita compressore')
 
 subplot(2,2,2)
 plot(pi_c_range, L_vec/1e6, 'LineWidth',1.5)
 grid on
 xlabel('\pi_c')
-ylabel('L_{comp} [MW]')
+ylabel('L_c [MW]')
 title('Potenza compressore')
 
 subplot(2,2,3)
@@ -116,9 +235,11 @@ subplot(3,1,1)
 plot(pi_c_range, Mach_rel_vec, 'LineWidth',1.5)
 hold on
 plot(pi_c_range, Mach_abs_vec, 'LineWidth',1.5)
+yline(1,'--r','Limite Mach relativo = 1')
 grid on
 xlabel('\pi_c')
-ylabel('Mach relativo')
+ylabel('Mach')
+legend('Mach relativo','Mach assoluto','Limite')
 title('Mach nello stadio')
 
 subplot(3,1,2)
@@ -143,268 +264,350 @@ figure
 plot(pi_c_range, Aout_vec, 'LineWidth',1.5)
 grid on
 xlabel('\pi_c')
-ylabel('Area [m^2]')
-
+ylabel('A_{out,c} [m^2]')
 title('Sezione uscita compressore')
 
 %% ANALISI 2: VARIO U
 
+motore.presa.M2 = 0.35;
+motore.compressore.pi_c = 9;
 
-machIns = 0.35;
-pi_c = 9;
-
-Utip_range = 390 : 1 : 410;
+Utip_range = 390:1:410;
 n = length(Utip_range);
 
 Mach_rel_vec = zeros(1,n);
 Mach_abs_vec = zeros(1,n);
+
 beta1_vec = zeros(1,n);
 beta2_vec = zeros(1,n);
+
 Cp_vec = zeros(1,n);
 deHaller_vec = zeros(1,n);
+
 N_stadi_vec = zeros(1,n);
+
+R_m_vec = zeros(1,n);
+
+D_rotore_vec = zeros(1,n);
+D_statore_vec = zeros(1,n);
 
 for i = 1:n
 
-    Utip = Utip_range(i);
+    motore.compressore.Utip = Utip_range(i);
 
-    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-     deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
-     Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
-     c_m, N_R, N_stadi] = ...
-        compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIns, hubTip, propFluidi);
+    motore = compressore(motore);
 
-    Mach_rel_vec(i) = Mach_rel;
-    Mach_abs_vec(i) = Mach_abs;
-    beta1_vec(i) = beta1;
-    beta2_vec(i) = beta2;
-    Cp_vec(i) = Cp_stadio;
-    deHaller_vec(i) = deHaller;
-    N_stadi_vec(i) = N_stadi;
+    Mach_rel_vec(i) = motore.compressore.Mach_rel;
+    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+
+    beta1_vec(i) = motore.compressore.beta1;
+    beta2_vec(i) = motore.compressore.beta2;
+
+    Cp_vec(i) = motore.compressore.Cp_stadio;
+    deHaller_vec(i) = motore.compressore.deHaller;
+
+    N_stadi_vec(i) = motore.compressore.N_stadi;
+
+    R_m_vec(i) = motore.compressore.R_m;
+
+    D_rotore_vec(i) = motore.compressore.D_rotore;
+    D_statore_vec(i) = motore.compressore.D_statore;
 
 end
 
 figure
+
 subplot(2,2,1)
 plot(Utip_range, Mach_rel_vec, 'LineWidth',1.5)
 hold on
 yline(1,'--r','Limite Mach = 1')
 grid on
-xlabel('U [m/s]')
+xlabel('U_{tip} [m/s]')
 ylabel('Mach relativo')
-title('Mach relativo al variare di U')
+title('Mach relativo al variare di U_{tip}')
 
 subplot(2,2,2)
 plot(Utip_range, Cp_vec, 'LineWidth',1.5)
 hold on
 yline(0.5,'--r','Limite Cp_R = 0.5')
 grid on
-xlabel('U [m/s]')
+xlabel('U_{tip} [m/s]')
 ylabel('Cp_R')
-title('Cp rotore al variare di U')
+title('Cp rotore al variare di U_{tip}')
 
 subplot(2,2,3)
 plot(Utip_range, deHaller_vec, 'LineWidth',1.5)
 hold on
 yline(0.72,'--r','Limite De Haller')
 grid on
-xlabel('U [m/s]')
+xlabel('U_{tip} [m/s]')
 ylabel('W_2/W_1')
-title('De Haller al variare di U')
+title('De Haller al variare di U_{tip}')
 
 subplot(2,2,4)
 plot(Utip_range, N_stadi_vec, 'LineWidth',1.5)
 grid on
-xlabel('U [m/s]')
+xlabel('U_{tip} [m/s]')
 ylabel('N_{stadi}')
-title('Numero di stadi al variare di U')
+title('Numero di stadi al variare di U_{tip}')
+
+figure
+
+subplot(3,1,1)
+plot(Utip_range, R_m_vec, 'LineWidth',1.5)
+grid on
+xlabel('U_{tip} [m/s]')
+ylabel('R_m')
+title('Grado di reazione')
+
+subplot(3,1,2)
+plot(Utip_range, D_rotore_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite D_{rotore}')
+grid on
+xlabel('U_{tip} [m/s]')
+ylabel('D_{rotore}')
+title('Diffusion factor rotore')
+
+subplot(3,1,3)
+plot(Utip_range, D_statore_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite D_{statore}')
+grid on
+xlabel('U_{tip} [m/s]')
+ylabel('D_{statore}')
+title('Diffusion factor statore')
 
 %% ANALISI 3: VARIO MACH INGRESSO COMPRESSORE
 
-pi_c = 9;
-Utip = 350;
+motore.compressore.pi_c = 9;
+motore.compressore.Utip = 350;
 
-machIn_range = 0.2:0.01:0.6;
+machIn_range = 0.20:0.01:0.60;
 n = length(machIn_range);
 
-Ain_vec = zeros(1,n);
+A2_vec = zeros(1,n);
+
 Mach_rel_vec = zeros(1,n);
+Mach_abs_vec = zeros(1,n);
+
 Cp_vec = zeros(1,n);
 deHaller_vec = zeros(1,n);
+
 N_stadi_vec = zeros(1,n);
+
+R_m_vec = zeros(1,n);
+
+D_rotore_vec = zeros(1,n);
+D_statore_vec = zeros(1,n);
 
 for i = 1:n
 
-    machIns = machIn_range(i);
+    motore.presa.M2 = machIn_range(i);
 
-    [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-     deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
-     Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
-     c_m, N_R, N_stadi] = ...
-        compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                    machIns, hubTip, propFluidi);
+    motore = compressore(motore);
 
-    Ain_vec(i) = Ain;
-    Mach_rel_vec(i) = Mach_rel;
-    Cp_vec(i) = Cp_stadio;
-    deHaller_vec(i) = deHaller;
-    N_stadi_vec(i) = N_stadi;
+    % Area ingresso compressore = uscita presa
+    A2_vec(i) = motore.presa.A2;
+
+    Mach_rel_vec(i) = motore.compressore.Mach_rel;
+    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+
+    Cp_vec(i) = motore.compressore.Cp_stadio;
+
+    deHaller_vec(i) = motore.compressore.deHaller;
+
+    N_stadi_vec(i) = motore.compressore.N_stadi;
+
+    R_m_vec(i) = motore.compressore.R_m;
+
+    D_rotore_vec(i) = motore.compressore.D_rotore;
+    D_statore_vec(i) = motore.compressore.D_statore;
 
 end
 
 figure
+
 subplot(2,2,1)
-plot(machIn_range, Ain_vec, 'LineWidth',1.5)
+plot(machIn_range, A2_vec, 'LineWidth',1.5)
 grid on
-xlabel('M_1 ingresso compressore')
-ylabel('A_{in} [m^2]')
-title('Area ingresso al variare di M_1')
+xlabel('M_2 ingresso compressore')
+ylabel('A_2 [m^2]')
+title('Area ingresso compressore')
 
 subplot(2,2,2)
 plot(machIn_range, Mach_rel_vec, 'LineWidth',1.5)
 hold on
 yline(1,'--r','Limite Mach relativo = 1')
 grid on
-xlabel('M_1 ingresso compressore')
+xlabel('M_2 ingresso compressore')
 ylabel('Mach relativo')
-title('Mach relativo al variare di M_1')
+title('Mach relativo al variare di M_2')
 
 subplot(2,2,3)
 plot(machIn_range, Cp_vec, 'LineWidth',1.5)
 hold on
 yline(0.5,'--r','Limite Cp_R = 0.5')
 grid on
-xlabel('M_1 ingresso compressore')
+xlabel('M_2 ingresso compressore')
 ylabel('Cp_R')
-title('Cp rotore al variare di M_1')
+title('Cp rotore al variare di M_2')
 
 subplot(2,2,4)
 plot(machIn_range, N_stadi_vec, 'LineWidth',1.5)
 grid on
-xlabel('M_1 ingresso compressore')
+xlabel('M_2 ingresso compressore')
 ylabel('N_{stadi}')
-title('Numero di stadi al variare di M_1')
+title('Numero di stadi al variare di M_2')
 
-%% Ricerca configurazione ammissibile più compatta
-% questa ottimizzazione non va bene se vogliamo minimizzare il TSFC
+figure
 
-FS = 0.99; % fattore di sicurezza
+subplot(3,1,1)
+plot(machIn_range, deHaller_vec, 'LineWidth',1.5)
+hold on
+yline(0.72,'--r','Limite De Haller')
+grid on
+xlabel('M_2 ingresso compressore')
+ylabel('W_2/W_1')
+title('Criterio di De Haller')
 
-% Utip = 400;   troppo alto
-Utip_range = 340:5:400;
+subplot(3,1,2)
+plot(machIn_range, D_rotore_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite D_{rotore}')
+grid on
+xlabel('M_2 ingresso compressore')
+ylabel('D_{rotore}')
+title('Diffusion factor rotore')
 
-machIn_range = 0.20:0.01:0.45;
-pi_c_range   = 7:0.1:11;
-
-best_N_stadi = 100000;
-best_Ain     = 100000;
-
-for Utip = Utip_range
-for machIns = machIn_range
-    for pi_c = pi_c_range
-
-        [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
-         deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
-         Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
-         c_m, N_R, N_stadi] = ...
-            compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
-                        machIns, hubTip, propFluidi);
-
-        if Mach_rel < FS*1.0 && ...
-           Cp_stadio < FS*0.5 && ...
-           deHaller > 0.72/FS && ...
-           D_rotore < FS*0.6 && ...
-           D_statore < FS*0.6
-
-            nuovaSoluzione = false;
-
-            if N_stadi < best_N_stadi
-                nuovaSoluzione = true;
-
-            elseif N_stadi == best_N_stadi && Ain < best_Ain
-                nuovaSoluzione = true;
-            end
-
-            if nuovaSoluzione
-
-                best_N_stadi = N_stadi;
-                best_Ain = Ain;
-
-                best_machIn = machIns;
-                best_Utip = Utip;
-                best_pi_c = pi_c;
-
-                best_T0U = T0U;
-                best_P0U = P0U;
-                best_L_comp = L_comp;
-                best_eta_c = eta_c;
-
-                best_Mach_rel = Mach_rel;
-                best_Mach_abs = Mach_abs;
-
-                best_Cp = Cp_stadio;
-                best_deHaller = deHaller;
-
-                best_D_rotore = D_rotore;
-                best_D_statore = D_statore;
-                best_R_m = R_m;
-
-                best_Va = Va;
-                best_beta1 = beta1;
-                best_beta2 = beta2;
-
-                best_Aout = Aout;
-
-                best_r_m_in = r_m_in;
-                best_h_in = h_in;
-
-                best_r_m_out = r_m_out;
-                best_h_out = h_out;
-
-                best_c_m = c_m;
-                best_N_R = N_R;
-
-            end
-        end
-    end
-end
-end
-
-if best_N_stadi == 100000
-    error('Nessuna configurazione valida trovata')
-end
-
-fprintf('\n=========== CONFIGURAZIONE COMPRESSORE COMPATTO ===========\n')
-fprintf('machIn    = %.2f\n', best_machIn)
-fprintf('Utip      = %.1f m/s\n', best_Utip)
-fprintf('N_stadi   = %d\n', best_N_stadi)
-fprintf('pi_c      = %.2f\n', best_pi_c)
-
-fprintf('\n--- Vincoli ---\n')
-fprintf('Mach relativo = %.3f\n', best_Mach_rel)
-fprintf('Cp stadio     = %.3f\n', best_Cp)
-fprintf('De Haller     = %.3f\n', best_deHaller)
-fprintf('D rotore      = %.3f\n', best_D_rotore)
-fprintf('D statore     = %.3f\n', best_D_statore)
-fprintf('R_m           = %.3f\n', best_R_m)
-
-fprintf('\n--- Prestazioni ---\n')
-fprintf('T0U      = %.2f K\n', best_T0U)
-fprintf('P0U      = %.2f Pa\n', best_P0U)
-fprintf('L_comp   = %.2f MW\n', best_L_comp/1e6)
-fprintf('eta_c    = %.4f\n', best_eta_c)
-
-fprintf('\n--- Geometria ---\n')
-fprintf('Ain      = %.4f m^2\n', best_Ain)
-fprintf('Aout     = %.4f m^2\n', best_Aout)
-fprintf('h_in     = %.4f m\n', best_h_in)
-fprintf('h_out    = %.4f m\n', best_h_out)
-
-fprintf('\n--- Primo stadio ---\n')
-fprintf('Corda c_m        = %.4f m\n', best_c_m)
-fprintf('Numero pale N_R  = %d\n', best_N_R)
-fprintf('-------------------------------------------------\n')
+subplot(3,1,3)
+plot(machIn_range, D_statore_vec, 'LineWidth',1.5)
+hold on
+yline(0.6,'--r','Limite D_{statore}')
+grid on
+xlabel('M_2 ingresso compressore')
+ylabel('D_{statore}')
+title('Diffusion factor statore')
+% 
+% %% Ricerca configurazione ammissibile più compatta
+% % questa ottimizzazione non va bene se vogliamo minimizzare il TSFC
+% 
+% FS = 0.99; % fattore di sicurezza
+% 
+% % Utip = 400;   troppo alto
+% Utip_range = 340:5:400;
+% 
+% machIn_range = 0.20:0.01:0.45;
+% pi_c_range   = 7:0.1:11;
+% 
+% best_N_stadi = 100000;
+% best_Ain     = 100000;
+% 
+% for Utip = Utip_range
+% for machIns = machIn_range
+%     for pi_c = pi_c_range
+% 
+%         [T0U, P0U, L_comp, eta_c, Mach_rel, Mach_abs, Cp_stadio, ...
+%          deHaller, Va, beta1, beta2, Ain, r_m_in, h_in, ...
+%          Aout, r_m_out, h_out, D_rotore, D_statore, R_m, ...
+%          c_m, N_R, N_stadi] = ...
+%             compressore(T0I, P0I, mDot, pi_c, eta_p, Utip, ...
+%                         machIns, hubTip, propFluidi);
+% 
+%         if Mach_rel < FS*1.0 && ...
+%            Cp_stadio < FS*0.5 && ...
+%            deHaller > 0.72/FS && ...
+%            D_rotore < FS*0.6 && ...
+%            D_statore < FS*0.6
+% 
+%             nuovaSoluzione = false;
+% 
+%             if N_stadi < best_N_stadi
+%                 nuovaSoluzione = true;
+% 
+%             elseif N_stadi == best_N_stadi && Ain < best_Ain
+%                 nuovaSoluzione = true;
+%             end
+% 
+%             if nuovaSoluzione
+% 
+%                 best_N_stadi = N_stadi;
+%                 best_Ain = Ain;
+% 
+%                 best_machIn = machIns;
+%                 best_Utip = Utip;
+%                 best_pi_c = pi_c;
+% 
+%                 best_T0U = T0U;
+%                 best_P0U = P0U;
+%                 best_L_comp = L_comp;
+%                 best_eta_c = eta_c;
+% 
+%                 best_Mach_rel = Mach_rel;
+%                 best_Mach_abs = Mach_abs;
+% 
+%                 best_Cp = Cp_stadio;
+%                 best_deHaller = deHaller;
+% 
+%                 best_D_rotore = D_rotore;
+%                 best_D_statore = D_statore;
+%                 best_R_m = R_m;
+% 
+%                 best_Va = Va;
+%                 best_beta1 = beta1;
+%                 best_beta2 = beta2;
+% 
+%                 best_Aout = Aout;
+% 
+%                 best_r_m_in = r_m_in;
+%                 best_h_in = h_in;
+% 
+%                 best_r_m_out = r_m_out;
+%                 best_h_out = h_out;
+% 
+%                 best_c_m = c_m;
+%                 best_N_R = N_R;
+% 
+%             end
+%         end
+%     end
+% end
+% end
+% 
+% if best_N_stadi == 100000
+%     error('Nessuna configurazione valida trovata')
+% end
+% 
+% fprintf('\n=========== CONFIGURAZIONE COMPRESSORE COMPATTO ===========\n')
+% fprintf('machIn    = %.2f\n', best_machIn)
+% fprintf('Utip      = %.1f m/s\n', best_Utip)
+% fprintf('N_stadi   = %d\n', best_N_stadi)
+% fprintf('pi_c      = %.2f\n', best_pi_c)
+% 
+% fprintf('\n--- Vincoli ---\n')
+% fprintf('Mach relativo = %.3f\n', best_Mach_rel)
+% fprintf('Cp stadio     = %.3f\n', best_Cp)
+% fprintf('De Haller     = %.3f\n', best_deHaller)
+% fprintf('D rotore      = %.3f\n', best_D_rotore)
+% fprintf('D statore     = %.3f\n', best_D_statore)
+% fprintf('R_m           = %.3f\n', best_R_m)
+% 
+% fprintf('\n--- Prestazioni ---\n')
+% fprintf('T0U      = %.2f K\n', best_T0U)
+% fprintf('P0U      = %.2f Pa\n', best_P0U)
+% fprintf('L_comp   = %.2f MW\n', best_L_comp/1e6)
+% fprintf('eta_c    = %.4f\n', best_eta_c)
+% 
+% fprintf('\n--- Geometria ---\n')
+% fprintf('Ain      = %.4f m^2\n', best_Ain)
+% fprintf('Aout     = %.4f m^2\n', best_Aout)
+% fprintf('h_in     = %.4f m\n', best_h_in)
+% fprintf('h_out    = %.4f m\n', best_h_out)
+% 
+% fprintf('\n--- Primo stadio ---\n')
+% fprintf('Corda c_m        = %.4f m\n', best_c_m)
+% fprintf('Numero pale N_R  = %d\n', best_N_R)
+% fprintf('-------------------------------------------------\n')
 %% ------------------------------------------------------------------------
 %                          CAMERA DI COMBUSTIONE
 % -------------------------------------------------------------------------
@@ -470,7 +673,6 @@ if (~exist('best_L_comp', 'var'))
     motoreBase.camera.P04 = 213000;
     motoreBase.compressore.T03 = 410;
     motoreBase.compressore.U_m = 400;
-    motoreBase.compressore.r_m_in = 0.4;
 
     motoreBase.turbina.machIn = 0.3;
     motoreBase.turbina.rotore.wmachOut = 0.8;
@@ -520,13 +722,13 @@ for i = 1:N
 
     A4s(i) = T.AIn;
     A5s(i) = T.AOut;
-    machOut(i) = T.mach5;
+    machOut(i) = T.machOut;
 
     [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
 
     spinta(i) = motore.mdot * (Ue - v_volo);
 end
-
+%%
 %Rendimento isoentropico
 figure("name","Turbina");
 nexttile();
@@ -610,7 +812,7 @@ yline(25000,'--r','Spinta minima = 25000N')
 % variazione mahc in ingresso
 machIns = 0.3:0.02:0.4;
 
-motoreBase.camera.T04 = 1800;
+motoreBase.turbina.T0I = 1400;
 
 N = length(machIns);
 etan = zeros(1,N);
@@ -640,14 +842,14 @@ for i = 1:N
     Sota(i) = T.SOT;
     etos(i) = T.eta_NC;
 
-    P0Us(i) = T.P05;
-    P0Is(i) = T.P04;
-    T0Us(i) = T.T05;
-    T0Us_in(i) = T.T05_iso;
+    P0Us(i) = T.P0U;
+    P0Is(i) = T.P0I;
+    T0Us(i) = T.T0U;
+    T0Us_in(i) = T.T0U_iso;
 
     A4s(i) = T.AIn;
     A5s(i) = T.AOut;
-    machOut(i) = T.mach5;
+    machOut(i) = T.machOut;
 
     [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
 
