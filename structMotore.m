@@ -354,14 +354,14 @@ motore.compressore.N_stadi = NaN;
 
 
     %% UGELLO
-    motore.Ugello.etaN = 0.9;               % Rendimento
-    motore.Ugello.P0I  = motore.camera.P04; % Pressione totale in ingresso
-    motore.Ugello.T0I  = motore.camera.T04; % Temperatura totale in ingresso
-    motore.Ugello.mach = 0.3;               % Numero di Mach
+    motore.Ugello.etaN  = 0.9;               % Rendimento
+    motore.Ugello.P0I   = motore.camera.P04; % Pressione totale in ingresso
+    motore.Ugello.T0I   = motore.camera.T04; % Temperatura totale in ingresso
+    motore.Ugello.mach  = 0.3;               % Numero di Mach
     motore.Ugello.machE = NaN;
-    Motore.Ugello.Ue    = NaN;   % velocità di efflusso
-    Motore.Ugello.AStar = NaN;   % area di gola
-    Motore.Ugello.AE    = NaN;   % area di efflusso
-    Motore.Ugello.D_e    = NaN;   % diametro di efflusso 
+    Motore.Ugello.Ue    = NaN;               % velocità di efflusso
+    Motore.Ugello.AStar = NaN;               % area di gola
+    Motore.Ugello.AE    = NaN;               % area di efflusso
+    Motore.Ugello.D_e   = NaN;               % diametro di efflusso 
 
 end
