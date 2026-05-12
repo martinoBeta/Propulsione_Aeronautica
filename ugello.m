@@ -1,16 +1,16 @@
-function [motore] = ugello(motore,propFluidi)
+function [motore] = ugello(motore)
 % Calcolo parametri per ugello (subsonico), viene assunta espansione ottima
 
 
 
 %% estrazione variabili
-PU    = propFluidi.P0; % pressione a z=12000m [Pa]
-TU    = propFluidi.T0; % temperatura esterna [K]
-gamma = propFluidi.gamma;
-R     = propFluidi.R;
-Cp    = propFluidi.cp;
-T0I   = motore.Ugello.T0I;
-P0I   = motore.Ugello.P0I;
+PU    = motore.freestream.h12km.P0; % pressione a z=12000m [Pa]
+TU    = motore.freestream.h12km.T0; % temperatura esterna [K]
+gamma = motore.fluidi.gas.gamma;
+R     = motore.fluidi.gas.R;
+Cp    = motore.fluidi.gas.cpG;
+T0I   = motore.turbina.T05;
+P0I   = motore.turbina.P05;
 mach  = motore.Ugello.mach;
 mdot  = motore.portate.mDotGas; % portata
 
