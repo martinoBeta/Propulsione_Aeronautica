@@ -8,13 +8,11 @@ motoreBase = structMotore();
 motore = runnerMotore(motoreBase,propFluidi);
 
 
-%% Ricerca configurazione ammissibile più compatta
-% questa ottimizzazione non va bene se vogliamo minimizzare il TSFC
+%% OTTIMIZZAZIONE
+
 
 FS = 1; % fattore di sicurezza
 
-% Utip = 400;   troppo alto
-Utip_range = 340:5:400;
 
 machIn_range = 0.20:0.01:0.45;
 pi_c_range   = 7:0.1:11;
@@ -27,11 +25,11 @@ for machIns = machIn_range
     for pi_c = pi_c_range
 
 
-        if Mach_rel < FS*1.0 && ...
-           Cp_stadio < FS*0.5 && ...
-           deHaller > 0.72/FS && ...
-           D_rotore < FS*0.6 && ...
-           D_statore < FS*0.6
+        if motore.compressore.Mach_rel < FS*1.0 && ...
+           motore.compressore.Cp_stadio < FS*0.5 && ...
+           motore.compressore.deHaller > 0.72/FS && ...
+           motore.compressore.D_rotore < FS*0.6 && ...
+           motore.compressore.D_statore < FS*0.6
 
             nuovaSoluzione = false;
 
