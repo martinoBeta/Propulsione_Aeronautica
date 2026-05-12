@@ -360,8 +360,8 @@ motore.compressore.N_stadi = NaN;
     motore.Ugello.mach = 0.3;               % Numero di Mach
     motore.Ugello.machE = NaN;
     Motore.Ugello.Ue    = NaN;   % velocità di efflusso
-    Motore.Ugello.AStar = AStar;   % area di gola
-    Motore.Ugello.AE    = AE;   % area di efflusso
-    Motore.Ugello.D_e    = DE;   % diametro di efflusso 
+    Motore.Ugello.AStar = NaN;   % area di gola
+    Motore.Ugello.AE    = NaN;   % area di efflusso
+    Motore.Ugello.D_e    = NaN;   % diametro di efflusso 
 
 end
