@@ -74,7 +74,7 @@ function [motore] = cameraCombustione(motore)
 
     mDotAirFredda = mDotAir - mDotAirCalda; % portata aria di cooling [kg/s]
     
-    mDotComb = f * mDotAir;          % portata massica combustibile [kg/s]
+    mDotComb = fGlobal * mDotAir;          % portata massica combustibile [kg/s]
 
     mDotGas = mDotAir + mDotComb; % portata massica gas combusti (uscita camera di combustione) [kg/s]
 
@@ -125,7 +125,7 @@ function [motore] = cameraCombustione(motore)
     motore.camera.ALiner = ALiner;
     motore.camera.hRef = hRef;
     motore.camera.V     = V;
-    motore.camera.Lc    = Lc;
+    motore.camera.LC    = Lc;
     motore.camera.URef = URef;
     motore.camera.qRef = qRef;
     motore.camera.MRef = MRef;
