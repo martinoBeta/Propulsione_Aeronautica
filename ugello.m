@@ -12,7 +12,7 @@ Cp    = propFluidi.cp;
 T0I   = motore.Ugello.T0I;
 P0I   = motore.Ugello.P0I;
 mach  = motore.Ugello.mach;
-mdot  = motore.portate.mDotGas;
+mdot  = motore.portate.mDotGas; % portata
 
 %% calcolo gradenzze
 TI  = T0I/(1+(gamma-1)*mach/2);
@@ -32,7 +32,6 @@ AStar = mdot*sqrt(R*T0I)/( P0I*sqrt(gamma)*(2/(gamma+1))^((gamma+1)/(2*(gamma-1)
 AE    = (A_star/mach)*((((2+(gamma-1))*(mach^2))/(gamma+1))^((gamma+1)/(2*(gamma-1)))); %area di efflusso
 DE    = 2*sqrt(A_e/pi); %diametro di efflusso
 DStar = 2*sqrt(A_star/pi); %diametro di gola
-% possibile calcolo ingombri?
 
 
 %% assegnazione variabili
