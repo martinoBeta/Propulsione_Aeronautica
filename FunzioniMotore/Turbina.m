@@ -42,25 +42,27 @@ function [motore] = Turbina(motore)
     etaP = propTurbina.etaP;                    %Rendimento                             []
 
     % portate
-    mDot = motore.mdot;                         %Portata massica                        [kg/s]
+    mDotGas = motore.portate.mDotGas;                         %Portata massica                        [kg/s]
+    mDotRaff = motore.portate.mDotRaff;
 
     % proprietà fluidi
-    gammaGas = motore.gas.gamma;                %Gamma gas combusti                     []
-    cpGas = motore.gas.cp;                      %cp Gas combusti                        [J/(kgK)]
-    cpAir = motore.aria.cpOx;                   %cp aria                                [J/(kgK)]
-    RGas = motore.gas.R;                        %Costante specifica di un gas combusti  [J/(kgK)]
+    gammaGas = motore.fluidi.gas.gamma;                %Gamma gas combusti                     []
+    cpGas = motore.fluidi.gas.cp;                      %cp Gas combusti                        [J/(kgK)]
+    cpAir = motore.fluidi.aria.cp;                     %cp aria                                [J/(kgK)]
+    RGas = motore.fluidi.gas.R;                        %Costante specifica di un gas combusti  [J/(kgK)]
     % ---------------------------------------------------------------------
 
     %% INIZIO CALCOLI
     %Eps = mc/mtot.  percentuale di aria raffredata .
-    raffPecentuale = propTurbina.raffPecentuale;
+    mDot = mDotGas+mDotRaff;
+    raffPecentuale = mDotRaff/mDot;
     
     
     %Lavoro turbina 
     lTurbina = lCompressore/etaM;
     
     %Temperatura ad uscita turbina isoentropica
-    T05 = ((1-raffPecentuale)*cpGas*T04 + raffPecentuale*cpAir*TRaff - lTurbina/mDot)/((1-raffPecentuale)*cpGas+raffPecentuale*cpAir);
+    T05 = ((1-raffPecentuale)*cpGas*T04 + raffPecentuale*cpAir*TRaff - lTurbina/mDotGas)/((1-raffPecentuale)*cpGas+raffPecentuale*cpAir);
    
     %Temperatura di miscelamento
     T0M = ((1-raffPecentuale)*cpGas*T04 + raffPecentuale*cpAir*TRaff)/((1-raffPecentuale)*cpGas+ raffPecentuale*cpAir);

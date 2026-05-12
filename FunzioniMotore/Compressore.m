@@ -33,7 +33,7 @@ function [motore] = Compressore(motore)
     T0I = motore.presaAria.T02;
     P0I = motore.presaAria.P02;
     pi_c = motore.compressore.pi_c;
-    mDot = motore.portate.mDotAir;
+    mDot = motore.portate.mDot;
     eta_p = motore.compressore.eta_p;
     Utip = motore.compressore.Utip; 
     machIn = motore.presaAria.M2;
@@ -178,6 +178,7 @@ function [motore] = Compressore(motore)
     motore.compressore.N_R = N_R;
     motore.compressore.N_stadi = N_stadi;
     motore.compressore.U_m = U;
+    motore.compressore.mach3 = mach_out;
 
 
 

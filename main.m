@@ -1,7 +1,7 @@
 clc
 clear 
 close all
-
+addpath("FunzioniMotore")
 
 motore = structMotore();
 
@@ -21,7 +21,7 @@ motore.portate.mDotAir = mdot;
 %% ------------------------------------------------------------------------
 %                               PRESA D'ARIA
 %--------------------------------------------------------------------------
-motore.presa.regime = "subsonico";
+motore.presaAria.regime = "subsonico";
 
 
 %% ANALISI 1: vario M2
@@ -35,14 +35,14 @@ V2_vec = zeros(1,n);
 
 for i = 1:n
 
-    motore.presa.M2 = M2_range(i);
+    motore.presaAria.M2 = M2_range(i);
 
     motore = PresaDaria(motore);
 
-    A2_vec(i) = motore.presa.A2;
-    CPR_vec(i) = motore.presa.CPR;
-    P2_vec(i) = motore.presa.P2;
-    V2_vec(i) = motore.presa.V2;
+    A2_vec(i) = motore.presaAria.A2;
+    CPR_vec(i) = motore.presaAria.CPR;
+    P2_vec(i) = motore.presaAria.P2;
+    V2_vec(i) = motore.presaAria.V2;
 
 end
 
@@ -89,9 +89,9 @@ for i = 1:n
 
     motore = PresaDaria(motore);
 
-    A_ingresso_vec(i) = motore.presa.A_ingresso;
-    A2_vec(i) = motore.presa.A2;
-    CPR_vec(i) = motore.presa.CPR;
+    A_ingresso_vec(i) = motore.presaAria.A_ingresso;
+    A2_vec(i) = motore.presaAria.A2;
+    CPR_vec(i) = motore.presaAria.CPR;
 
 end
 
@@ -138,8 +138,8 @@ for i = 1:n
     motore = PresaDaria(motore);
 
    
-    A_ingresso_vec(i) = motore.presa.A_ingresso;
-    A2_vec(i) = motore.presa.A2;
+    A_ingresso_vec(i) = motore.presaAria.A_ingresso;
+    A2_vec(i) = motore.presaAria.A2;
 
 end
 
@@ -269,7 +269,7 @@ title('Sezione uscita compressore')
 
 %% ANALISI 2: VARIO U
 
-motore.presa.M2 = 0.35;
+motore.presaAria.M2 = 0.35;
 motore.compressore.pi_c = 9;
 
 Utip_range = 390:1:410;
@@ -403,12 +403,12 @@ D_statore_vec = zeros(1,n);
 
 for i = 1:n
 
-    motore.presa.M2 = machIn_range(i);
+    motore.presaAria.M2 = machIn_range(i);
 
     motore = compressore(motore);
 
     % Area ingresso compressore = uscita presa
-    A2_vec(i) = motore.presa.A2;
+    A2_vec(i) = motore.presaAria.A2;
 
     Mach_rel_vec(i) = motore.compressore.Mach_rel;
     Mach_abs_vec(i) = motore.compressore.Mach_abs;

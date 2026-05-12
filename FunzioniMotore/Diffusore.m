@@ -45,7 +45,6 @@ function [motore] = Diffusore(motore)
     mach35 = v35/a2;
     P35 = P035 / (1 + (gamma-1)/2 * mach35^2)^(gamma/(gamma-1)); % Pressione statica uscita
     rho2 = P35 / (R * T35);
-    v35 = mach35 * sqrt(gamma * R * T35);
     A35 = m_a / (rho2 * v35); % Area uscita 
     
     % 4. LUNGHEZZA DEL DIFFUSORE

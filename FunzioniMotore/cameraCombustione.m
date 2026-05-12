@@ -1,107 +1,133 @@
-function [P04, T04, Q_dot, propCamera, propCombust] = cameraCombustione( ...
-    P03_primo, T03_primo, propCamera, propFluidi, motore, propCombust)
+function [motore] = cameraCombustione(motore)
 % CAMERA_DI_COMBUSTIONE
 % Funzione che svolge il ciclo termodinamico reale della camera di combustione,
 % restituendo le condizioni termodinamiche in uscita e le caratteristiche
 % geometriche per il dimensionamento della camera.
 %
 % INPUT:
-%   P03_primo  : pressione totale in ingresso (dal dump diffuser) [Pa]
-%   T03_primo  : temperatura totale in ingresso (dal dump diffuser) [K]
-%   propCamera : struct con parametri geometrici noti della camera
+%   P03Primo  : pressione totale in ingresso (dal dump diffuser) [Pa]
+%   T03Primo  : temperatura totale in ingresso (dal dump diffuser) [K]
+%   motore.camera : struct con parametri geometrici noti della camera
 %   propFluidi : struct con proprietà termodinamiche dei fluidi
 %   motore : struct con parametri globali del motore        <<< AGGIUNTO
-%   propCombust: struct con proprietà del combustibile
+%   motore.fluidi.combustibile: struct con proprietà del combustibile
 %
 % OUTPUT:
 %   P04        : pressione totale in uscita dalla camera [Pa]
 %   T04        : temperatura totale in uscita dalla camera [K]
-%   Q_dot      : calore liberato durante la combustione [W]
-%   propCamera 
-%   propCombust
+%   QDot      : calore liberato durante la combustione [W]
+%   motore.camera 
+%   motore.fluidi.combustibile
 
-    propCamera = motore.camera;
-    propCamera.T04 = 
+  
     % 1. ESTRAZIONE VARIABILI DALLE STRUCT
 
+    % Uscita Diffusore
+    P03Primo = motore.diffusore.P035;
+    T03Primo = motore.diffusore.T035;
+    M03Primo = motore.diffusore.mach35;
+T3_statica = T03Primo / (1 + (gamma-1)/2 * M_preliminare^2);
+P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
     % Combustibile
     LHV   = motore.fluidi.combustibile.LHV;        % potere calorifico inferiore JP-7 [J/kg]
 
     % Motore
-    eta_b = motore.camera.eta_b;      % rendimento di combustione [-]
-    m_a   = motore.portate.mDotAir;   % portata aria che entra in camera [kg/s] gia spillata per turbina
-                                        
-                                        
-    T04   = motore.Tmax;       % temperatura target TIT in uscita camera [K]
+    etaB = motore.camera.etaB;     % rendimento di combustione [-]
+    mDotAir  = motore.portate.mDotAir;   % portata aria che entra in camera [kg/s]
+    T04   = motore.camera.T04;       % temperatura target TIT in uscita camera [K]
     
     % Fluidi
-    cp_a  = motore.fluidi.aria.cp;       % cp aria in ingresso [J/(kg·K)]
-    cp_g  = motore.fluidi.gas.cp;         % cp gas combusti in uscita [J/(kg·K)]
-    R     = motore.fluidi.gas.R;          % costante del gas [J/(kg·K)]
-    gamma = motore.fluidi.gas.gamma;      % rapporto calori specifici gas combusti [-]
-    
+    cpA  = motore.fluidi.aria.cp;       % cp aria in ingresso [J/(kg·K)]
+    cpG  = motore.fluidi.gas.cp;         % cp gas combusti in uscita [J/(kg·K)]
+    Rg   = motore.fluidi.gas.R;          % costante del gas [J/(kg·K)]
+    gammaG = motore.fluidi.gas.gamma;      % rapporto calori specifici gas combusti [-]
 
     % Camera
-    r_m             = propCamera.r_m;             % raggio medio anulare [m]
-    DP_su_qref      = propCamera.DP_su_qref;      % fattore perdita dinamica [-]
-    DP_su_P3_target = propCamera.DP_su_P3_target; % perdita di pressione target [-]
-    I               = propCamera.I;               % intensità di combustione [W/(m³·Pa)]
+    rMedio            = motore.camera.rMedio;             % raggio medio anulare [m]
+    perditaDinamica      = motore.camera.perditaDinamica; % fattore perdita dinamica [-]
+    perditaPressione = motore.camera.perditaPressione;    % perdita di pressione target [-]
+    I               = motore.camera.I;                    % intensità di combustione [W/(m³·Pa)]
 
     % 2. BILANCIO ENERGETICO
+    % Impongo un limite progettuale di temperatura affinchè la combustione
+    % venga risolta in modo da non generare eccessivi gas combsuti:
+    TComb = motore.camera.TComb; % [K]
+
     % Derivazione di f dal bilancio entalpico tra ingresso e uscita:
-    %   m_a * cp_a * T03 + m_f * LHV * eta_b = (m_a + m_f) * cp_g * T04
-    % Risolvendo per f = m_f / m_a:
-    f   = (cp_g * T04 - cp_a * T03_primo) / (LHV * eta_b - cp_g * T04);
-    m_f = f * m_a;          % portata massica combustibile [kg/s]
+    % Risolvendo per f = mDotComb / mDotAirCalda:
+    f   = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
+
+    % Da questo posso ricavare la suddivisone di tra porta in ingresso nel
+    % liner e portata in ingresso nel casing, dalla formula di miscelazione
+    % adiabatica: 
+    % mDotAirCalda*(cpG*TComb-cpA*T03Primo) = mDotAir*(cpG*T04-cpA*T03Primo)
+
+    mDotAirCalda = mDotAir * (cpG*T04-cpA*T03Primo) / (cpG*TComb-cpA*T03Primo);  % portata aria calda [kg/s]
+
+    mDotAirFredda = mDotAir - mDotAirCalda; % portata aria di cooling [kg/s]
     
+    mDotComb = f * mDotAir;          % portata massica combustibile [kg/s]
+
+    mDotGas = mDotAir + mDotComb; % portata massica gas combusti (uscita camera di combustione) [kg/s]
+
     % Calore liberato
-    Q_dot = m_f * LHV * eta_b;     % [W]
+    QDot = mDotComb * LHV * etaB;     % [W]
 
     % 3. DIMENSIONAMENTO TRASVERSALE
-    % Area di riferimento dalla correlazione ΔP/q_ref = costante
-    termine_flusso = (m_a * sqrt(T03_primo)) / P03_primo;  % parametro flusso
-    A_ref = sqrt( (R/2) * (termine_flusso^2) * (DP_su_qref / DP_su_P3_target) );
+    % Area di riferimento dalla correlazione ΔP/qRef = costante
+    termine_flusso = (mDotAir * sqrt(T03Primo)) / P03Primo;  % parametro flusso
+    ARef = sqrt( (Rg/2) * (termine_flusso^2) * (perditaDinamica / perditaPressione) );
+    % Area di riferimento del Liner
+    ALiner = ARef * (mDotAirCalda/mDotAir);
 
     % Altezza del canale anulare
-    h_ref = A_ref / (2 * pi * r_m);    % [m]
+    hRef = ARef / (2 * pi * rMedio);    % [m]
 
     % Grandezze di verifica
-    rho3  = P03_primo / (R * T03_primo);        % densità all'ingresso [kg/m³]
-    U_ref = m_a / (rho3 * A_ref);              % velocità di riferimento [m/s]
-    q_ref = 0.5 * rho3 * U_ref^2;             % pressione dinamica di riferimento [Pa]
-    M_ref = U_ref / sqrt(gamma * R * T03_primo); % Mach di riferimento [-]
-     
+    URef = mDotAir / (rho3 * ARef);              % velocità di riferimento [m/s]
+    qRef = 0.5 * rho3 * URef^2;                  % pressione dinamica di riferimento [Pa]
+    MRef = URef / sqrt(gammaG * Rg * T03Primo);  % Mach di riferimento [-]
+    
     % 4. DIMENSIONAMENTO VOLUMETRICO E LONGITUDINALE
-    % Volume della camera da intensità di combustione: I = Q_dot / (V * P03)
-    V  = Q_dot / (I * P03_primo);  % [m³]
+    % Volume della camera da intensità di combustione: I = QDot / (V * P03)
+    V  = QDot / (I * P03Primo);  % [m³]
 
     % Lunghezza assiale della camera
-    Lc = V / A_ref;                % [m]
+    Lc = V / Aref;                % [m]
     
     % Verifica tempo di residenza:
-    t_res = Lc/U_ref;
-    if t_res < 8e-3
-        error('Tempo di residenza minore di quello necessario (0.008s)')
+    tRes = Lc/ULiner;
+    if tRes < 8e-3
+        warning('Tempo di residenza minore di quello necessario (0.008s)')
     end
 
     % 5. CONDIZIONI DI USCITA
-    P04 = (1 - DP_su_P3_target) * P03_primo;   % pressione totale uscita [Pa]
+    P04 = (1 - perditaPressione) * P03Primo;   % pressione totale uscita [Pa]
     % T04 è già assegnata sopra 
     
     % 6. AGGIORNAMENTO STRUCT DI OUTPUT
-    propCombust.f   = f;
-    propCombust.m_f = m_f;
+    motore.camera.f  = f;
+    motore.portate.mDotComb = mDotComb;
+    motore.portate.mDotGas = mDotGas;
 
-    propCamera.A_ref = A_ref;
-    propCamera.h_ref = h_ref;
-    propCamera.V     = V;
-    propCamera.Lc    = Lc;
-    propCamera.U_ref = U_ref;
-    propCamera.q_ref = q_ref;
-    propCamera.M_ref = M_ref;
-    propCamera.t_res = t_res;
+    motore.camera.ARef = ARef;
+    motore.camera.ALiner = ALiner;
+    motore.camera.hRef = hRef;
+    motore.camera.V     = V;
+    motore.camera.Lc    = Lc;
+    motore.camera.URef = URef;
+    motore.camera.qRef = qRef;
+    motore.camera.MRef = MRef;
+    motore.camera.tRes = tRes;
+    motore.camera.mDotAirCalda = mDotAirCalda;
+    motore.camera.mDotAirFredda = mDotAirFredda;
+    motore.camera.P04 = P04;
+    motore.camera.QDot = QDot;
 
-
-    motore.camera = propCamera;
 
 end
+
+
+% DA aggiungere
+
+% Arrea ingresso liner : rhoingressocamera/(mdotAircalda*

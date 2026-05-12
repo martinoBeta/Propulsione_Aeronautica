@@ -77,10 +77,10 @@ function [motore] = structMotore()
 %---------------------------------------------------------------------
 
 motore.portate.mDot    = 35;    % portata massica totale
-motore.portate.mDotAir = NaN;    % portata massica in camera di combustione
-motore.portate.mDotRaff= NaN;    % portata masscia per raffredamento turbina
-
-
+motore.portate.mDotAir = NaN;   % portata massica in camera di combustione
+motore.portate.mDotRaff= NaN;   % portata massica per raffredamento turbina
+motore.portate.mDotGas = NaN;   % portata massica in usicta dalla camera che comprende il combustibile
+motore.portate.mDotComb= NaN;   % portata massica del combustibile
 
 
 
@@ -329,12 +329,13 @@ motore.compressore.N_stadi = NaN;
     motore.camera.perditaDinamica      = 20;    % fattore perdita dinamica ΔP/q [-]
     motore.camera.perditaPressione = 0.06;  % perdita pressione totale      [-]
     motore.camera.I               = 9e6;   % intensità di combustione      [W/(m³·Pa)]
-    motore.camera.eta_b           = 0.98;  % rendimento di combustione     [-]
-    motore.camera.pi_b            = 0.97;  % rapporto di pressione camera  [-]
+    motore.camera.etaB           = 0.98;  % rendimento di combustione     [-]
+    motore.camera.piB            = NaN;  % rapporto di pressione camera  [-]
 
     % Calcolati da Camera_di_combustione.m
     motore.camera.ARef = NaN;  % area di riferimento                     [m²]
     motore.camera.hRef = NaN;  % altezza canale anulare                  [m]
+    motore.camera.ALiner = NaN;
     motore.camera.V     = NaN;  % volume camera                           [m³]
     motore.camera.LC    = NaN;  % lunghezza camera                        [m]
     motore.camera.URef = NaN;  % velocità di riferimento                 [m/s]
@@ -343,5 +344,19 @@ motore.compressore.N_stadi = NaN;
     motore.camera.tRes = NaN;
     motore.camera.f = NaN;
     motore.camera.T04 = 1600;
+    motore.camera.mDotAirCalda = NaN;
+    motore.camera.mDotAirFredda = NaN;
+    motore.camera.P04 = NaN;
+    motore.camera.QDot = NaN;
+    motore.camera.TComb = 2300;
+
   
+
+
+    %% UGELLO
+    motore.Ugello.etaN = 0.9;
+    motore.Ugello.P0I  = motore.camera.P04;
+    motore.Ugello.TI   = motore.camera.T04;
+    motore.Ugello.
+
 end
