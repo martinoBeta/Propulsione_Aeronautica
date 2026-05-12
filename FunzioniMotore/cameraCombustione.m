@@ -26,8 +26,9 @@ function [motore] = cameraCombustione(motore)
     P03Primo = motore.diffusore.P035;
     T03Primo = motore.diffusore.T035;
     M03Primo = motore.diffusore.mach35;
-T3_statica = T03Primo / (1 + (gamma-1)/2 * M_preliminare^2);
-P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
+    T3_statica = T03Primo / (1 + (gamma-1)/2 * M_preliminare^2);
+    P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
+
     % Combustibile
     LHV   = motore.fluidi.combustibile.LHV;        % potere calorifico inferiore JP-7 [J/kg]
 
@@ -38,10 +39,13 @@ P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
     
     % Fluidi
     cpA  = motore.fluidi.aria.cp;       % cp aria in ingresso [J/(kg·K)]
+    Ra = motore.fluidi.aria.R;
     cpG  = motore.fluidi.gas.cp;         % cp gas combusti in uscita [J/(kg·K)]
     Rg   = motore.fluidi.gas.R;          % costante del gas [J/(kg·K)]
     gammaG = motore.fluidi.gas.gamma;      % rapporto calori specifici gas combusti [-]
 
+    % Calcolo la densità dell'aria in uscita dal diffusore
+    rho3 = P3_statica / (Ra * T3_statica);  % [kg/s]
     % Camera
     rMedio            = motore.camera.rMedio;             % raggio medio anulare [m]
     perditaDinamica      = motore.camera.perditaDinamica; % fattore perdita dinamica [-]
