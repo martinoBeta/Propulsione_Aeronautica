@@ -16,7 +16,7 @@ mdot  = motore.portate.mDotGas; % portata
 
 %% calcolo gradenzze
 TI  = T0I/(1+(gamma-1)*mach/2);
-P0I = P0I*0.97; %Pressione totale persa per afterburner
+P0I = P0I*0.98; %Pressione totale persa per afterburner (non attivo)
 NPR = P0I/PU; %Nozzle Pressure Ratio
 
 TU_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
