@@ -3,7 +3,7 @@ function [motore] = ugello(motore,propFluidi)
 
 
 
-% estrazione variabili
+%% estrazione variabili
 PU    = propFluidi.P0; % pressione a z=12000m [Pa]
 TU    = propFluidi.T0; % temperatura esterna [K]
 gamma = propFluidi.gamma;
@@ -14,7 +14,7 @@ P0I   = motore.Ugello.P0I;
 mach  = motore.Ugello.mach;
 mdot  = motore.portate.mDotGas;
 
-%calcolo gradenzze
+%% calcolo gradenzze
 TI  = T0I/(1+(gamma-1)*mach/2);
 P0I = P0I*0.97; %Pressione totale persa per afterburner
 NPR = P0I/PU; %Nozzle Pressure Ratio
@@ -35,7 +35,7 @@ DStar = 2*sqrt(A_star/pi); %diametro di gola
 % possibile calcolo ingombri?
 
 
-% assegnazione variabili
+%% assegnazione variabili
 Motore.Ugello.machE = mach;
 Motore.Ugello.Ue    = Ue;   % velocità di efflusso
 Motore.Ugello.AStar = AStar;   % area di gola
