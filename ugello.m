@@ -3,7 +3,7 @@ function [motore] = ugello(motore,propFluidi)
 
 
 
-% estrazione variabili
+%% estrazione variabili
 PU    = propFluidi.P0; % pressione a z=12000m [Pa]
 TU    = propFluidi.T0; % temperatura esterna [K]
 gamma = propFluidi.gamma;
@@ -12,11 +12,11 @@ Cp    = propFluidi.cp;
 T0I   = motore.Ugello.T0I;
 P0I   = motore.Ugello.P0I;
 mach  = motore.Ugello.mach;
-mdot  = motore.portate.mDotGas;
+mdot  = motore.portate.mDotGas; % portata
 
-%calcolo gradenzze
+%% calcolo gradenzze
 TI  = T0I/(1+(gamma-1)*mach/2);
-P0I = P0I*0.97; %Pressione totale persa per afterburner
+P0I = P0I*0.98; %Pressione totale persa per afterburner (non attivo)
 NPR = P0I/PU; %Nozzle Pressure Ratio
 
 TU_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
@@ -32,14 +32,13 @@ AStar = mdot*sqrt(R*T0I)/( P0I*sqrt(gamma)*(2/(gamma+1))^((gamma+1)/(2*(gamma-1)
 AE    = (A_star/mach)*((((2+(gamma-1))*(mach^2))/(gamma+1))^((gamma+1)/(2*(gamma-1)))); %area di efflusso
 DE    = 2*sqrt(A_e/pi); %diametro di efflusso
 DStar = 2*sqrt(A_star/pi); %diametro di gola
-% possibile calcolo ingombri?
 
 
-% assegnazione variabili
-Motore.Ugello.mach_e = mach;
-Motore.Ugello.Ue     = Ue;   % velocità di efflusso
-Motore.Ugello.AStar  = AStar;   % area di gola
-Motore.Ugello.AE     = A_e;   % area di efflusso
-Motore.Ugello.D_e    = D_e;   % diametro di efflusso  
+%% assegnazione variabili
+Motore.Ugello.machE = mach;
+Motore.Ugello.Ue    = Ue;   % velocità di efflusso
+Motore.Ugello.AStar = AStar;   % area di gola
+Motore.Ugello.AE    = AE;   % area di efflusso
+Motore.Ugello.DE    = DE;   % diametro di efflusso  
 
 end

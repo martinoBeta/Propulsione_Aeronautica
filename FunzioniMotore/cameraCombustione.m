@@ -28,12 +28,7 @@ function [motore] = cameraCombustione(motore)
     M03Primo = motore.diffusore.mach35;
     T3_statica = T03Primo / (1 + (gamma-1)/2 * M_preliminare^2);
     P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
-<<<<<<< HEAD
-XGNTE
-DFZMZM
-=======
-
->>>>>>> parent of c5c60d5 (MODIFICA)
+BGBLNFBàLKGN
     % Combustibile
     LHV   = motore.fluidi.combustibile.LHV;        % potere calorifico inferiore JP-7 [J/kg]
 
