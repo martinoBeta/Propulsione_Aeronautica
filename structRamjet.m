@@ -66,4 +66,11 @@ motore.freestream.h25km.rho0 = rho0;
 motore.freestream.h25km.M0 = M0;
 motore.freestream.h25km.V0 = V0;
 motore.freestream.h25km.a0 = a0;
+
+
+%---------------------------------------------------------------------
+%% PRESA D'ARIA
+%---------------------------------------------------------------------
+
+
 end
