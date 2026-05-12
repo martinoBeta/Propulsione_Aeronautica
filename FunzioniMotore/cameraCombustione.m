@@ -26,9 +26,6 @@ function [motore] = cameraCombustione(motore)
     P03Primo = motore.diffusore.P035;
     T03Primo = motore.diffusore.T035;
     M03Primo = motore.diffusore.mach35;
-    T3_statica = T03Primo / (1 + (gamma-1)/2 * M_preliminare^2);
-    P3_statica = P03Primo / (1 + (gamma-1)/2 * M_preliminare^2)^(gamma/(gamma-1));
-BGBLNFBàLKGN
     % Combustibile
     LHV   = motore.fluidi.combustibile.LHV;        % potere calorifico inferiore JP-7 [J/kg]
 
@@ -39,27 +36,34 @@ BGBLNFBàLKGN
     
     % Fluidi
     cpA  = motore.fluidi.aria.cp;       % cp aria in ingresso [J/(kg·K)]
-    Ra = motore.fluidi.aria.R;
-    cpG  = motore.fluidi.gas.cp;         % cp gas combusti in uscita [J/(kg·K)]
-    Rg   = motore.fluidi.gas.R;          % costante del gas [J/(kg·K)]
-    gammaG = motore.fluidi.gas.gamma;      % rapporto calori specifici gas combusti [-]
+    Ra = motore.fluidi.aria.R;          % costante dell' aria [J/(Kg*K)]
+    gammaA = motore.fluidi.aria.gamma;  % rapporto calori specifici aria [-]
+    cpG  = motore.fluidi.gas.cp;        % cp gas combusti in uscita [J/(kg·K)]
+    Rg   = motore.fluidi.gas.R;         % costante del gas [J/(kg·K)]
+    gammaG = motore.fluidi.gas.gamma;   % rapporto calori specifici gas combusti [-]
+
+    % Ricavo pressione e temperatura statica per calcoli futuri:
+    T3Statica = T03Primo / (1 + (gammaA-1)/2 * M03Primo^2);
+    P3Statica = P03Primo / (1 + (gammaA-1)/2 * M03Primo^2)^(gammaA/(gammaA-1));
 
     % Calcolo la densità dell'aria in uscita dal diffusore
-    rho3 = P3_statica / (Ra * T3_statica);  % [kg/s]
+    rho3 = P3Statica / (Ra * T3Statica);  % [kg/s]
+
     % Camera
     rMedio            = motore.camera.rMedio;             % raggio medio anulare [m]
-    perditaDinamica      = motore.camera.perditaDinamica; % fattore perdita dinamica [-]
-    perditaPressione = motore.camera.perditaPressione;    % perdita di pressione target [-]
-    I               = motore.camera.I;                    % intensità di combustione [W/(m³·Pa)]
+    perditaDinamica   = motore.camera.perditaDinamica;    % fattore perdita dinamica [-]
+    perditaPressione  = motore.camera.perditaPressione;   % perdita di pressione target [-]
+    I                 = motore.camera.I;                  % intensità di combustione [W/(m³·Pa)]
 
     % 2. BILANCIO ENERGETICO
     % Impongo un limite progettuale di temperatura affinchè la combustione
     % venga risolta in modo da non generare eccessivi gas combsuti:
     TComb = motore.camera.TComb; % [K]
 
-    % Derivazione di f dal bilancio entalpico tra ingresso e uscita:
+    % Derivazione di fLiner e fGlobal dal bilancio entalpico tra ingresso e uscita:
     % Risolvendo per f = mDotComb / mDotAirCalda:
-    f   = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
+    fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
+    fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04);
 
     % Da questo posso ricavare la suddivisone di tra porta in ingresso nel
     % liner e portata in ingresso nel casing, dalla formula di miscelazione
@@ -80,24 +84,27 @@ BGBLNFBàLKGN
     % 3. DIMENSIONAMENTO TRASVERSALE
     % Area di riferimento dalla correlazione ΔP/qRef = costante
     termine_flusso = (mDotAir * sqrt(T03Primo)) / P03Primo;  % parametro flusso
-    ARef = sqrt( (Rg/2) * (termine_flusso^2) * (perditaDinamica / perditaPressione) );
-    % Area di riferimento del Liner
-    ALiner = ARef * (mDotAirCalda/mDotAir);
+    ARef = sqrt((Rg/2) * (termine_flusso^2) * (perditaDinamica/perditaPressione));
 
     % Altezza del canale anulare
-    hRef = ARef / (2 * pi * rMedio);    % [m]
+    hRef = ARef / (2*pi*rMedio);    % [m]
 
     % Grandezze di verifica
     URef = mDotAir / (rho3 * ARef);              % velocità di riferimento [m/s]
     qRef = 0.5 * rho3 * URef^2;                  % pressione dinamica di riferimento [Pa]
     MRef = URef / sqrt(gammaG * Rg * T03Primo);  % Mach di riferimento [-]
-    
+
+    % Per il tempo di residenza devo utilizzare i parametri del liner:
+    ALiner = ARef * (mDotAirCalda/mDotAir);  % Area di riferimento del Liner
+    rhoLiner = P3Statica / (Rg*TComb);
+    ULiner = (mDotAirCalda+mDotComb)/(ALiner*rhoLiner);
+    MLiner = ULiner / sqrt(gammaG * Rg * TComb);
     % 4. DIMENSIONAMENTO VOLUMETRICO E LONGITUDINALE
     % Volume della camera da intensità di combustione: I = QDot / (V * P03)
     V  = QDot / (I * P03Primo);  % [m³]
 
     % Lunghezza assiale della camera
-    Lc = V / Aref;                % [m]
+    Lc = V / ARef;                % [m]
     
     % Verifica tempo di residenza:
     tRes = Lc/ULiner;
@@ -110,7 +117,7 @@ BGBLNFBàLKGN
     % T04 è già assegnata sopra 
     
     % 6. AGGIORNAMENTO STRUCT DI OUTPUT
-    motore.camera.f  = f;
+    motore.camera.f  = fGlobal;
     motore.portate.mDotComb = mDotComb;
     motore.portate.mDotGas = mDotGas;
 
@@ -131,7 +138,3 @@ BGBLNFBàLKGN
 
 end
 
-
-% DA aggiungere
-
-% Arrea ingresso liner : rhoingressocamera/(mdotAircalda*
