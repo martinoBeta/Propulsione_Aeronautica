@@ -37,9 +37,9 @@ DStar = 2*sqrt(A_star/pi); %diametro di gola
 
 % assegnazione variabili
 Motore.Ugello.machE = mach;
-Motore.Ugello.Ue     = Ue;   % velocità di efflusso
-Motore.Ugello.AStar  = AStar;   % area di gola
-Motore.Ugello.AE     = AE;   % area di efflusso
-Motore.Ugello.D_e    = DE;   % diametro di efflusso  
+Motore.Ugello.Ue    = Ue;   % velocità di efflusso
+Motore.Ugello.AStar = AStar;   % area di gola
+Motore.Ugello.AE    = AE;   % area di efflusso
+Motore.Ugello.DE    = DE;   % diametro di efflusso  
 
 end
