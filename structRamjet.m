@@ -73,4 +73,41 @@ motore.freestream.h25km.a0 = a0;
 %---------------------------------------------------------------------
 
 
+
+
+
+%---------------------------------------------------------------------
+%% ANULUS
+%---------------------------------------------------------------------
+
+
+
+
+%---------------------------------------------------------------------
+%% CAMERA DI COMBUSTIONE
+%---------------------------------------------------------------------
+
+
+
+
+%---------------------------------------------------------------------
+%% UGELLO
+%---------------------------------------------------------------------
+motore.ugello.etaN  = 0.9;              % Rendimento
+motore.ugello.P05   = NaN;              % Pressione totale in uscita
+motore.ugello.T05   = NaN;              % Temperatura totale in uscita
+motore.ugello.mach5 = NaN;              % Numero di Mach
+motore.ugello.Ue    = NaN;              % velocità di efflusso
+motore.ugello.AStar = NaN;              % area di gola
+motore.ugello.AE    = NaN;              % area di efflusso
+motore.ugello.DE    = NaN;              % diametro di efflusso
+
+
+%---------------------------------------------------------------------
+%% PERFORMANCE
+%---------------------------------------------------------------------
+motore.performance.F         = NaN;
+motore.performance.etaGlobal = NaN;
+motore.performance.TSFC     = NaN;
+
 end
