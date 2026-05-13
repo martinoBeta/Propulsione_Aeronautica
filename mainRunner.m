@@ -8,13 +8,37 @@ motoreBase = structMotore();
 
 
 %% OTTIMIZZAZIONE
+tic
 [parametri,rangeP] = structParametri();
 fun = @(x) runnerMotore(motoreBase,x);
 nonlcon = @(x) mycon(x,motoreBase);
 
-x = fmincon(fun,parametri,[],[],[],[],rangeP(:,1),rangeP(:,2),nonlcon);
+% x = fmincon(fun,parametri,[],[],[],[],rangeP(:,1),rangeP(:,2),nonlcon);
 
-[T,motore1] = runnerMotore(motoreBase,x);
+
+
+M = 1000;         % Best M candidates from grid-search as seeds
+
+init_pop = zeros(M, length(parametri));
+hybrid_opts = optimoptions('fmincon', ...   % Solution refinement with fmincon
+    'Display',           'none', ...
+    'Algorithm',         'sqp', ...
+    'StepTolerance',     1e-12, ...
+    'FunctionTolerance', 1e-12);
+
+options_ga = optimoptions('ga', ...
+    'PopulationSize',          M, ...
+    'MaxGenerations',          ceil(M/200), ...   
+    'FunctionTolerance',       1e-8, ...
+    'MaxStallGenerations',     ceil(M/100), ...
+    'Display',                 'none', ...
+    'InitialPopulationMatrix', init_pop, ...
+    'InitialPopulationRange',  rangeP', ...
+    'maxTime',                 100,...
+    'HybridFcn',               {@fmincon, hybrid_opts});
+
+x1 = ga(fun, length(parametri), [], [], [], [], rangeP(:,1), rangeP(:,2), nonlcon, options_ga);
+% Aggiungere constrains!
 
 function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
     [~,motore] = runnerMotore(motoreBase,x);
@@ -25,7 +49,7 @@ function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
         motore.compressore.CpStadio - 0.5;
         motore.compressore.DRotore - 0.6;
         motore.compressore.DStatore - 0.6;
-        motore.compressore.NStadi - 20;
+        % motore.compressore.NStadi - 20;
         0.008 - motore.camera.tRes;
         motore.camera.phi - 1.1;
         0.7 -  motore.camera.phi;      
@@ -33,8 +57,12 @@ function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
 
     eqnonlin = [ ...
         motore.performance.F - 25000;
-    ];    % Compute nonlinear equalities at x.
+    ];    % Co
+% %% mpute nonlinear equalities at x.
 end
+[T,motore1] = runnerMotore(motoreBase,x1);
+[z,u] = mycon(x1,motoreBase);
+toc
 
 % %% 
 % FS = 1; % fattore di sicurezza
@@ -64,6 +92,8 @@ end
 %             if NStadi < best_NStadi
 %                 nuovaSoluzione = true;
 % 
+% %% 
+% FS = 
 %             elseif NStadi == best_NStadi && Ain < best_Ain
 %                 nuovaSoluzione = true;
 %             end
@@ -71,7 +101,9 @@ end
 %             if nuovaSoluzione
 % 
 %                 best_NStadi = NStadi;
-%                 best_Ain = Ain;
+%       
+% %% 
+% FS =           best_Ain = Ain;
 % 
 %                 best_machIn = machIns;
 %                 best_Utip = Utip;
@@ -89,6 +121,7 @@ end
 %                 best_deHaller = deHaller;
 % 
 %                 best_DRotore = DRotore;
+% 
 %                 best_DStatore = DStatore;
 %                 best_R_m = R_m;
 % 
@@ -116,3 +149,5 @@ end
 % if best_NStadi == 100000
 %     error('Nessuna configurazione valida trovata')
 % end
+
+% 

@@ -45,6 +45,6 @@ function F_is = CicloIdeale(motore,vVolo,mDotGas)
     P05_is = P03_is*(T04_is/T05_is)^(gammaG/(1-gammaG));
     Mexit_is = sqrt( (2/(gammaG-1)) * ( (P05_is/P0)^((gammaG-1)/gammaG) - 1 ) );
     Texit_is = T05_is / (1 + (gammaG-1)/2 * Mexit_is^2);
-    vExit_is = sqrt(motore.fluidi.gas.R*gammaG*Texit_is);
+    vExit_is = Mexit_is *sqrt(motore.fluidi.gas.R*gammaG*Texit_is);
     F_is = mDotGas*(vExit_is-vVolo);
 end
