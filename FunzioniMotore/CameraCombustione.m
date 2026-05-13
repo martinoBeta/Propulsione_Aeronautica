@@ -64,6 +64,10 @@ function [motore] = CameraCombustione(motore)
     % Risolvendo per f = mDotComb / mDotAirCalda:
     fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
     fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04);
+    
+    % Mi ricavo il rapporto di equivalenza:
+    fStechio = 0.068;
+    phi = fLiner/fStechio;
 
     % Da questo posso ricavare la suddivisone di tra porta in ingresso nel
     % liner e portata in ingresso nel casing, dalla formula di miscelazione
@@ -132,6 +136,7 @@ function [motore] = CameraCombustione(motore)
     motore.camera.mDotAirFredda = mDotAirFredda;
     motore.camera.P04 = P04;
     motore.camera.QDot = QDot;
+    motore.camera.phi = phi;
 
 
 end
