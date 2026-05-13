@@ -11,7 +11,7 @@ motore.portate.mDotGas = 30;
 motore.portate.mDotRaff = 5;
 
 motore.compressore.U_m    = 350;
-motore.compressore.r_m_in = 0.25;
+motore.compressore.r_m_out = 0.25;
 motore.compressore.L_c    = 8e6;
 motore.compressore.T03    = 420;
 

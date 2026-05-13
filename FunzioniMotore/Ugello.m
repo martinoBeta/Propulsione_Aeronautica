@@ -1,4 +1,4 @@
-function [motore] = ugello(motore)
+function [motore] = Ugello(motore)
 % Calcolo parametri per ugello (subsonico), viene assunta espansione ottima
 
 
