@@ -20,17 +20,17 @@ TI = T0I/(1 + (gamma-1)/2 * mach^2);
 P0I = P0I*0.98; %Pressione totale persa per afterburner (non attivo)
 NPR = P0I/PU; %Nozzle Pressure Ratio
 
-TU_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
-TU    = T0I - eta_n*(T0I-TU_is); % temperatura in uscita
+TE_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
+TE    = T0I - eta_n*(T0I-TE_is); % temperatura in uscita
 
-Ue  = sqrt(2*Cp*(T0I-TU)); % velocità di efflusso
-mach = Ue/sqrt(gamma*R*TU);    %mach di efflusso
+Ue  = sqrt(2*Cp*(T0I-TE)); % velocità di efflusso
+mach = Ue/sqrt(gamma*R*TE);    %mach di efflusso
 
-T0U = TU*(1+((gamma-1)/2)*mach^2); % temperatura totale di efflusso
+T0U = T0I; % temperatura totale di efflusso
 P0U = PU*(1+((gamma-1)/2)*mach^2)^(gamma/(gamma-1)); % pressione totale di efflusso
 
-AStar = mdot*sqrt(R*T0I)/( P0I*sqrt(gamma)*(2/(gamma+1))^((gamma+1)/(2*(gamma-1)))); % area di gola
-AE    = (AStar/mach)*((((2+(gamma-1))*(mach^2))/(gamma+1))^((gamma+1)/(2*(gamma-1)))); %area di efflusso
+AStar = (mdot/P0I)*sqrt(R*T0I/gamma)*((gamma+1)/2)^((gamma+1)/(2*(gamma-1))); % area di gola
+AE    = (AStar/mach)*((2/(gamma+1))*(1+(gamma-1)/2*mach^2))^((gamma+1)/(2*(gamma-1))); %area di efflusso
 DE    = 2*sqrt(AE/pi); %diametro di efflusso
 DStar = 2*sqrt(AStar/pi); %diametro di gola
 
