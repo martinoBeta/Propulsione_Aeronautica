@@ -86,9 +86,17 @@ motore.freestream.h25km.a0 = a0;
 %---------------------------------------------------------------------
 %% CAMERA DI COMBUSTIONE
 %---------------------------------------------------------------------
+motore.camera.Tmax  = 2100;        % Temperatura massima  [K]
+motore.camera.pi_ab = 0.96;        % Rendimento pneumatico
+motore.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
+motore.camera.B     = 0.25;        % Bloccaggio
 
-
-
+motore.camera.mach    = NaN;          % Numero di mach
+motore.camera.T04     = NaN;          % Temperatura in uscita
+motore.camera.P04     = NaN;          % Pressione in uscita
+motore.camera.f       = NaN;
+motore.camera.d       = NaN;          % Diametro stabilizzatore di fiamma
+motore.camera.L       = NaN;          % Lunghezza camera
 
 %---------------------------------------------------------------------
 %% UGELLO
