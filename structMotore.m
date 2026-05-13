@@ -132,7 +132,7 @@ motore.presaAria.CPR = NaN;
 
 
 
-% T0I, P0I, T_in, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
+% T0I, P0I, TIn, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
 
 
 
@@ -140,8 +140,8 @@ motore.presaAria.CPR = NaN;
 %% COMPRESSORE
 %---------------------------------------------------------------------
 
-motore.compressore.pi_c = 7;
-motore.compressore.eta_p = 0.9;
+motore.compressore.piC = 7;
+motore.compressore.etaP = 0.9;
 motore.compressore.Utip = 350;
 motore.compressore.U_m = NaN;
 
@@ -152,26 +152,26 @@ motore.compressore.hubTip = 0.5;
 motore.compressore.T03 = NaN;
 motore.compressore.P03 = NaN;
 motore.compressore.L_c = NaN;
-motore.compressore.eta_c = NaN;
-motore.compressore.Mach_rel = NaN;
+motore.compressore.etaC = NaN;
+motore.compressore.machRel = NaN;
 motore.compressore.Mach_abs = NaN;
-motore.compressore.Cp_stadio = NaN;
+motore.compressore.CpStadio = NaN;
 motore.compressore.deHaller = NaN;
 motore.compressore.Va = NaN;
 motore.compressore.beta1 = NaN;
 motore.compressore.beta2 = NaN;
 %motore.compressore.Ain_c = NaN; = area uscita presa
 motore.compressore.r_m_in = NaN;
-motore.compressore.h_in = NaN;
+motore.compressore.hIn = NaN;
 motore.compressore.Aout_c = NaN;
 motore.compressore.r_m_out = NaN;
-motore.compressore.h_out = NaN;
-motore.compressore.D_rotore = NaN;
-motore.compressore.D_statore = NaN;
+motore.compressore.hOut = NaN;
+motore.compressore.DRotore = NaN;
+motore.compressore.DStatore = NaN;
 motore.compressore.R_m = NaN;
 motore.compressore.c_m = NaN;
 motore.compressore.N_R = NaN;
-motore.compressore.N_stadi = NaN;
+motore.compressore.NStadi = NaN;
 
 
 
@@ -302,7 +302,7 @@ motore.compressore.N_stadi = NaN;
                                                   % (limite distacco: < 8–10°)
 
     % Aggiornati nel main dopo compressore.m
-    motore.diffusore.mach3  = NaN;  % Mach ingresso (= mach_out compressore) [-]
+    motore.diffusore.mach3  = NaN;  % Mach ingresso (= machOut compressore) [-]
     motore.diffusore.rMedio = NaN;  % raggio medio  (= r_m_out compressore)  [m]
     motore.diffusore.T03    = NaN;
     motore.diffusore.P03    = NaN;

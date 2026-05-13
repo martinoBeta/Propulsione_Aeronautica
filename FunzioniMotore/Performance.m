@@ -27,7 +27,7 @@ end
 function F_is = CicloIdeale(motore,vVolo,mDotGas)
     mDotAria = motore.portate.mDotAir;
 
-    piC = motore.compressore.pi_c;
+    piC = motore.compressore.piC;
     P00 = motore.freestream.h12km.P00;
     P0 = motore.freestream.h12km.P0;
     T00 = motore.freestream.h12km.T00;
