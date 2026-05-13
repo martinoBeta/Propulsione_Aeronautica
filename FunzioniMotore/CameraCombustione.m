@@ -1,4 +1,4 @@
-function [motore] = cameraCombustione(motore)
+function [motore] = CameraCombustione(motore)
 % CAMERA_DI_COMBUSTIONE
 % Funzione che svolge il ciclo termodinamico reale della camera di combustione,
 % restituendo le condizioni termodinamiche in uscita e le caratteristiche
@@ -76,8 +76,6 @@ function [motore] = cameraCombustione(motore)
     
     mDotComb = fGlobal * mDotAir;          % portata massica combustibile [kg/s]
 
-    mDotGas = mDotAir + mDotComb; % portata massica gas combusti (uscita camera di combustione) [kg/s]
-
     % Calore liberato
     QDot = mDotComb * LHV * etaB;     % [W]
 
@@ -119,7 +117,6 @@ function [motore] = cameraCombustione(motore)
     % 6. AGGIORNAMENTO STRUCT DI OUTPUT
     motore.camera.f  = fGlobal;
     motore.portate.mDotComb = mDotComb;
-    motore.portate.mDotGas = mDotGas;
 
     motore.camera.ARef = ARef;
     motore.camera.ALiner = ALiner;

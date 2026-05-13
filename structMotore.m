@@ -359,4 +359,10 @@ motore.compressore.N_stadi = NaN;
     motore.ugello.AE    = NaN;              % area di efflusso
     motore.ugello.DE    = NaN;              % diametro di efflusso 
 
+
+    %% PERFORMANCE
+    motore.performance.F         = NaN;
+    motore.performance.etaGlobal = NaN;
+    motore.performance.TSFC     = NaN;
+
 end

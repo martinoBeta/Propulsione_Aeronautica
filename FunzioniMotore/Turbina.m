@@ -42,8 +42,10 @@ function [motore] = Turbina(motore)
     etaP = propTurbina.etaP;                    %Rendimento                             []
 
     % portate
-    mDotGas = motore.portate.mDotGas;                         %Portata massica                        [kg/s]
+    mDotAria = motore.portate.mDotAir;
+    mDotComb = motore.portate.mDotComb;
     mDotRaff = motore.portate.mDotRaff;
+    mDotGas = mDotAria+mDotComb + mDotRaff;                         %Portata massica                        [kg/s]
 
     % proprietà fluidi
     gammaGas = motore.fluidi.gas.gamma;                %Gamma gas combusti                     []
@@ -226,6 +228,7 @@ function [motore] = Turbina(motore)
     propTurbina.statore = statore;
     propTurbina.rotore = rotore;
     motore.turbina = propTurbina;
+    motore.portate.mDotGas = mDotGas;
     % ---------------------------------------------------------------------
     
 end

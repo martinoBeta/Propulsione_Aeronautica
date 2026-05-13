@@ -20,7 +20,7 @@ motore.camera.TComb = 2200;
 
 % 2. Esecuzione funzione
 try
-    motore = cameraCombustione(motore);
+    motore = CameraCombustione(motore);
     c = motore.camera;
     p = motore.portate;
 
