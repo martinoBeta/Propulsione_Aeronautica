@@ -7,8 +7,10 @@ fprintf('=== TEST TURBINA ===\n');
 
 motore = structMotore();
 
-motore.portate.mDotGas = 30;
+motore.portate.mDotAir = 30;
 motore.portate.mDotRaff = 5;
+motore.portate.mDotComb = 1;
+
 
 motore.compressore.U_m    = 350;
 motore.compressore.r_m_out = 0.25;

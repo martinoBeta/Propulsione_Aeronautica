@@ -2,7 +2,6 @@ clc
 clear 
 close all
 addpath("FunzioniMotore")
-propFluidi = structFluidi();
 motoreBase = structMotore();
 
 motore = runnerMotore(motoreBase);
@@ -89,4 +88,4 @@ end
 
 if best_N_stadi == 100000
     error('Nessuna configurazione valida trovata')
-end
+end=

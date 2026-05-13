@@ -56,8 +56,7 @@ function [motore] = Turbina(motore)
 
     %% INIZIO CALCOLI
     %Eps = mc/mtot.  percentuale di aria raffredata .
-    mDot = mDotGas+mDotRaff;
-    raffPecentuale = mDotRaff/mDot;
+    raffPecentuale = mDotRaff/mDotGas;
     
     
     %Lavoro turbina 
@@ -77,10 +76,10 @@ function [motore] = Turbina(motore)
     T05Iso = T0M*betaP^((gammaGas-1)/gammaGas);
 
     % Lavoro isoentropico non rafreddato
-    lIsoNoRaff = cpGas*mDot*(T04-T05Iso);
+    lIsoNoRaff = cpGas*mDotGas*(T04-T05Iso);
 
     % Lavoro isoentropico rafreddato
-    lIsoRaff = mDot*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
+    lIsoRaff = mDotGas*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
  
     % rendimento adiabatico
    
@@ -93,7 +92,7 @@ function [motore] = Turbina(motore)
     P4 =  P04 / (1 + (gammaGas - 1)/2 * machIn^2)^(gammaGas/(gammaGas - 1));
     v4z = machIn*sqrt(RGas*gammaGas*T4);
     rho4 = P4 / (RGas * T4);
-    A4 = mDot*(1-raffPecentuale)/(rho4*v4z);
+    A4 = mDotGas*(1-raffPecentuale)/(rho4*v4z);
 
     % OUTLET TURBINE
     v5z = v4z;                  %velocità assiale costante
@@ -101,7 +100,7 @@ function [motore] = Turbina(motore)
     mach5 = sqrt((2/(gammaGas-1)) * ((T05/T5) - 1));
     P5 =  P0U / (1 + (gammaGas - 1)/2 * mach5^2)^(gammaGas/(gammaGas - 1));
     rho5 = P5 / (RGas * T5);
-    A5 = mDot/(rho5*v5z);
+    A5 = mDotGas/(rho5*v5z);
     
     h5 = A5/(2*pi*rM);
     rt5 = rM + h5/2;
@@ -129,7 +128,7 @@ function [motore] = Turbina(motore)
         % angolo statore.alpha
         statore.alpha = atan(statore.vt/statore.vz)*180/pi;
         % area all'uscita dello statore
-        statore.AOut = mDot/(statore.rho*statore.v);
+        statore.AOut = mDotGas/(statore.rho*statore.v);
 
         % Velocità Relative
         statore.wz = statore.vz;
@@ -160,12 +159,12 @@ function [motore] = Turbina(motore)
       
       % SEZIONI
       % entrata rotore
-      rotore.AIn = mDot/(statore.rho*statore.vz);
+      rotore.AIn = mDotGas/(statore.rho*statore.vz);
       rotore.hIn = rotore.AIn/(2*pi*rM);
       rotore.rtIn = rM + rotore.hIn/2;
       rotore.rhIn = rM - rotore.hIn/2;
       % usicta rotore
-      rotore.AOut = mDot/(rotore.rho*rotore.vz);
+      rotore.AOut = mDotGas/(rotore.rho*rotore.vz);
 
 
 
@@ -174,7 +173,7 @@ function [motore] = Turbina(motore)
   R = 1 - (statore.vt + rotore.vt)/(2*U);
 
   % Lavoro 
-  lStadio = U*(statore.v-rotore.v)*mDot;
+  lStadio = U*(statore.v-rotore.v)*mDotGas;
   nStadi = ceil(lTurbina/lStadio);
 
 
