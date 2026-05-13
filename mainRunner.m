@@ -5,7 +5,7 @@ addpath("FunzioniMotore")
 propFluidi = structFluidi();
 motoreBase = structMotore();
 
-motore = runnerMotore(motoreBase,propFluidi);
+motore = runnerMotore(motoreBase);
 
 
 %% OTTIMIZZAZIONE

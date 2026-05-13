@@ -212,7 +212,7 @@ motore.compressore.N_stadi = NaN;
             
     
     % IN
-    turbina.mach4   = NaN;
+    turbina.mach4   = 0.3;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -227,8 +227,6 @@ motore.compressore.N_stadi = NaN;
     turbina.rp      = NaN;
 
     % Parametri di Rafreddamento
-    turbina.raffPecentuale  = NaN;
-    turbina.Sot             = NaN;
     turbina.TRaff           = NaN;
     
     % Sezioni
@@ -278,7 +276,7 @@ motore.compressore.N_stadi = NaN;
             turbina.rotore.wz       = NaN;
             turbina.rotore.wt       = NaN;
             turbina.rotore.w        = NaN;
-            turbina.rotore.wmachOut = NaN;
+            turbina.rotore.wmachOut = 0.8;
 
             % geometria
             turbina.rotore.hIn      = NaN;
@@ -352,14 +350,13 @@ motore.compressore.N_stadi = NaN;
 
 
     %% UGELLO
-    motore.Ugello.etaN  = 0.9;               % Rendimento
-    motore.Ugello.P0I   = NaN; % Pressione totale in ingresso
-    motore.Ugello.T0I   = NaN; % Temperatura totale in ingresso
-    motore.Ugello.mach  = NaN;               % Numero di Mach
-    motore.Ugello.machE = NaN;
-    Motore.Ugello.Ue    = NaN;               % velocità di efflusso
-    Motore.Ugello.AStar = NaN;               % area di gola
-    Motore.Ugello.AE    = NaN;               % area di efflusso
-    Motore.Ugello.D_e   = NaN;               % diametro di efflusso 
+    motore.ugello.etaN  = 0.9;              % Rendimento
+    motore.ugello.P06   = NaN;              % Pressione totale in uscita
+    motore.ugello.T06   = NaN;              % Temperatura totale in uscita
+    motore.ugello.mach6 = NaN;              % Numero di Mach
+    motore.ugello.Ue    = NaN;              % velocità di efflusso
+    motore.ugello.AStar = NaN;              % area di gola
+    motore.ugello.AE    = NaN;              % area di efflusso
+    motore.ugello.DE    = NaN;              % diametro di efflusso 
 
 end

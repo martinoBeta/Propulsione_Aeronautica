@@ -1,85 +1,75 @@
 clear; clc;
 addpath("../FunzioniMotore/")
 addpath("../")
+
 fprintf('=== TEST DIFFUSORE ===\n');
 
-%% Controlllo Diffusore
-
-
+% Inizializzazione
 motore = structMotore();
 
-% Portata
 motore.portate.mDotAir = 30;
 
-% Output compressore
 motore.compressore.mach3  = 0.35;
 motore.compressore.T03    = 650;
 motore.compressore.P03    = 200000;
 motore.compressore.r_m_in = 0.25;
 
+% Esecuzione diffusore
+try
+    motore = Diffusore(motore);
+    d = motore.diffusore;
 
-motore = Diffusore(motore);
+    fprintf('\nControllo campi output...\n');
 
-d = motore.diffusore;
+    fields = fieldnames(d);
 
-requiredFields = { ...
-    'T035','P035','mach35', ...
-    'A3','A35','h3','h35', ...
-    'LD','v3','v35','LC'};
+    if isempty(fields)
+        error('Struct diffusore vuota: nessun output generato.');
+    end
 
-fprintf('\nControllo campi...\n');
+    % CONTROLLO AUTOMATICO
+    for i = 1:numel(fields)
+        f = fields{i};
+        val = d.(f);
 
-for i = 1:length(requiredFields)
+        % controllo campo vuoto
+        if isempty(val)
+            error(['Campo vuoto: ', f]);
+        end
 
-    fieldName = requiredFields{i};
+        % controllo numerico
+        if isnumeric(val)
+            if any(isnan(val(:)))
+                error(['NaN trovato in: ', f]);
+            end
 
-    assert(isfield(d, fieldName), ...
-        ['Campo mancante: ', fieldName]);
+            if any(isinf(val(:)))
+                error(['Inf trovato in: ', f]);
+            end
+        end
+    end
 
+    fprintf('OK: tutti i campi sono validi.\n');
+
+    % RISULTATI
+    fprintf('\n=== RISULTATI ===\n');
+
+    for i = 1:numel(fields)
+        f = fields{i};
+
+        val = d.(f);
+
+        if isnumeric(val)
+            fprintf('%-10s = %.6f\n', f, val);
+        else
+            fprintf('%-10s = (non numerico)\n', f);
+        end
+    end
+
+    fprintf('\n=== TEST SUPERATO ===\n');
+
+catch ME
+    fprintf('\n!!! TEST FALLITO !!!\n');
+    fprintf('Errore: %s\n', ME.message);
+    error(ME.message);
 end
-
-fprintf('OK campi presenti.\n');
-
-fprintf('Controllo NaN...\n');
-
-for i = 1:length(requiredFields)
-
-    fieldName = requiredFields{i};
-
-    value = d.(fieldName);
-
-    assert(~isnan(value), ...
-        ['Valore NaN trovato in: ', fieldName]);
-
-end
-
-fprintf('OK nessun NaN.\n');
-
-fprintf('Controllo Inf...\n');
-
-for i = 1:length(requiredFields)
-
-    fieldName = requiredFields{i};
-
-    value = d.(fieldName);
-
-    assert(isfinite(value), ...
-        ['Valore non finito trovato in: ', fieldName]);
-
-end
-
-fprintf('OK nessun Inf.\n');
-
-
-fprintf('\n=== RISULTATI ===\n');
-
-for i = 1:length(requiredFields)
-
-    fieldName = requiredFields{i};
-
-    fprintf('%-10s = %.6f\n', ...
-        fieldName, d.(fieldName));
-
-end
-
-fprintf('\n=== TEST SUPERATO ===\n');
