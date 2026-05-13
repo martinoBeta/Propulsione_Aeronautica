@@ -3,13 +3,40 @@ clear
 close all
 addpath("FunzioniMotore")
 motoreBase = structMotore();
-
-motore = runnerMotore(motoreBase);
+[parametri,rangeP] = structParametri();
+[TSFC,motore] = runnerMotore(motoreBase,parametri);
 
 
 %% OTTIMIZZAZIONE
+[parametri,rangeP] = structParametri();
+fun = @(x) runnerMotore(motoreBase,x);
+nonlcon = @(x) mycon(x,motoreBase);
 
+x = fmincon(fun,parametri,[],[],[],[],rangeP(:,1),rangeP(:,2),nonlcon);
 
+[T,motore1] = runnerMotore(motoreBase,x);
+
+function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
+    [~,motore] = runnerMotore(motoreBase,x);
+
+    ineqnonlin = [ ...                      % f <= 0
+        motore.compressore.machRel-1;
+        0.72 - motore.compressore.deHaller;
+        motore.compressore.CpStadio - 0.5;
+        motore.compressore.DRotore - 0.6;
+        motore.compressore.DStatore - 0.6;
+        motore.compressore.NStadi - 20;
+        0.008 - motore.camera.tRes;
+        motore.camera.phi - 1.1;
+        0.7 -  motore.camera.phi;      
+        ];                            % Compute nonlinear inequalities at x.
+
+    eqnonlin = [ ...
+        motore.performance.F - 25000;
+    ];    % Compute nonlinear equalities at x.
+end
+
+%% 
 FS = 1; % fattore di sicurezza
 
 
@@ -88,4 +115,4 @@ end
 
 if best_NStadi == 100000
     error('Nessuna configurazione valida trovata')
-end=
+end

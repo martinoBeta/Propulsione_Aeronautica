@@ -18,7 +18,6 @@ function [motore] = structMotore()
 % 
 % % Parametri globali del motore turbojet-ramjet
 % 
-% 
 % % Parametri termodinamici ciclo
 % Tmax  = 1700;           % temperatura massima ciclo (TIT) [K]
 % eta_b = 0.98;           % rendimento di combustione [-]
@@ -74,7 +73,7 @@ function [motore] = structMotore()
 %% PORTATE
 %---------------------------------------------------------------------
 
-motore.portate.mDot    = 35;    % portata massica totale
+motore.portate.mDot    = NaN;    % portata massica totale
 motore.portate.mDotAir = NaN;   % portata massica in camera di combustione
 motore.portate.mDotRaff= NaN;   % portata massica per raffredamento turbina
 motore.portate.mDotGas = NaN;   % portata massica in usicta dalla camera che comprende il combustibile
@@ -120,7 +119,7 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.M2 = 0.35;
+motore.presaAria.M2 = NaN;
 motore.presaAria.eta_d = 0.975;
 motore.presaAria.pi_d = 0.985;
 
@@ -140,9 +139,9 @@ motore.presaAria.CPR = NaN;
 %% COMPRESSORE
 %---------------------------------------------------------------------
 
-motore.compressore.piC = 7;
+motore.compressore.piC = NaN;
 motore.compressore.etaP = 0.9;
-motore.compressore.Utip = 350;
+motore.compressore.Utip = NaN;
 motore.compressore.U_m = NaN;
 
 
@@ -212,7 +211,7 @@ motore.compressore.NStadi = NaN;
             
     
     % IN
-    turbina.mach4   = 0.3;
+    turbina.mach4   = NaN;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -276,7 +275,7 @@ motore.compressore.NStadi = NaN;
             turbina.rotore.wz       = NaN;
             turbina.rotore.wt       = NaN;
             turbina.rotore.w        = NaN;
-            turbina.rotore.wmachOut = 0.8;
+            turbina.rotore.wmachOut = NaN;
 
             % geometria
             turbina.rotore.hIn      = NaN;
@@ -338,12 +337,13 @@ motore.compressore.NStadi = NaN;
     motore.camera.MRef = NaN;  % Mach di riferimento                     [-]
     motore.camera.tRes = NaN;
     motore.camera.f = NaN;
-    motore.camera.T04 = 1600;
+    motore.camera.T04 = NaN;
     motore.camera.mDotAirCalda = NaN;
     motore.camera.mDotAirFredda = NaN;
     motore.camera.P04 = NaN;
     motore.camera.QDot = NaN;
-    motore.camera.TComb = 2300;
+    motore.camera.TComb = NaN;
+    motore.camera.phi = NaN;
 
   
 
