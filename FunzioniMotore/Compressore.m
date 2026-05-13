@@ -108,10 +108,10 @@ function [motore] = Compressore(motore)
 
     l_stadio_teorico = U * (Vt2 - Vt1);
 
-    NStadi = ceil(LComp / l_stadio_teorico);
+    NStadi = ceil(lComp / l_stadio_teorico);
 
     % Ricalcolo triangolo con numero di stadi intero
-    l_stadio = LComp / NStadi;
+    l_stadio = lComp / NStadi;
 
     Vt2 = Vt1 + l_stadio / U;
 
