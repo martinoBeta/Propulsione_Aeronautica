@@ -13,7 +13,7 @@ motore.portate.mDotAir = 30;
 motore.compressore.mach3  = 0.35;
 motore.compressore.T03    = 420;
 motore.compressore.P03    = 200000;
-motore.compressore.r_m_in = 0.3;
+motore.compressore.r_m_out = 0.3;
 
 motore = Diffusore(motore);
 motore.camera.TComb = 2200;
