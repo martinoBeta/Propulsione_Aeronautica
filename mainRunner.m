@@ -6,84 +6,87 @@ motoreBase = structMotore();
 [parametri,rangeP] = structParametri();
 [TSFC,motore] = runnerMotore(motoreBase,parametri);
 
+
 %% OTTIMIZZAZIONE
 tic
 
+[parametri, rangeP] = structParametri();
 
-[parametri,rangeP] = structParametri();
-
-fun = @(x) runnerMotore(motoreBase,x);
-
-nonlcon = @(x) mycon(x,motoreBase);
-
-% x = fmincon(fun,parametri,[],[],[],[], ...
-%             rangeP(:,1),rangeP(:,2),nonlcon);
-
+nvars = length(parametri);
+M     = max(400, 20*nvars);
+lb    = rangeP(:,1)';
+ub    = rangeP(:,2)';
 
 fun     = @(x) runnerMotore(motoreBase, x);
 nonlcon = @(x) mycon(x, motoreBase);
 
-
-bestTSFC = inf; % Salva il TSFC minore
-
-nSeed = 40;     % numero di ottimizzazioni indipendenti
-
-M = 1000;       % Best M candidates from grid-search as seeds
-
-
-hybrid_opts = optimoptions('fmincon', ...   % Solution refinement with fmincon
+% ── GA options ────────────────────────────────────────────────────────────
+hybrid_opts = optimoptions('fmincon', ...
     'Display',           'none', ...
     'Algorithm',         'sqp', ...
-    'StepTolerance',     1e-12, ...
-    'FunctionTolerance', 1e-12);
+    'StepTolerance',     1e-6, ...
+    'FunctionTolerance', 1e-6);
 
+options_ga = optimoptions('ga', ...
+    'PopulationSize',      M, ...
+    'UseParallel',         false, ...
+    'MaxGenerations',      120, ...
+    'FunctionTolerance',   1e-4, ...
+    'MaxStallGenerations', 15, ...
+    'Display',             'iter', ...
+    'MaxTime',             60, ...
+    'EliteCount',          ceil(0.10*M), ...
+    'CrossoverFraction',   0.8, ...
+    'HybridFcn',           {@fmincon, hybrid_opts});
 
+% ── Multi-start ───────────────────────────────────────────────────────────
+n_runs = 20;
+best_f = inf;
+best_x = [];
+fHistory = zeros(n_runs,1);
+xHistory = zeros(n_runs,nvars);
 
-for seed = 1:nSeed
+for i = 1:n_runs
+    fprintf('Run %d/%d ...\n', i, n_runs);
 
-    rng(seed);    % cambia il seed ad ogni iterazione
+    init_pop = lb + lhs_sample(M, nvars) .* (ub - lb);
+    options_ga = optimoptions(options_ga, 'InitialPopulationMatrix', init_pop);
 
-    init_pop = zeros(M, length(parametri));
-
-    options_ga = optimoptions('ga', ...
-        'PopulationSize',          M, ...
-        'MaxGenerations',          ceil(M/200), ...
-        'FunctionTolerance',       1e-8, ...
-        'MaxStallGenerations',     ceil(M/100), ...
-        'Display',                 'none', ...
-        'InitialPopulationMatrix', init_pop, ...
-        'InitialPopulationRange',  rangeP', ...
-        'maxTime',                 100,...
-        'HybridFcn',               {@fmincon, hybrid_opts});
-
-    xTmp = ga(fun, length(parametri), [], [], [], [], ...
-              rangeP(:,1), rangeP(:,2), nonlcon, options_ga);
-
-    [TSFC_tmp, motoreTmp] = runnerMotore(motoreBase,xTmp);
-
-    fprintf('Seed %2d --> TSFC = %.8f\n', seed, TSFC_tmp)
-
-    if TSFC_tmp < bestTSFC
-
-        bestTSFC = TSFC_tmp;
-
-        x1 = xTmp;
-
-        motore1 = motoreTmp;
-
+    [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
+    fHistory(i) = fi;
+    xHistory(i,:) = xi;
+    fprintf('  fval = %.4f\n', fi);
+    if fi < best_f
+        best_f = fi;
+        best_x = xi;
     end
-
 end
 
-[z,u] = mycon(x1,motoreBase);
+x1 = best_x;
+fprintf('Best fval across all runs: %.4f\n', best_f);
 
-fprintf('\n')
-fprintf('MIGLIOR TSFC TROVATO = %.8f\n', bestTSFC)
-fprintf('\n')
-fprintf('\n')
+% ── Post-process ──────────────────────────────────────────────────────────
+[T, motore1] = runnerMotore(motoreBase, x1);
+[z, u]       = mycon(x1, motoreBase);
 
+%% ANDAMENTO TSFC MINIMO PER OGNI RUN
+figure
+plot(1:n_runs, fHistory, 'o-')
+xlabel('Run')
+ylabel('Objective function')
+grid on
 
-%---------------------------------------------------------------------
+%% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
+% Il grafico mostra il minimo cumulativo della funzione obiettivo
+% ottenuto attraverso diverse run indipendenti del GA. Ogni run parte
+% da un seed casuale differente, mentre il grafico tiene traccia della
+% migliore soluzione trovata fino a quel momento.
+figure
+plot(1:n_runs, cummin(fHistory), 'o-')
+xlabel('Run')
+ylabel('Best objective so far')
+grid on
+
 %% PLOT GRAFICI MOTORE
 
 %% Pressioni totali lungo il motore
@@ -300,26 +303,141 @@ fprintf('\n--- CONTROLLO VINCOLI ---\n')
 fprintf('Max c             = %.6e\n', max(z))
 fprintf('Norm ceq          = %.6e\n', norm(u))
 
+
+
+
 toc
 
-function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
-
-    [~,motore] = runnerMotore(motoreBase,x);
-
-    ineqnonlin = [ ...                      % f <= 0
-        motore.compressore.machRel-1;
-        0.72 - motore.compressore.deHaller;
-        motore.compressore.CpStadio - 0.5;
-        motore.compressore.DRotore - 0.6;
-        motore.compressore.DStatore - 0.6;
-        motore.compressore.NStadi - 20;
-        0.008 - motore.camera.tRes;
-        motore.camera.phi - 1.1;
-        0.7 -  motore.camera.phi;      
-        ];                            % Compute nonlinear inequalities at x.
-
-    eqnonlin = [ ...
-        motore.performance.F - 25000;
-    ];    % Compute nonlinear equalities at x.
-
+function X = lhs_sample(n, d)
+    X = zeros(n, d);
+    for j = 1:d
+        X(:,j) = (randperm(n)' - rand(n,1)) / n;
+    end
 end
+
+function [ineq, eq] = mycon(x, motoreBase)
+    [~, motore] = runnerMotore(motoreBase, x);
+    ineq = [
+        motore.compressore.machRel   - 1;
+        0.72 - motore.compressore.deHaller;
+        motore.compressore.CpStadio  - 0.5;
+        motore.compressore.DRotore   - 0.6;
+        motore.compressore.DStatore  - 0.6;
+        0.008 - motore.camera.tRes;
+        motore.camera.phi            - 1.1;
+        0.7   - motore.camera.phi;
+    ];
+    eq = [ motore.performance.F - 25000 ];
+end
+
+
+
+
+%----------------------------------------------------------------------
+%----------------------------------------------------------------------
+
+% %% OTTIMIZZAZIONE
+% tic
+% 
+% 
+% [parametri,rangeP] = structParametri();
+% 
+% fun = @(x) runnerMotore(motoreBase,x);
+% 
+% nonlcon = @(x) mycon(x,motoreBase);
+% 
+% % x = fmincon(fun,parametri,[],[],[],[], ...
+% %             rangeP(:,1),rangeP(:,2),nonlcon);
+% 
+% 
+% fun     = @(x) runnerMotore(motoreBase, x);
+% nonlcon = @(x) mycon(x, motoreBase);
+% 
+% 
+% bestTSFC = inf; % Salva il TSFC minore
+% 
+% nSeed = 40;     % numero di ottimizzazioni indipendenti
+% 
+% M = 1000;       % Best M candidates from grid-search as seeds
+% 
+% 
+% hybrid_opts = optimoptions('fmincon', ...   % Solution refinement with fmincon
+%     'Display',           'none', ...
+%     'Algorithm',         'sqp', ...
+%     'StepTolerance',     1e-12, ...
+%     'FunctionTolerance', 1e-12);
+% 
+% 
+% 
+% for seed = 1:nSeed
+% 
+%     rng(seed);    % cambia il seed ad ogni iterazione
+% 
+%     init_pop = zeros(M, length(parametri));
+% 
+%     options_ga = optimoptions('ga', ...
+%         'PopulationSize',          M, ...
+%         'MaxGenerations',          ceil(M/200), ...
+%         'FunctionTolerance',       1e-8, ...
+%         'MaxStallGenerations',     ceil(M/100), ...
+%         'Display',                 'none', ...
+%         'InitialPopulationMatrix', init_pop, ...
+%         'InitialPopulationRange',  rangeP', ...
+%         'maxTime',                 100,...
+%         'HybridFcn',               {@fmincon, hybrid_opts});
+% 
+%     xTmp = ga(fun, length(parametri), [], [], [], [], ...
+%               rangeP(:,1), rangeP(:,2), nonlcon, options_ga);
+% 
+%     [TSFC_tmp, motoreTmp] = runnerMotore(motoreBase,xTmp);
+% 
+%     fprintf('Seed %2d --> TSFC = %.8f\n', seed, TSFC_tmp)
+% 
+%     if TSFC_tmp < bestTSFC
+% 
+%         bestTSFC = TSFC_tmp;
+% 
+%         x1 = xTmp;
+% 
+%         motore1 = motoreTmp;
+% 
+%     end
+% 
+% end
+% 
+% [z,u] = mycon(x1,motoreBase);
+% 
+% fprintf('\n')
+% fprintf('MIGLIOR TSFC TROVATO = %.8f\n', bestTSFC)
+% fprintf('\n')
+% fprintf('\n')
+%----------------------------------------------------------------------
+%----------------------------------------------------------------------
+
+
+
+%---------------------------------------------------------------------
+
+toc
+
+% function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
+% 
+%     [~,motore] = runnerMotore(motoreBase,x);
+% 
+%     ineqnonlin = [ ...                      % f <= 0
+%         motore.compressore.machRel-1;
+%         0.72 - motore.compressore.deHaller;
+%         motore.compressore.CpStadio - 0.5;
+%         motore.compressore.DRotore - 0.6;
+%         motore.compressore.DStatore - 0.6;
+%         motore.compressore.NStadi - 20;
+%         0.008 - motore.camera.tRes;
+%         motore.camera.phi - 1.1;
+%         0.7 -  motore.camera.phi;      
+%         ];                            % Compute nonlinear inequalities at x.
+% 
+%     eqnonlin = [ ...
+%         motore.performance.F - 25000;
+%     ];    % Compute nonlinear equalities at x.
+% 
+% end
