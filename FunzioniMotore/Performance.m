@@ -11,7 +11,7 @@ function [motore] = Performance(motore)
     F = mDotGas*(uE-vVolo);
 
     % TSFC
-    TSFC = mDotComb/F;
+    TSFC = mDotComb/F*3600; %kg/(hN)
 
     % RENDIMENTO TOTALE
     %F_is = CicloIdeale(motore,vVolo,mDotGas);
