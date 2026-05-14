@@ -9,61 +9,86 @@ motoreBase = structMotore();
 
 %% OTTIMIZZAZIONE
 tic
-[parametri,rangeP] = structParametri();
-fun = @(x) runnerMotore(motoreBase,x);
-nonlcon = @(x) mycon(x,motoreBase);
+[parametri, rangeP] = structParametri();
 
-% x = fmincon(fun,parametri,[],[],[],[],rangeP(:,1),rangeP(:,2),nonlcon);
+nvars = length(parametri);
+M     = max(400, 20*nvars);
+lb    = rangeP(:,1)';
+ub    = rangeP(:,2)';
 
+fun     = @(x) runnerMotore(motoreBase, x);
+nonlcon = @(x) mycon(x, motoreBase);
 
-
-M = 1000;         % Best M candidates from grid-search as seeds
-
-init_pop = zeros(M, length(parametri));
-hybrid_opts = optimoptions('fmincon', ...   % Solution refinement with fmincon
+% ── GA options ────────────────────────────────────────────────────────────
+hybrid_opts = optimoptions('fmincon', ...
     'Display',           'none', ...
     'Algorithm',         'sqp', ...
-    'StepTolerance',     1e-12, ...
-    'FunctionTolerance', 1e-12);
+    'StepTolerance',     1e-6, ...
+    'FunctionTolerance', 1e-6);
 
 options_ga = optimoptions('ga', ...
-    'PopulationSize',          M, ...
-    'MaxGenerations',          ceil(M/200), ...   
-    'FunctionTolerance',       1e-8, ...
-    'MaxStallGenerations',     ceil(M/100), ...
-    'Display',                 'none', ...
-    'InitialPopulationMatrix', init_pop, ...
-    'InitialPopulationRange',  rangeP', ...
-    'maxTime',                 100,...
-    'HybridFcn',               {@fmincon, hybrid_opts});
+    'PopulationSize',      M, ...
+    'UseParallel',         false, ...
+    'MaxGenerations',      120, ...
+    'FunctionTolerance',   1e-4, ...
+    'MaxStallGenerations', 15, ...
+    'Display',             'iter', ...
+    'MaxTime',             60, ...
+    'EliteCount',          ceil(0.10*M), ...
+    'CrossoverFraction',   0.8, ...
+    'HybridFcn',           {@fmincon, hybrid_opts});
 
-x1 = ga(fun, length(parametri), [], [], [], [], rangeP(:,1), rangeP(:,2), nonlcon, options_ga);
-% Aggiungere constrains!
+% ── Multi-start ───────────────────────────────────────────────────────────
+n_runs = 5;
+best_f = inf;
+best_x = [];
 
-function [ineqnonlin,eqnonlin] = mycon(x,motoreBase)
-    [~,motore] = runnerMotore(motoreBase,x);
+for i = 1:n_runs
+    fprintf('Run %d/%d ...\n', i, n_runs);
 
-    ineqnonlin = [ ...                      % f <= 0
-        motore.compressore.machRel-1;
-        0.72 - motore.compressore.deHaller;
-        motore.compressore.CpStadio - 0.5;
-        motore.compressore.DRotore - 0.6;
-        motore.compressore.DStatore - 0.6;
-        % motore.compressore.NStadi - 20;
-        0.008 - motore.camera.tRes;
-        motore.camera.phi - 1.1;
-        0.7 -  motore.camera.phi;      
-        ];                            % Compute nonlinear inequalities at x.
+    init_pop = lb + lhs_sample(M, nvars) .* (ub - lb);
+    options_ga = optimoptions(options_ga, 'InitialPopulationMatrix', init_pop);
 
-    eqnonlin = [ ...
-        motore.performance.F - 25000;
-    ];    % Co
-% %% mpute nonlinear equalities at x.
+    [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
+
+    fprintf('  fval = %.4f\n', fi);
+    if fi < best_f
+        best_f = fi;
+        best_x = xi;
+    end
 end
-[T,motore1] = runnerMotore(motoreBase,x1);
-[z,u] = mycon(x1,motoreBase);
+
+x1 = best_x;
+fprintf('Best fval across all runs: %.4f\n', best_f);
+
+% ── Post-process ──────────────────────────────────────────────────────────
+[T, motore1] = runnerMotore(motoreBase, x1);
+[z, u]       = mycon(x1, motoreBase);
 toc
 
+function X = lhs_sample(n, d)
+    X = zeros(n, d);
+    for j = 1:d
+        X(:,j) = (randperm(n)' - rand(n,1)) / n;
+    end
+end
+
+function [ineq, eq] = mycon(x, motoreBase)
+    [~, motore] = runnerMotore(motoreBase, x);
+    ineq = [
+        motore.compressore.machRel   - 1;
+        0.72 - motore.compressore.deHaller;
+        motore.compressore.CpStadio  - 0.5;
+        motore.compressore.DRotore   - 0.6;
+        motore.compressore.DStatore  - 0.6;
+        0.008 - motore.camera.tRes;
+        motore.camera.phi            - 1.1;
+        0.7   - motore.camera.phi;
+    ];
+    eq = [ motore.performance.F - 25000 ];
+end
+
+%% 
 % %% 
 % FS = 1; % fattore di sicurezza
 % 
