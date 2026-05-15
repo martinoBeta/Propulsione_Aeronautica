@@ -80,7 +80,11 @@ ramjet.freestream.h25km.a0 = a0;
 %% ANULUS
 %---------------------------------------------------------------------
 
-
+% DA COMPLETARE
+ramjet.anulus.T03  = NaN;   % Temperatura totale in uscita
+ramjet.anulus.P03  = NaN;   % Pressione totale in uscita
+ramjet.anulus.A    = NaN;   % Area dell'anulus
+ramjet.anulus.rRam = NaN;    % Raggio esterno del casing
 
 
 %---------------------------------------------------------------------
