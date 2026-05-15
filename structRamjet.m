@@ -25,7 +25,6 @@ aria.gamma = 1.4;
 gas.R = aria.R;
 gas.gamma = 1.33;
 gas.cp = (gas.gamma * gas.R) / (gas.gamma - 1);
-gas.cpG = NaN;
 
 
 % Proprietà combustibile (JP-7)
@@ -102,6 +101,7 @@ ramjet.anulus.rRam = NaN;    % Raggio esterno del casing
 %---------------------------------------------------------------------
 ramjet.camera.Tmax  = 2100;        % Temperatura massima  [K]
 ramjet.camera.pi_ab = 0.96;        % Rendimento pneumatico
+ramjet.camera.r     = NaN;         % Raggio camera di combustione/postbruciatore
 ramjet.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
 ramjet.camera.B     = 0.25;        % Bloccaggio
 ramjet.camera.etaC  = 0.98;        % Efficienza di combustione
