@@ -225,7 +225,7 @@ fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')
 
 fprintf('\n--- PERFORMANCE ---\n')
 fprintf('Spinta            = %.3f N\n', motore1.performance.F)
-fprintf('TSFC              = %.9f kg/(N*s)\n', motore1.performance.TSFC)
+fprintf('TSFC              = %.9f kg/(N*h)\n', motore1.performance.TSFC)
 fprintf('eta globale       = %.3f\n', motore1.performance.etaGlobal)
 
 fprintf('\n--- PRESA D''ARIA ---\n')

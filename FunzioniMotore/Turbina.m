@@ -69,11 +69,11 @@ function [motore] = Turbina(motore)
     T0M = ((1-raffPecentuale)*cpGas*T04 + raffPecentuale*cpAir*TRaff)/((1-raffPecentuale)*cpGas+ raffPecentuale*cpAir);
 
     %Calcolo della pressione a uscita della turbina
-    betaP =  (T05/T0M)^(gammaGas/((gammaGas-1)*etaP));
+    betaP =  (T05/T04)^(gammaGas/((gammaGas-1)*etaP));
     P0U = P04 * betaP;
 
     % temperatura isoentropica
-    T05Iso = T0M*betaP^((gammaGas-1)/gammaGas);
+    T05Iso = T04*betaP^((gammaGas-1)/gammaGas);
 
     % Lavoro isoentropico non rafreddato
     lIsoNoRaff = cpGas*mDotGas*(T04-T05Iso);

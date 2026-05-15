@@ -651,12 +651,11 @@ xlabel('P_{03} [bar]'); grid on;
 %% ------------------------------------------------------------------------
 %                                 TURBINA
 %--------------------------------------------------------------------------
-
+addpath("FunzioniMotore")
 % -----
 % variazione della temperatura in ingresso
-T0I = 1100:25:1500;
+T0I = 1100:25:1800;
 
-propFluidi = structFluidi();
 motoreBase = structMotore();
 
 % in caso solo di errore dei codici precendenti
@@ -669,8 +668,12 @@ if (~exist('best_lComp', 'var'))
     motoreBase.turbina.mach4 = 0.3;
     motoreBase.turbina.rotore.wmachOut = 0.8;
     best_machIn = 0.3;
-    motoreBase.mdot = 35;
-    motoreBase.compressore.r_m_in = 0.4;
+    motoreBase.portate.mDot = 35;
+    motoreBase.compressore.U_m = 350;
+    motoreBase.compressore.r_m_out = 0.4;
+    motoreBase.compressore.T04 = 420;
+    motoreBase.portate.mDotComb = 0.9;
+
 
 else 
     motoreBase.compressore.L_c = best_lComp;
@@ -685,7 +688,6 @@ N = length(T0I);
 % preallocazioni
 etan = zeros(1,N);
 coolPecentualeA = zeros(1,N);
-Sota = zeros(1,N);
 etos = zeros(1,N);
 P0Is = zeros(1,N);
 P0Us = zeros(1,N);
@@ -699,15 +701,15 @@ machOut = zeros(1,N);
 for i = 1:N
     motore = motoreBase;
     motore.camera.T04 = T0I(i);
-
-    motore = turbina(propFluidi, motore);
+    motore = StimaSpillaggio(motore);
+    motore = Turbina(motore);
 
     % Slavataggio 
     T = motore.turbina;
+    port = motore.portate;
 
     etan(i) = T.etaN;
-    coolPecentualeA(i) = T.coolPecentuale;
-    Sota(i) = T.Sot;
+    coolPecentualeA(i) = port.mDotRaff/port.mDot;
     etos(i) = T.etaNRaff;
 
     P0Us(i) = T.P05;
@@ -741,9 +743,9 @@ nexttile();
 title("aria rafreddamento tubina")
 plot(T0I,coolPecentualeA*100);
 hold on
-plot(T0I,motore.turbina.CoolingRotore(Sota)*100)
+% plot(T0I,motore.turbina.CoolingRotore(Sota)*100)
 hold on
-plot(T0I,motore.turbina.CoolingStatore(Sota)*100)
+% plot(T0I,motore.turbina.CoolingStatore(Sota)*100)
 legend("Totale","Rotore","Statore");
 title("percentuale di aria spillata da compressore per rafreddamento turbina")
 xlabel("T04 (camera di combustione) [K]")

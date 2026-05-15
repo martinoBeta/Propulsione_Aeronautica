@@ -8,5 +8,6 @@ function [TSFC,motore] = runnerMotore(motore,parametri)
     motore = Turbina(motore);
     motore = Ugello(motore); 
     motore = Performance(motore);
-    TSFC = motore.performance.TSFC;
+    TSFC = 1/motore.performance.etaGlobal;%motore.performance.TSFC;
+
 end

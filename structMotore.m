@@ -338,5 +338,7 @@ motore.compressore.NStadi = NaN;
     motore.performance.F         = NaN;
     motore.performance.etaGlobal = NaN;
     motore.performance.TSFC     = NaN;
+    motore.performance.etaProp  = NaN;
+     motore.performance.etaTh  = NaN;
 
 end
