@@ -104,6 +104,7 @@ ramjet.camera.Tmax  = 2100;        % Temperatura massima  [K]
 ramjet.camera.pi_ab = 0.96;        % Rendimento pneumatico
 ramjet.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
 ramjet.camera.B     = 0.25;        % Bloccaggio
+ramjet.camera.etaC  = 0.98;        % Efficienza di combustione
 
 ramjet.camera.mach    = NaN;          % Numero di mach
 ramjet.camera.T04     = NaN;          % Temperatura in uscita
