@@ -1,4 +1,4 @@
-function [motore] = structRamjet()
+function [ramjet] = structRamjet()
 %FUNZIONE NON COMPLETATA DATI NON ATTENDIBILI!!!!
 %%
 % 0  --> flusso indisturbato
@@ -35,9 +35,9 @@ combustibile.cp = 7/2 *combustibile.R;
 combustibile.LHV = 44.1e6;
 
 % salvataggio
-motore.fluidi.aria     = aria;
-motore.fluidi.gas      = gas;
-motore.fluidi.combustibile = combustibile;
+ramjet.fluidi.aria     = aria;
+ramjet.fluidi.gas      = gas;
+ramjet.fluidi.combustibile = combustibile;
 
 %---------------------------------------------------------------------
 %% FREE STREAM
@@ -58,14 +58,14 @@ rho0 = P0 / (R * T0);          % densità statica [kg/m³]
 a0   = sqrt(gamma * R * T0);   % velocità del suono [m/s]
 V0   = a0 * M0;                % velocità di volo [m/s]
 
-motore.freestream.h25km.T0 = T0;
-motore.freestream.h25km.P0 = P0;
-motore.freestream.h25km.T00 = T00;
-motore.freestream.h25km.P00 = P00;
-motore.freestream.h25km.rho0 = rho0;
-motore.freestream.h25km.M0 = M0;
-motore.freestream.h25km.V0 = V0;
-motore.freestream.h25km.a0 = a0;
+ramjet.freestream.h25km.T0 = T0;
+ramjet.freestream.h25km.P0 = P0;
+ramjet.freestream.h25km.T00 = T00;
+ramjet.freestream.h25km.P00 = P00;
+ramjet.freestream.h25km.rho0 = rho0;
+ramjet.freestream.h25km.M0 = M0;
+ramjet.freestream.h25km.V0 = V0;
+ramjet.freestream.h25km.a0 = a0;
 
 
 %---------------------------------------------------------------------
@@ -86,36 +86,36 @@ motore.freestream.h25km.a0 = a0;
 %---------------------------------------------------------------------
 %% CAMERA DI COMBUSTIONE
 %---------------------------------------------------------------------
-motore.camera.Tmax  = 2100;        % Temperatura massima  [K]
-motore.camera.pi_ab = 0.96;        % Rendimento pneumatico
-motore.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
-motore.camera.B     = 0.25;        % Bloccaggio
+ramjet.camera.Tmax  = 2100;        % Temperatura massima  [K]
+ramjet.camera.pi_ab = 0.96;        % Rendimento pneumatico
+ramjet.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
+ramjet.camera.B     = 0.25;        % Bloccaggio
 
-motore.camera.mach    = NaN;          % Numero di mach
-motore.camera.T04     = NaN;          % Temperatura in uscita
-motore.camera.P04     = NaN;          % Pressione in uscita
-motore.camera.f       = NaN;
-motore.camera.d       = NaN;          % Diametro stabilizzatore di fiamma
-motore.camera.L       = NaN;          % Lunghezza camera
+ramjet.camera.mach    = NaN;          % Numero di mach
+ramjet.camera.T04     = NaN;          % Temperatura in uscita
+ramjet.camera.P04     = NaN;          % Pressione in uscita
+ramjet.camera.f       = NaN;
+ramjet.camera.d       = NaN;          % Diametro stabilizzatore di fiamma
+ramjet.camera.L       = NaN;          % Lunghezza camera
 
 %---------------------------------------------------------------------
 %% UGELLO
 %---------------------------------------------------------------------
-motore.ugello.etaN  = 0.9;              % Rendimento
-motore.ugello.P05   = NaN;              % Pressione totale in uscita
-motore.ugello.T05   = NaN;              % Temperatura totale in uscita
-motore.ugello.mach5 = NaN;              % Numero di Mach
-motore.ugello.Ue    = NaN;              % velocità di efflusso
-motore.ugello.AStar = NaN;              % area di gola
-motore.ugello.AE    = NaN;              % area di efflusso
-motore.ugello.DE    = NaN;              % diametro di efflusso
+ramjet.ugello.etaN  = 0.9;              % Rendimento
+ramjet.ugello.P05   = NaN;              % Pressione totale in uscita
+ramjet.ugello.T05   = NaN;              % Temperatura totale in uscita
+ramjet.ugello.mach5 = NaN;              % Numero di Mach
+ramjet.ugello.Ue    = NaN;              % velocità di efflusso
+ramjet.ugello.AStar = NaN;              % area di gola
+ramjet.ugello.AE    = NaN;              % area di efflusso
+ramjet.ugello.DE    = NaN;              % diametro di efflusso
 
 
 %---------------------------------------------------------------------
 %% PERFORMANCE
 %---------------------------------------------------------------------
-motore.performance.F         = NaN;
-motore.performance.etaGlobal = NaN;
-motore.performance.TSFC     = NaN;
+ramjet.performance.F         = NaN;
+ramjet.performance.etaGlobal = NaN;
+ramjet.performance.TSFC     = NaN;
 
 end
