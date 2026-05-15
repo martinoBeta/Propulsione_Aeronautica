@@ -40,6 +40,16 @@ ramjet.fluidi.gas      = gas;
 ramjet.fluidi.combustibile = combustibile;
 
 %---------------------------------------------------------------------
+%% PORTATE
+%---------------------------------------------------------------------
+
+ramjet.portate.mDot     = NaN;   % portata massica totale
+ramjet.portate.mDotAir  = NaN;   % portata massica in camera di combustione
+ramjet.portate.mDotGas  = NaN;   % portata massica in usicta dalla camera che comprende il combustibile
+ramjet.portate.mDotComb = NaN;   % portata massica del combustibile
+
+
+%---------------------------------------------------------------------
 %% FREE STREAM
 %---------------------------------------------------------------------
 
