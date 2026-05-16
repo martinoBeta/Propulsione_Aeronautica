@@ -85,10 +85,11 @@ function [motore] = Compressore(motore)
     % Geometria uscita
     Aout = mDot / (rhoOut * Va);
 
-    r_TOut = sqrt(Aout/(pi*(1 - hubTip^2)));
-    r_hOut = hubTip * r_TOut;
-    r_m_out = (r_TOut + r_hOut)/2;
+    % Rt costante
+    r_TOut = r_TIn;
+    r_hOut = sqrt(r_TOut^2 - Aout/pi);
     hOut  = r_TOut - r_hOut;
+    r_m_out = (r_TOut + r_hOut)/2;
 
     % Primo stadio
     % Ipotesi: alpha1 = 0 --> Vt1 = 0

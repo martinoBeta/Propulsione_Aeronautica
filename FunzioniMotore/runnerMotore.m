@@ -1,4 +1,4 @@
-function [TSFC,motore] = runnerMotore(motore,parametri)
+function [opt,motore] = runnerMotore(motore,parametri)
     motore = Parametri(motore,parametri);
     motore = PresaDaria(motore);
     motore = Compressore(motore);
@@ -8,6 +8,6 @@ function [TSFC,motore] = runnerMotore(motore,parametri)
     motore = Turbina(motore);
     motore = Ugello(motore); 
     motore = Performance(motore);
-    TSFC = 1/motore.performance.etaGlobal;%motore.performance.TSFC;
-
+    max_radius = max(motore.turbina.rt5,(motore.compressore.r_m_out+motore.compressore.hOut/2));%1/motore.performance.etaGlobal;%motore.performance.TSFC;
+    opt = max_radius;%motore.performance.TSFC;
 end
