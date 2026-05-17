@@ -81,19 +81,33 @@ ramjet.freestream.h25km.a0 = a0;
 %% PRESA D'ARIA
 %---------------------------------------------------------------------
 
+% COMPLETARE/CONTROLLARE
 
+ramjet.presaAria.regime = "ipersonico";
+ramjet.presaAria.T2     = NaN;
+ramjet.presaAria.P2     = NaN;
+ramjet.presaAria.T02    = NaN;
+ramjet.presaAria.P02    = NaN;
+ramjet.presaAria.M2     = NaN;
+ramjet.presaAria.eta_d  = NaN;
+ramjet.presaAria.pi_d   = NaN;
 
-
+ramjet.presaAria.rho2       = NaN;
+ramjet.presaAria.V2         = NaN;
+ramjet.presaAria.A_ingresso = NaN;
+ramjet.presaAria.A2         = NaN;
+ramjet.presaAria.CPR        = NaN;
+ramjet.presaAria.mach       = NaN;
 
 %---------------------------------------------------------------------
 %% ANULUS
 %---------------------------------------------------------------------
 
-% DA COMPLETARE
+
 ramjet.anulus.T03  = NaN;   % Temperatura totale in uscita
 ramjet.anulus.P03  = NaN;   % Pressione totale in uscita
 ramjet.anulus.A    = NaN;   % Area dell'anulus
-ramjet.anulus.rRam = NaN;    % Raggio esterno del casing
+ramjet.anulus.rRam = NaN;   % Raggio esterno del casing
 
 
 %---------------------------------------------------------------------
