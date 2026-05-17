@@ -44,10 +44,12 @@ FlameHolderD  = B*ChamberRadius;  % Diametro degli stabilizzatori di fiamma
 
 % Assegnazione variabili
 
-ramjet.camera.T04 = T0U;
-ramjet.camera.P04 = P0U;
-ramjet.camera.f   = f;
-ramjet.camera.L   = ChamberLength;
-ramjet.camera.d   = FlameHolderD;
+ramjet.camera.T04       = T0U;
+ramjet.camera.P04       = P0U;
+ramjet.camera.f         = f;
+ramjet.camera.L         = ChamberLength;
+ramjet.camera.d         = FlameHolderD;
+ramjet.portate.mDotComb = mDotFuel;
+ramjet.portate.mDotGas  = mDotGas;
 
 end
