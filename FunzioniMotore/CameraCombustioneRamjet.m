@@ -20,7 +20,7 @@ CpA = ramjet.aria.cp;            % Cp dell'aria in ingresso
 gammaA = ramjet.aria.gamma;      % gamma dell'aria in ingresso
 RA = ramjet.aria.R;              % R dell'aria in ingresso
 
-CpG    = ramjet.gas.cp;          % Cp dei gas combusti
+CpG    = ramjet.gas.cp;           % Cp dei gas combusti
 gammaG = ramjet.gas.gamma;        % Gamma dei gas combusti
 DeltaH = ramjet.combustibile.LHV; % Entalpia di combustione
 EtaC   = ramjet.camera.etaC;
