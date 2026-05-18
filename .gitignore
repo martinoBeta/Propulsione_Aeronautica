@@ -29,4 +29,4 @@ Thumbs.db
 # *.mp4
 # *.avi
 # *.mat
-
+Figures/*.svg

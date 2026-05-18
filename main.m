@@ -1,10 +1,22 @@
 clc
 clear 
 close all
-addpath("FunzioniMotore")
 
+addpath("FunzioniMotore")
 motore = structMotore();
 
+%impostazione per latex
+set(groot, ...
+    'defaultTextInterpreter', 'latex', ...
+    'defaultAxesTickLabelInterpreter', 'latex', ...
+    'defaultLegendInterpreter', 'latex', ...
+    'defaultColorbarTickLabelInterpreter', 'latex', ...
+    'defaultAxesFontSize', 14, ...
+    'defaultTextFontSize', 14, ...
+    'defaultLegendFontSize', 14);
+
+
+%%
 % calcolo portata necessaria per mach 0.85 e 25Kn di spinta
 rho_12000 = 0.31;
 mach = 0.85;
@@ -626,7 +638,7 @@ tres_vec = zeros(size(P03_vec));
 
 for j = 1:length(P03_vec)
     % Nota: T03 deve essere best_T0U calcolato dal compressore
-    [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
+    % [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
     [P04, T04, Q_dot, propCamera, propCombust] = Camera_combustione( ...
     Motore, modo)
     Lc_vec(j) = cam_out.Lc;
@@ -733,49 +745,53 @@ title("rendimento isoentropico")
 plot(T0I,etan);
 title("Rendimento isoentropico")
 xlabel("T04 (camera di combustione) [K]")
-ylabel("\eta_n")
+ylabel("$\eta_n$")
 hold on
 plot(T0I,etos);
+grid on
 legend("Isoentropico Raff","Isoentropico Non Raff")
 
-%Percentuale d'aria utilizzata per rafreddamento turbina
-nexttile();
-title("aria rafreddamento tubina")
-plot(T0I,coolPecentualeA*100);
+figure('name','coolPercentagevsT04');
+plot(T0I, coolPecentualeA * 100);
 hold on
-% plot(T0I,motore.turbina.CoolingRotore(Sota)*100)
-hold on
-% plot(T0I,motore.turbina.CoolingStatore(Sota)*100)
-legend("Totale","Rotore","Statore");
-title("percentuale di aria spillata da compressore per rafreddamento turbina")
-xlabel("T04 (camera di combustione) [K]")
-ylabel("Aria spillata per rafreddamento [%]")
+grid on
+ylabel("Aria raffreddamento [%]")
+xlabel("T0I [K]")
+legend("Totale");
+
+% Forza light mode solo per questa figura
 
 %Rendimento al variare della percentuale di aria utilizzata per rafreddamento turbina
-nexttile();
+figure()
 title("rendimento vs rafreddamento")
 plot(coolPecentualeA*100,etos,"-");
 title("Rendimento isoentropico vs aria spillata per rafreddamento")
 xlabel("Aria spillata per rafreddamento [%]")
-ylabel("\eta_n")
+ylabel("$\eta_n$")
+grid on
+
 
 % Pressioni Totali e Temperature totali
-nexttile();
+figure()
 title("Pressione e Temperature totali")
+
 yyaxis left
-plot(T0I,P0Is,'b-');
-hold on
-plot(T0I,P0Us,'w-');
-ylim([min(P0Us)-5000,max(P0Is)+5000]);
+p1 = plot(T0I, P0Is, 'b-'); hold on
+p2 = plot(T0I, P0Us, 'r-');
 ylabel("pressure [Pa]")
+ylim([min([P0Is,P0Us]) - 5000, max([P0Is,P0Us]) + 5000])
+
 yyaxis right
+t1 = plot(T0I, T0Us_in, 'g-'); hold on
+t2 = plot(T0I, T0Us, 'k-');
 ylabel("Temperature")
-plot(T0I,T0Us_in,'y-');
-hold on
-plot(T0I,T0Us,'r-');
-ylim([min(T0Us)-50,max(T0I)+50]);
-xlabel("T04 (camera di combustione) [K]");
-legend("P0I",'P0U','T0U_iso','T0U');
+ylim([min([T0Us_in, T0Us]) - 50; max([T0Us_in, T0Us]) + 50])
+
+grid on
+xlabel("T04 (camera di combustione) [K]")
+
+legend([p1 p2 t1 t2], ...
+    "P0I","P0U","T0U iso","T0U");
 
 %Area entrata e uscità
 figure("Name","In e Out motore")
@@ -784,6 +800,7 @@ title("in e out aree")
 plot(T0I,A4s)
 hold on
 plot(T0I,A5s)
+grid on
 xlabel("T04 (camera di combustione) [K]")
 ylabel("area [m^2]")
 legend("In","Out")
@@ -794,6 +811,7 @@ title("in e out mach")
 plot(T0I,best_machIn*ones(size(T0I)))
 hold on
 plot(T0I,machOut)
+grid on
 xlabel("T04 (camera di combustione) [K]")
 ylabel("mach]")
 legend("In","Out")
@@ -801,11 +819,12 @@ legend("In","Out")
 %Spinta generata al variare della temperatura in camera. 
 figure("name","spinta")
 plot(T0I,spinta)
+grid on
 xlabel("T04 (camera di combustione) [K]")
 ylabel("Spinta [N]")
 yline(25000,'--r','Spinta minima = 25000N')
 
-% -----
+%% -----
 % variazione mahc in ingresso
 machIns = 0.3:0.02:0.4;
 
