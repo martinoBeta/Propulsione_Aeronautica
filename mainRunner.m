@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 20;
+n_runs = 30;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -321,6 +321,7 @@ function X = lhs_sample(n, d)
         X(:,j) = (randperm(n)' - rand(n,1)) / n;
     end
 end
+toc
 
 function [ineq, eq] = mycon(x, motoreBase)
     [~, motore] = runnerMotore(motoreBase, x); % <
