@@ -10,8 +10,30 @@ function [motore] = structMotore()
 % 6  --> uscita postbruciatore
 % 7  --> uscita ugello
 
-
-
+ %% QUESTI SONO DA ELIMINARE
+% 
+% % Parametri globali del motore turbojet-ramjet
+% 
+% 
+% % Parametri termodinamici ciclo
+% Tmax  = 1700;           % temperatura massima ciclo (TIT) [K]
+% eta_b = 0.98;           % rendimento di combustione [-]
+% pi_b  = 0.97;           % rapporto di pressione camera di combustione [-]
+% 
+% % Perdite e spillamenti
+% % aria_spillata: frazione di mAir prelevata dopo il compressore
+% 
+% 
+% % Assemblaggio struct
+% 
+% % motore.Tmax        = Tmax;
+% % motore.eta_b       = eta_b;
+% % motore.pi_b        = pi_b;
+% % motore.eta_d_1     = eta_d_1;
+% % motore.mDotCore = 0.9*mdot;
+% % motore.mdot  = mdot;
+% % 
+% 
 %% Costanti universali
     Ru     = 8314;          % costante universale dei gas [J/(kmol·K)]
 
