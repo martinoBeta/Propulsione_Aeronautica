@@ -6,6 +6,7 @@ addpath("FunzioniMotore")
 motore = structMotore();
 
 %impostazione per latex
+%% 
 set(groot, ...
     'defaultTextInterpreter', 'latex', ...
     'defaultAxesTickLabelInterpreter', 'latex', ...
@@ -13,7 +14,8 @@ set(groot, ...
     'defaultColorbarTickLabelInterpreter', 'latex', ...
     'defaultAxesFontSize', 14, ...
     'defaultTextFontSize', 14, ...
-    'defaultLegendFontSize', 14);
+    'defaultLegendFontSize', 14, ...
+    'defaultAxesFontName', 'Latin Modern Roman');
 
 
 %%
@@ -666,7 +668,7 @@ xlabel('P_{03} [bar]'); grid on;
 addpath("FunzioniMotore")
 % -----
 % variazione della temperatura in ingresso
-T0I = 1100:25:1800;
+T0I = 1100:1:1800;
 
 motoreBase = structMotore();
 
@@ -750,15 +752,15 @@ hold on
 plot(T0I,etos);
 grid on
 legend("Isoentropico Raff","Isoentropico Non Raff")
-
+%%
 figure('name','coolPercentagevsT04');
 plot(T0I, coolPecentualeA * 100);
 hold on
 grid on
-ylabel("Aria raffreddamento [%]")
-xlabel("T0I [K]")
+ylabel("Aria spillata per il raffreddamento [%]")
+xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
 legend("Totale");
-
+%%
 % Forza light mode solo per questa figura
 
 %Rendimento al variare della percentuale di aria utilizzata per rafreddamento turbina

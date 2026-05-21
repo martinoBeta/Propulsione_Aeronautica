@@ -14,6 +14,8 @@
 %    'defaultAxesFontSize', 14, ...
 %    'defaultTextFontSize', 14, ...
 %    'defaultLegendFontSize', 14);
+%    'defaultAxesFontName', 'Latin Modern Roman');
+
 
 folder = [pwd '/Figures'];
 if ~exist(folder, 'dir')
@@ -39,9 +41,12 @@ for k = 1:length(figs)
         name = sprintf('figura_%d', fig.Number);
     end
     name = regexprep(name, '[^\w\-]', '_');
+    
+    hTitle = get(gca,'Title');
+    hTitle.Visible = 'off';  
 
     svg_file = fullfile(folder, [name '.svg']);
     print(fig, svg_file, '-dsvg', '-vector');
-
+    hTitle.Visible = 'on';  
     theme dark
 end
