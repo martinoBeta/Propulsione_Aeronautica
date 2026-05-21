@@ -20,7 +20,7 @@ CpA = ramjet.aria.cp;            % Cp dell'aria in ingresso
 gammaA = ramjet.aria.gamma;      % gamma dell'aria in ingresso
 RA = ramjet.aria.R;              % R dell'aria in ingresso
 
-CpG    = ramjet.gas.cp;          % Cp dei gas combusti
+CpG    = ramjet.gas.cp;           % Cp dei gas combusti
 gammaG = ramjet.gas.gamma;        % Gamma dei gas combusti
 DeltaH = ramjet.combustibile.LHV; % Entalpia di combustione
 EtaC   = ramjet.camera.etaC;
@@ -44,10 +44,12 @@ FlameHolderD  = B*ChamberRadius;  % Diametro degli stabilizzatori di fiamma
 
 % Assegnazione variabili
 
-ramjet.camera.T04 = T0U;
-ramjet.camera.P04 = P0U;
-ramjet.camera.f   = f;
-ramjet.camera.L   = ChamberLength;
-ramjet.camera.d   = FlameHolderD;
+ramjet.camera.T04       = T0U;
+ramjet.camera.P04       = P0U;
+ramjet.camera.f         = f;
+ramjet.camera.L         = ChamberLength;
+ramjet.camera.d         = FlameHolderD;
+ramjet.portate.mDotComb = mDotFuel;
+ramjet.portate.mDotGas  = mDotGas;
 
 end

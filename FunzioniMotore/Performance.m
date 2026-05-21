@@ -26,11 +26,15 @@ function [motore] = Performance(motore)
     % Rendimento Propulsivo
     etaProp = F*vVolo/(0.5*mDotGas*uE^2 - 0.5*mDotAria*vVolo^2);
 
+    % spinta specifica
+    ISP = F/mDotAria;
+
     motore.performance.F         = F;
     motore.performance.etaGlobal = etaGlobal;
     motore.performance.TSFC     = TSFC;
     motore.performance.etaProp  = etaProp;
-    motore.performance.etaTh     = etaTh;
+    motore.performance.etaTh    = etaTh;
+    motore.performance.ISP      = ISP;
 
 
 
