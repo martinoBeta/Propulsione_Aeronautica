@@ -56,8 +56,7 @@ function [motore] = structMotore()
 
     % Proprietà combustibile (JP-7)
     combustibile.Mm = 321.4964;
-    combustibile.R = Ru / combustibile.Mm;
-    combustibile.cp = 7/2 *combustibile.R;
+    combustibile.cp = 1800;
     combustibile.LHV = 44.1e6;
 
     % salvataggio
