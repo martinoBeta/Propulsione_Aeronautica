@@ -120,7 +120,7 @@ ramjet.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
 ramjet.camera.B     = 0.25;        % Bloccaggio
 ramjet.camera.etaC  = 0.98;        % Efficienza di combustione
 
-ramjet.camera.mach    = NaN;          % Numero di mach
+ramjet.camera.mach4    = NaN;          % Numero di mach
 ramjet.camera.T04     = NaN;          % Temperatura in uscita
 ramjet.camera.P04     = NaN;          % Pressione in uscita
 ramjet.camera.f       = NaN;
