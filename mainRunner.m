@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 30;
+n_runs = 5;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -79,7 +79,7 @@ per = motore.performance
 figure
 plot(1:n_runs, fHistory, 'o-')
 xlabel('Run')
-ylabel('Objective function')
+ylabel('TSFC minimo')
 grid on
 
 %% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
@@ -90,7 +90,7 @@ grid on
 figure
 plot(1:n_runs, cummin(fHistory), 'o-')
 xlabel('Run')
-ylabel('Best objective so far')
+ylabel('Minor TSFC finora')
 grid on
 
 
