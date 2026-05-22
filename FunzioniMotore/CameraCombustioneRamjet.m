@@ -8,7 +8,7 @@ function [ramjet] = CameraCombustioneRamjet(ramjet)
 % Estrazione variabili
 T0I           = ramjet.anulus.T03;     % Temperatura totale in ingresso
 P0I           = ramjet.anulus.P03;     % Pressione totale in ingresso
-mach          = ramjet.camera.mach;    % Numero di Mach
+mach          = ramjet.presaAria.mach;    % Numero di Mach
 PiAB          = ramjet.camera.pi_ab;   % Perdita di carico
 mDotAir       = ramjet.camera.mDotAir; % Portata di aria in ingresso
 TMax          = ramjet.camera.Tmax;    % Temperatura massima raggiungibile
@@ -19,6 +19,7 @@ ChamberRadius = ramjet.camera.r;       % Raggio camera
 CpA = ramjet.aria.cp;            % Cp dell'aria in ingresso
 gammaA = ramjet.aria.gamma;      % gamma dell'aria in ingresso
 RA = ramjet.aria.R;              % R dell'aria in ingresso
+
 
 CpG    = ramjet.gas.cp;           % Cp dei gas combusti
 gammaG = ramjet.gas.gamma;        % Gamma dei gas combusti
@@ -40,7 +41,7 @@ mDotGas  = mDotFuel+mDotAir;  % Portata totale in uscita
 ChamberLength = ChamberRadius*LH;
 FlameHolderD  = B*ChamberRadius;  % Diametro degli stabilizzatori di fiamma
 
-%Calcolare numero di mach
+mach = sqrt(gammaG*RA*TMax);
 
 
 % Assegnazione variabili
@@ -50,6 +51,7 @@ ramjet.camera.P04       = P0U;
 ramjet.camera.f         = f;
 ramjet.camera.L         = ChamberLength;
 ramjet.camera.d         = FlameHolderD;
+ramjet.camera.mach4     = mach;
 ramjet.portate.mDotComb = mDotFuel;
 ramjet.portate.mDotGas  = mDotGas;
 
