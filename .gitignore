@@ -30,3 +30,4 @@ Thumbs.db
 # *.avi
 # *.mat
 Figures/*.svg
+Figures/*.pdf

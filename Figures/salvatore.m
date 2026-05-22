@@ -45,8 +45,8 @@ for k = 1:length(figs)
     hTitle = get(gca,'Title');
     hTitle.Visible = 'off';  
 
-    svg_file = fullfile(folder, [name '.svg']);
-    print(fig, svg_file, '-dsvg', '-vector');
+    pdf_file = fullfile(folder, [name '.pdf']);
+    print(fig, pdf_file, '-dpdf', '-vector');
     hTitle.Visible = 'on';  
     theme dark
 end
