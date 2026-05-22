@@ -164,46 +164,6 @@ xtickangle(35)
 ylabel('Area [m^2]')
 title('Aree principali del ramjet')
 
-%% VINCOLI 
-%{
-valoriVincoli = [
-
-    ramjet.camera.tRes
-    ramjet.camera.phi
-
-    
-];
-
-limitiVincoli = [
-
-    % Compressore
-    1.0
-    0.5
-    0.72
-    0.6
-    0.6
-
-    % Camera
-    0.008
-    1.1
-
-];
-
-nomiVincoli = {
-
-    'tRes'
-    '\phi'};
-
-figure
-bar([valoriVincoli, limitiVincoli])
-grid on
-box on
-set(gca,'XTickLabel',nomiVincoli)
-ylabel('Valore')
-title('Confronto risultati ottimizzati vs vincoli')
-legend('Valore ottenuto','Limite')
-xtickangle(35)
-%}
 
 %% STAMPA RISULTATI A VIDEO
 fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')
@@ -230,13 +190,12 @@ fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
 fprintf('T04               = %.3f K\n', ramjet.camera.T04)
 fprintf('P04               = %.3f Pa\n', ramjet.camera.P04)
 fprintf('f                 = %.5f\n', ramjet.camera.f)
-fprintf('ARef              = %.4f m^2\n', ramjet.camera.ARef)
-fprintf('V camera          = %.4f m^3\n', ramjet.camera.V)
-fprintf('LC                = %.4f m\n', ramjet.camera.LC)
+fprintf('d                 = %.4f m\n', ramjet.camera.d)
+fprintf('L                 = %.4f m\n', ramjet.camera.L)
 
 fprintf('\n--- UGELLO ---\n')
 fprintf('Ue                = %.3f m/s\n', ramjet.ugello.Ue)
-fprintf('Mach uscita       = %.3f\n', ramjet.ugello.mach6)
+fprintf('Mach uscita       = %.3f\n', ramjet.ugello.mach5)
 fprintf('A*                = %.5f m^2\n', ramjet.ugello.AStar)
 fprintf('Ae                = %.5f m^2\n', ramjet.ugello.AE)
 fprintf('De                = %.4f m\n', ramjet.ugello.DE)
@@ -248,41 +207,4 @@ fprintf('mDot combustibile = %.4f kg/s\n', ramjet.portate.mDotComb)
 fprintf('mDot gas          = %.4f kg/s\n', ramjet.portate.mDotGas)
 
 
-%{
-fprintf('\n--- CONTROLLO VINCOLI ---\n')
-fprintf('Max c             = %.6e\n', max(z))
-fprintf('Norm ceq          = %.6e\n', norm(u))
-
-
-
-
 toc
-
-function X = lhs_sample(n, d)
-    X = zeros(n, d);
-    for j = 1:d
-        X(:,j) = (randperm(n)' - rand(n,1)) / n;
-    end
-end
-toc
-
-function [ineq, eq] = mycon(x, ramjetBase)
-    [~, ramjet] = runnerramjet(ramjetBase, x); % <
-    ineq = [ ... 
-        ramjet.compressore.machRel   - 1;
-        0.72 - ramjet.compressore.deHaller;
-        ramjet.compressore.CpStadio  - 0.5;
-        ramjet.compressore.DRotore   - 0.6;
-        ramjet.compressore.DStatore  - 0.6;
-        0.008 - ramjet.camera.tRes;
-        ramjet.camera.phi            - 1.1;
-        0.7   - ramjet.camera.phi;
-        (0.1 - ramjet.turbina.rh5) / 0.1; 
-        - ramjet.compressore.hOut + 0.02;
-    ];
-    eq = [ ramjet.performance.F - 25000 ];
-end
-
-toc
-
-%}
