@@ -52,9 +52,9 @@ ramjet.portate.mDotComb = NaN;   % portata massica del combustibile
 %% FREE STREAM
 %---------------------------------------------------------------------
 
-%% Condizioni atmosferiche a 12000 m (ISA)
+%% Condizioni atmosferiche a 25000 m (ISA)
 M0  = 3.5;             % numero di Mach di volo [-]
-T0  = 133.65;           % temperatura statica [K]
+T0  = 223.15;           % temperatura statica [K]
 P0  = 1296;            % pressione statica [Pa]
 
 gamma = 1.4;
