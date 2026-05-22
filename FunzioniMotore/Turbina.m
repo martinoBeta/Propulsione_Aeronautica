@@ -149,7 +149,7 @@ function [motore] = Turbina(motore)
 
       % proprietà fluido rotore all'uscita
       rotore.T0 = T04 - U*(statore.vt-rotore.vt)/cpGas;
-      rotore.T = rotore.T0 - rotore.v^2/cpGas;
+      rotore.T = rotore.T0 - rotore.v^2/(2*cpGas);
       % P0 e T0 rimane invariata nello statore, statore ideale
       rotore.P0 = P04*(rotore.T0/T04)^(gammaGas/((gammaGas-1)*etaP));
       rotore.P = rotore.P0/(1+(gammaGas-1)/2*rotore.wmachOut^2)^((gammaGas)/(gammaGas-1));
@@ -173,7 +173,7 @@ function [motore] = Turbina(motore)
   R = 1 - (statore.vt + rotore.vt)/(2*U);
 
   % Lavoro 
-  lStadio = U*(statore.v-rotore.v)*mDotGas;
+  lStadio = U*(statore.vt-rotore.vt)*mDotGas;
   nStadi = ceil(lTurbina/lStadio);
 
 
