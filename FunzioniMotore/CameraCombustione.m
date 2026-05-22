@@ -41,7 +41,7 @@ function [motore] = CameraCombustione(motore)
     cpG  = motore.fluidi.gas.cp;        % cp gas combusti in uscita [J/(kg·K)]
     Rg   = motore.fluidi.gas.R;         % costante del gas [J/(kg·K)]
     gammaG = motore.fluidi.gas.gamma;   % rapporto calori specifici gas combusti [-]
-
+    cpF     = motore.fluidi.combustibile.cp; % cp combustibile combusti in uscita [J/(kg·K)]
     % Ricavo pressione e temperatura statica per calcoli futuri:
     T3Statica = T03Primo / (1 + (gammaA-1)/2 * M03Primo^2);
     P3Statica = P03Primo / (1 + (gammaA-1)/2 * M03Primo^2)^(gammaA/(gammaA-1));
@@ -62,8 +62,9 @@ function [motore] = CameraCombustione(motore)
 
     % Derivazione di fLiner e fGlobal dal bilancio entalpico tra ingresso e uscita:
     % Risolvendo per f = mDotComb / mDotAirCalda:
+    Tfuel = 273.15;
     fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
-    fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04);
+    fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04 + cpF *Tfuel);
     
     % Mi ricavo il rapporto di equivalenza:
     fStechio = 0.068;
