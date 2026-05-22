@@ -40,6 +40,7 @@ mDotGas  = mDotFuel+mDotAir;  % Portata totale in uscita
 ChamberLength = ChamberRadius*LH;
 FlameHolderD  = B*ChamberRadius;  % Diametro degli stabilizzatori di fiamma
 
+%Calcolare numero di mach
 
 
 % Assegnazione variabili
