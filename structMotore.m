@@ -177,7 +177,7 @@ motore.compressore.NStadi = NaN;
 % ---------------------------------------------------------------------
 
     %% COSTANTI
-    etaM   = 0.92; % rendimento meccanico
+    etaM   = 0.95; % rendimento meccanico
     etaP   = 0.9;% rendimento adiabatico
     
     % Aria di rafreddamento dalle tabelle

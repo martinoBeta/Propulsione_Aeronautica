@@ -53,8 +53,9 @@ for i = 1:n_runs
     [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
     fHistory(i) = fi;
     xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f
+    if fi < best_f && (all(condDisEq <= 0) && all(condEq <= 0 ))
         best_f = fi;
         best_x = xi;
     end
@@ -336,6 +337,7 @@ function [ineq, eq] = mycon(x, motoreBase)
         0.7   - motore.camera.phi;
         (0.1 - motore.turbina.rh5) / 0.1; 
         - motore.compressore.hOut + 0.02;
+        motore.compressore.NStadi - 18;
     ];
     eq = [ motore.performance.F - 25000 ];
 end
