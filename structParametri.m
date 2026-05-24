@@ -12,35 +12,19 @@ function [parametri,RangeParametri] = structParametri()
 % Vettore colonna parametri
 
 parametri = [ ...
-    31;     % mDot     -> Portata massica in ingresso
-    0.35;   % mach2    -> Mach ingresso compressore (M2)
+    40;     % mDot     -> Portata massica in ingresso
     4;      % piC     -> Rapporto di compressione compressore
-    400;    % Utip     -> Velocità periferica tip compressore
-    5;      % theta    -> Angolo apertura diffusore
-    25;     % vtargetcamera -> Velocità target verso camera di combustione
     1600;   % T04      -> Temperatura totale uscita camera / ingresso turbina
-    2200;   % TComb    -> Temperatura di combustione
-    80;     % I        -> Intesità di combustione
-    0.3;    % mach4    -> Mach ingresso turbina
-    0.9;    % wmachOut -> Mach relativo uscita rotore turbina
 ];
 
 RangeParametri = [...
     20 80;
-    0.3 0.4;
-    3 40;
-    360 450;
-    2.5 4;
-    25 40;
-    1100 1300;
-    2000 2400;
-    80 100;
-    0.3 0.4;
-    0.8 0.9;
+    3 30;
+    1400 1401;
 ];
 
 
 % oottimale
-% [34.128224895878006	0.390307131066697	10.204026814709490  3.539356540888523e+02	3.116679083337874	25.200335799275233	1.528819575563447e+03	2.299761038395390e+03	80.227769177903994	0.337679065680598	0.845092242124904]
-
+% [39.140244256121989	0.300000000000000	38.776308385574652	3.978941639812600e+02	3.840544421890678	29.037660536907595	1400	2.399999990378657e+03	97.568713852034122	0.312003183893379	0.835740539155935]
+% [53.933186422137652	0.399999996011306	38.255812925925014	3.600016096457816e+02	2.660849121696416	28.560293448610700	1201	2.399999992138714e+03	80.055214222802050	0.395372152498520	0.824632818121281
 end

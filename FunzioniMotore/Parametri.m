@@ -16,16 +16,6 @@ function [motore] = Parametri(motore,parametri)
 % ];
 
     motore.portate.mDot = parametri(1);
-    motore.presaAria.M2 = parametri(2);
-    motore.compressore.piC = parametri(3);
-    motore.compressore.Utip = parametri(4);
-    motore.diffusore.theta = parametri(5);
-    motore.diffusore.vTargetCamera = parametri(6);
-    motore.camera.T04 = parametri(7);
-    motore.camera.TComb = parametri(8);
-    motore.camera.I = parametri(9);
-    motore.turbina.mach4 = parametri(10);
-    motore.turbina.rotore.wmachOut = parametri(11);
-
-
+    motore.compressore.piC = parametri(2);
+    motore.camera.T04 = parametri(3);
 end

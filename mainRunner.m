@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 5;
+n_runs = 20;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -53,8 +53,9 @@ for i = 1:n_runs
     [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
     fHistory(i) = fi;
     xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f
+    if fi < best_f && (all(condDisEq <= 0) && all(condEq <= 0 ))
         best_f = fi;
         best_x = xi;
     end
@@ -191,6 +192,7 @@ valoriVincoli = [
 ];
 
 limitiVincoli = [
+
     % Compressore
     1.0
     0.5
@@ -324,17 +326,19 @@ toc
 
 function [ineq, eq] = mycon(x, motoreBase)
     [~, motore] = runnerMotore(motoreBase, x); % <
-    ineq = [ ...
-        motore.compressore.machRel   - 1;
-        0.72 - motore.compressore.deHaller;
-        motore.compressore.CpStadio  - 0.5;
-        motore.compressore.DRotore   - 0.6;
-        motore.compressore.DStatore  - 0.6;
-        0.008 - motore.camera.tRes;
-        motore.camera.phi            - 1.1;
-        0.7   - motore.camera.phi;
-        (0.1 - motore.turbina.rh5) / 0.1; 
-        - motore.compressore.hOut + 0.02;
+    ineq = [ ... 
+        % motore.compressore.machRel   - 1;
+        % 0.72 - motore.compressore.deHaller;
+        % motore.compressore.CpStadio  - 0.5;
+        % motore.compressore.DRotore   - 0.6;
+        % motore.compressore.DStatore  - 0.6;
+        % 0.008 - motore.camera.tRes;
+        % motore.camera.phi            - 1.1;
+        % 0.7   - motore.camera.phi;
+        % (0.1 - motore.turbina.rh5) / 0.1; 
+        % - motore.compressore.hOut + 0.02;
+        % motore.compressore.NStadi - 18;
+        % motore.presaAria.CPR - 0.78;
     ];
     eq = [ motore.performance.F - 25000 ];
 end
