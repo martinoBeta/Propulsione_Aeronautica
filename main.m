@@ -18,19 +18,19 @@ set(groot, ...
     'defaultAxesFontName', 'Latin Modern Roman');
 
 
-%%
-% calcolo portata necessaria per mach 0.85 e 25Kn di spinta
-rho_12000 = 0.31;
-mach = 0.85;
-R = 8314/29;
-gamma = 1.3;
-T_12000   = -56.5+273.15;
-v_exitstimata = 900;
-v_volo = mach * sqrt(R*gamma*T_12000);
-% Spinta = mdot(ve-v_volo)
-spinta = 25000;
-mdot = spinta/(v_exitstimata-v_volo);
-motore.portate.mDotAir = mdot;
+% %%
+% % calcolo portata necessaria per mach 0.85 e 25Kn di spinta
+% rho_12000 = 0.31;
+% mach = 0.85;
+% R = 8314/29;
+% gamma = 1.3;
+% T_12000   = -56.5+273.15;
+% v_exitstimata = 900;
+% v_volo = mach * sqrt(R*gamma*T_12000);
+% % Spinta = mdot(ve-v_volo)
+% spinta = 25000;
+% mdot = spinta/(v_exitstimata-v_volo);
+% motore.portate.mDotAir = mdot;
 
 %% ------------------------------------------------------------------------
 %                               PRESA D'ARIA
@@ -173,7 +173,9 @@ title('Aree presa al variare della portata aria')
 %% ------------------------------------------------------------------------
 %                                COMPRESSORE
 %--------------------------------------------------------------------------
-
+motore.compressore.piC = 12;
+motore.portate.mDot = 0.35;
+motore.presaAria.M2 = 0.35;
 
 
 %% ANALISI 1: vario il rapporto di compressione
@@ -198,7 +200,7 @@ for i = 1:n
 
     motore.compressore.piC = piC_range(i);
 
-    motore = compressore(motore);
+    motore = Compressore(motore);
 
     T03_vec(i) = motore.compressore.T03;
     P03_vec(i) = motore.compressore.P03;
@@ -309,7 +311,7 @@ for i = 1:n
 
     motore.compressore.Utip = Utip_range(i);
 
-    motore = compressore(motore);
+    motore = Compressore(motore);
 
     machRel_vec(i) = motore.compressore.machRel;
     Mach_abs_vec(i) = motore.compressore.Mach_abs;
@@ -419,7 +421,7 @@ for i = 1:n
 
     motore.presaAria.M2 = machIn_range(i);
 
-    motore = compressore(motore);
+    motore = Compressore(motore);
 
     % Area ingresso compressore = uscita presa
     A2_vec(i) = motore.presaAria.A2;

@@ -117,7 +117,7 @@ motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
 motore.presaAria.M2 = NaN;
 motore.presaAria.eta_d = 0.975;
-motore.presaAria.pi_d = 0.985;
+motore.presaAria.pi_d = 0.989;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
@@ -137,7 +137,7 @@ motore.presaAria.CPR = NaN;
 
 motore.compressore.piC = NaN;
 motore.compressore.etaP = 0.9;
-motore.compressore.Utip = 400;
+motore.compressore.Utip = 377;
 motore.compressore.U_m = NaN;
 
 

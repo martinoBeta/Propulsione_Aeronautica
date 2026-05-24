@@ -191,7 +191,6 @@ valoriVincoli = [
 ];
 
 limitiVincoli = [
-
     % Compressore
     1.0
     0.5
@@ -325,7 +324,7 @@ toc
 
 function [ineq, eq] = mycon(x, motoreBase)
     [~, motore] = runnerMotore(motoreBase, x); % <
-    ineq = [ ... 
+    ineq = [ ...
         motore.compressore.machRel   - 1;
         0.72 - motore.compressore.deHaller;
         motore.compressore.CpStadio  - 0.5;
