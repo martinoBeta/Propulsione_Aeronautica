@@ -102,10 +102,13 @@ ramjet.presaAria.mach       = NaN;
 %---------------------------------------------------------------------
 
 
-ramjet.anulus.T03  = NaN;   % Temperatura totale in uscita
-ramjet.anulus.P03  = NaN;   % Pressione totale in uscita
-ramjet.anulus.A    = NaN;   % Area dell'anulus
-ramjet.anulus.rRam = NaN;   % Raggio esterno del casing
+ramjet.anulus.T03   = NaN;   % Temperatura totale in uscita
+ramjet.anulus.P03   = NaN;   % Pressione totale in uscita
+ramjet.anulus.AIn   = NaN;   % Area di ingresso dell'anulus
+ramjet.anulus.AOut  = NaN;   % Area di uscita
+ramjet.anulus.rIn   = NaN;   % Raggio esterno all'entrata del casing
+ramjet.anulus.rOut  = NaN;   % Raggio esterno all'uscita del casing
+ramjet.anulus.mach3 = 0.25;  % Numero di mach in uscita
 
 
 %---------------------------------------------------------------------
