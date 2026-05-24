@@ -115,9 +115,9 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.M2 = NaN;
+motore.presaAria.M2 = 0.35;
 motore.presaAria.eta_d = 0.975;
-motore.presaAria.pi_d = 0.985;
+motore.presaAria.pi_d = 0.95;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
@@ -203,7 +203,7 @@ motore.compressore.NStadi = NaN;
     turbina.etaN        = NaN;
     
     % IN
-    turbina.mach4   = NaN;
+    turbina.mach4   = 0.3;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -267,7 +267,7 @@ motore.compressore.NStadi = NaN;
             turbina.rotore.wz       = NaN;
             turbina.rotore.wt       = NaN;
             turbina.rotore.w        = NaN;
-            turbina.rotore.wmachOut = NaN;
+            turbina.rotore.wmachOut = 0.8;
 
             % geometria
             turbina.rotore.hIn      = NaN;
@@ -289,7 +289,7 @@ motore.compressore.NStadi = NaN;
 
     motore.diffusore.vTargetCamera = 25;   % velocità target ingresso camera [m/s]
     motore.diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
-    motore.diffusore.theta           = 8;    % semi-angolo di apertura [gradi]
+    motore.diffusore.theta           = 5;    % semi-angolo di apertura [gradi]
                                                   % (limite distacco: < 8–10°)
 
     % Aggiornati nel main dopo compressore.m
@@ -334,7 +334,7 @@ motore.compressore.NStadi = NaN;
     motore.camera.mDotAirFredda = NaN;
     motore.camera.P04 = NaN;
     motore.camera.QDot = NaN;
-    motore.camera.TComb = NaN;
+    motore.camera.TComb = 2200;
     motore.camera.phi = NaN;
 
   
