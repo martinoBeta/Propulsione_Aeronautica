@@ -202,10 +202,6 @@ motore.compressore.NStadi = NaN;
     turbina.lTurbina    = NaN;
     turbina.etaN        = NaN;
     
-    % Rendimento isoentropico rispetto a caso senza rafreddamento
-    turbina.etaNRaff    = NaN;
-            
-    
     % IN
     turbina.mach4   = NaN;
     turbina.P04     = NaN;

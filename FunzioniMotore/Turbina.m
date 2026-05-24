@@ -75,8 +75,7 @@ function [motore] = Turbina(motore)
     % temperatura isoentropica
     T05Iso = T04*betaP^((gammaGas-1)/gammaGas);
 
-    % Lavoro isoentropico non rafreddato
-    lIsoNoRaff = cpGas*mDotGas*(T04-T05Iso);
+
 
     % Lavoro isoentropico rafreddato
     lIsoRaff = mDotGas*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
@@ -84,7 +83,6 @@ function [motore] = Turbina(motore)
     % rendimento adiabatico
    
     etaN = lTurbina/lIsoRaff;
-    etaNRaff = lTurbina/lIsoNoRaff;
     T0U = T05;
     
     % INLET TURBINE
@@ -201,9 +199,7 @@ function [motore] = Turbina(motore)
     % Lavoro e rendimento
     propTurbina.lTurbina = lTurbina;
     propTurbina.etaN = etaN;
-    
-    % rendimento isoentropico rispetto a caso che non necessita rafreddamento
-    propTurbina.etaNRaff = etaNRaff;             
+       
     
     % Percentuale raffredamento
     propTurbina.TRaff = TRaff;
