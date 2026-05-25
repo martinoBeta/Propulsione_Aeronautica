@@ -18,8 +18,9 @@ function motore = PresaDaria(motore,ramjet)
 
         M2   = motore.presaAria.M2;
         pi_d = motore.presaAria.pi_d;
+        A_ingresso = motore.presaAria.A_ingresso;
 
-        mDotAir = motore.portate.mDot;
+       
 
         T02 = T00;
         P02 = pi_d * P00;
@@ -34,7 +35,7 @@ function motore = PresaDaria(motore,ramjet)
         a2 = sqrt(gamma * R * T2);
         V2 = M2 * a2;
 
-        A_ingresso = mDotAir / (rho0 * V0);
+        mDotAir = A_ingresso * (rho0 * V0);
 
         A2 = mDotAir / (rho2 * V2);
 
@@ -43,6 +44,7 @@ function motore = PresaDaria(motore,ramjet)
         CPR = (P2 - P0) / q0;
 
         % OUTPUT
+        motore.portate.mDot = mDotAir;
         motore.presaAria.T02 = T02;
         motore.presaAria.P02 = P02;
 

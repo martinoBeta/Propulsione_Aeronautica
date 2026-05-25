@@ -13,9 +13,15 @@ function [motore] = Parametri(motore,parametri)
 %     80;     % I        -> Intensità di combustione
 %     0.3;    % mach4    -> Mach ingresso turbina
 %     0.9;    % wmachOut -> Mach relativo uscita rotore turbina
-% ];
-
-    motore.portate.mDot = parametri(1);
+% ]; 
+    
+    motore.presaAria.M2 = parametri(1);
     motore.compressore.piC = parametri(2);
-    motore.camera.T04 = parametri(3);
+    motore.compressore.Utip = parametri(3);
+    motore.diffusore.vTargetCamera = parametri(4);
+    motore.camera.T04 = parametri(5);
+    motore.turbina.mach4 = parametri(6);
+    motore.turbina.rotore.wmachOut = parametri(7);
+
+
 end

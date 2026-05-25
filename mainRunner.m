@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 3;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -55,10 +55,14 @@ for i = 1:n_runs
     xHistory(i,:) = xi;
     [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f && (all(condDisEq <= 0) && all(condEq <= 0 ))
-        best_f = fi;
-        best_x = xi;
+    if fi < best_f && all(condDisEq <= 1e-7) && norm(condEq) <= 1e-6
+       best_f = fi;
+       best_x = xi;
     end
+end
+
+if isempty(best_x)
+    error('Nessuna soluzione fattibile trovata')
 end
 
 x1 = best_x;
@@ -268,6 +272,7 @@ fprintf('hOut                       = %.4f m\n', motore.compressore.hOut)
 fprintf('\n--- DIFFUSORE ---\n')
 fprintf('T035      = %.3f K\n', motore.diffusore.T035)
 fprintf('P035      = %.3f Pa\n', motore.diffusore.P035)
+fprintf('v35    = %.3f\n', motore.diffusore.vTargetCamera)
 fprintf('Mach35    = %.3f\n', motore.diffusore.mach35)
 fprintf('A3        = %.4f m^2\n', motore.diffusore.A3)
 fprintf('A35       = %.4f m^2\n', motore.diffusore.A35)
@@ -325,20 +330,26 @@ end
 toc
 
 function [ineq, eq] = mycon(x, motoreBase)
+    FS = 0.98;
     [~, motore] = runnerMotore(motoreBase, x); % <
     ineq = [ ... 
-        % motore.compressore.machRel   - 1;
-        % 0.72 - motore.compressore.deHaller;
-        % motore.compressore.CpStadio  - 0.5;
-        % motore.compressore.DRotore   - 0.6;
-        % motore.compressore.DStatore  - 0.6;
-        % 0.008 - motore.camera.tRes;
-        % motore.camera.phi            - 1.1;
-        % 0.7   - motore.camera.phi;
-        % (0.1 - motore.turbina.rh5) / 0.1; 
-        % - motore.compressore.hOut + 0.02;
-        % motore.compressore.NStadi - 18;
-        % motore.presaAria.CPR - 0.78;
+        motore.compressore.machRel   - 1 * FS;
+        0.72 - motore.compressore.deHaller;
+        motore.compressore.CpStadio  - 0.5;
+        motore.compressore.DRotore   - 0.6 * FS;
+        motore.compressore.DStatore  - 0.6 * FS;
+        0.008 - motore.camera.tRes;
+        motore.camera.phi            - 1.1;
+        0.7   - motore.camera.phi;
+        (0.1 - motore.turbina.rh5) / 0.1; 
+        - motore.compressore.hOut + 0.02;
+        motore.presaAria.CPR - 0.78;
+        motore.compressore.NStadi - 14;
+        motore.diffusore.A35 - 2.0 
+        motore.compressore.NStadi - 14
+        motore.turbina.nStadi - 5
+        motore.diffusore.A35 - 1.2
+        motore.camera.ARef - 1.2
     ];
     eq = [ motore.performance.F - 25000 ];
 end

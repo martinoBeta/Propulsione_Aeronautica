@@ -121,7 +121,7 @@ motore.presaAria.pi_d = 0.95;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
-motore.presaAria.A_ingresso = NaN;
+motore.presaAria.A_ingresso = 0.50;% <-------------- VALORE PROVVISORIO ( viene dall'ottimizzazione del ramjet)
 motore.presaAria.A2 = NaN;
 motore.presaAria.CPR = NaN;
 
@@ -167,10 +167,60 @@ motore.compressore.R_m = NaN;
 motore.compressore.c_m = NaN;
 motore.compressore.N_R = NaN;
 motore.compressore.NStadi = NaN;
+    %%  DIFFUSORE ANULARE  (tra compressore e camera)
 
+    % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
+    % nel main subito dopo la chiamata a compressore.m.
 
+    motore.diffusore.vTargetCamera = 25;   % velocità target ingresso camera [m/s]
+    motore.diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
+    motore.diffusore.theta           = 3;    % semi-angolo di apertura [gradi]
+                                                  % (limite distacco: < 8–10°)
 
+    % Aggiornati nel main dopo compressore.m
+    motore.diffusore.mach3  = NaN;  % Mach ingresso (= machOut compressore) [-]
+    motore.diffusore.rMedio = NaN;  % raggio medio  (= r_m_out compressore)  [m]
+    motore.diffusore.T03    = NaN;
+    motore.diffusore.P03    = NaN;
+    motore.diffusore.T035   = NaN;
+    motore.diffusore.P035   = NaN;
+    motore.diffusore.mach35 = NaN;
 
+    % Calcolati da Diffusore.m
+    motore.diffusore.A3     = NaN; % area ingresso          [m²]
+    motore.diffusore.A35    = NaN; % area uscita            [m²]
+    motore.diffusore.h3     = NaN; % altezza canale ingresso [m]
+    motore.diffusore.h35    = NaN; % altezza canale uscita  [m]
+    motore.diffusore.LD     = NaN; % lunghezza assiale       [m]
+    motore.diffusore.v3     = NaN; % velocità ingresso      [m/s]
+    motore.diffusore.v35    = NaN; % velocità uscita        [m/s]
+
+%%  CAMERA DI COMBUSTIONE
+
+    motore.camera.rMedio             = NaN;  % raggio medio camera anulare   [m]
+    motore.camera.perditaDinamica      = 20;    % fattore perdita dinamica ΔP/q [-]
+    motore.camera.perditaPressione = 0.06;  % perdita pressione totale      [-]
+    motore.camera.I               = 100;   % intensità di combustione      [W/(m³·Pa)]
+    motore.camera.etaB           = 0.98;  % rendimento di combustione     [-]
+
+    % Calcolati da Camera_di_combustione.m
+    motore.camera.ARef = NaN;  % area di riferimento                     [m²]
+    motore.camera.hRef = NaN;  % altezza canale anulare                  [m]
+    motore.camera.ALiner = NaN;
+    motore.camera.V     = NaN;  % volume camera                           [m³]
+    motore.camera.LC    = NaN;  % lunghezza camera                        [m]
+    motore.camera.URef = NaN;  % velocità di riferimento                 [m/s]
+    motore.camera.qRef = NaN;  % pressione dinamica di riferimento       [Pa]
+    motore.camera.MRef = NaN;  % Mach di riferimento                     [-]
+    motore.camera.tRes = NaN;
+    motore.camera.f = NaN;
+    motore.camera.T04 = NaN;
+    motore.camera.mDotAirCalda = NaN;
+    motore.camera.mDotAirFredda = NaN;
+    motore.camera.P04 = NaN;
+    motore.camera.QDot = NaN;
+    motore.camera.TComb = 2100;
+    motore.camera.phi = NaN;
 
 
 %% TUBINA
@@ -203,7 +253,7 @@ motore.compressore.NStadi = NaN;
     turbina.etaN        = NaN;
     
     % IN
-    turbina.mach4   = 0.3;
+    turbina.mach4   = NaN;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -267,7 +317,7 @@ motore.compressore.NStadi = NaN;
             turbina.rotore.wz       = NaN;
             turbina.rotore.wt       = NaN;
             turbina.rotore.w        = NaN;
-            turbina.rotore.wmachOut = 0.8;
+            turbina.rotore.wmachOut = NaN;
 
             % geometria
             turbina.rotore.hIn      = NaN;
@@ -281,63 +331,6 @@ motore.compressore.NStadi = NaN;
     motore.turbina  = turbina;
     % ---------------------------------------------------------------------
 
-
-    %%  DIFFUSORE ANULARE  (tra compressore e camera)
-
-    % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
-    % nel main subito dopo la chiamata a compressore.m.
-
-    motore.diffusore.vTargetCamera = 25;   % velocità target ingresso camera [m/s]
-    motore.diffusore.pi_d            = 0.95; % rendimento pneumatico           [-]
-    motore.diffusore.theta           = 5;    % semi-angolo di apertura [gradi]
-                                                  % (limite distacco: < 8–10°)
-
-    % Aggiornati nel main dopo compressore.m
-    motore.diffusore.mach3  = NaN;  % Mach ingresso (= machOut compressore) [-]
-    motore.diffusore.rMedio = NaN;  % raggio medio  (= r_m_out compressore)  [m]
-    motore.diffusore.T03    = NaN;
-    motore.diffusore.P03    = NaN;
-    motore.diffusore.T035   = NaN;
-    motore.diffusore.P035   = NaN;
-    motore.diffusore.mach35 = NaN;
-
-    % Calcolati da Diffusore.m
-    motore.diffusore.A3     = NaN; % area ingresso          [m²]
-    motore.diffusore.A35    = NaN; % area uscita            [m²]
-    motore.diffusore.h3     = NaN; % altezza canale ingresso [m]
-    motore.diffusore.h35    = NaN; % altezza canale uscita  [m]
-    motore.diffusore.LD     = NaN; % lunghezza assiale       [m]
-    motore.diffusore.v3     = NaN; % velocità ingresso      [m/s]
-    motore.diffusore.v35    = NaN; % velocità uscita        [m/s]
-
-%%  CAMERA DI COMBUSTIONE
-
-    motore.camera.rMedio             = NaN;  % raggio medio camera anulare   [m]
-    motore.camera.perditaDinamica      = 20;    % fattore perdita dinamica ΔP/q [-]
-    motore.camera.perditaPressione = 0.06;  % perdita pressione totale      [-]
-    motore.camera.I               = 80;   % intensità di combustione      [W/(m³·Pa)]
-    motore.camera.etaB           = 0.98;  % rendimento di combustione     [-]
-
-    % Calcolati da Camera_di_combustione.m
-    motore.camera.ARef = NaN;  % area di riferimento                     [m²]
-    motore.camera.hRef = NaN;  % altezza canale anulare                  [m]
-    motore.camera.ALiner = NaN;
-    motore.camera.V     = NaN;  % volume camera                           [m³]
-    motore.camera.LC    = NaN;  % lunghezza camera                        [m]
-    motore.camera.URef = NaN;  % velocità di riferimento                 [m/s]
-    motore.camera.qRef = NaN;  % pressione dinamica di riferimento       [Pa]
-    motore.camera.MRef = NaN;  % Mach di riferimento                     [-]
-    motore.camera.tRes = NaN;
-    motore.camera.f = NaN;
-    motore.camera.T04 = NaN;
-    motore.camera.mDotAirCalda = NaN;
-    motore.camera.mDotAirFredda = NaN;
-    motore.camera.P04 = NaN;
-    motore.camera.QDot = NaN;
-    motore.camera.TComb = 2200;
-    motore.camera.phi = NaN;
-
-  
 
 
     %% UGELLO
