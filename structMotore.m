@@ -278,54 +278,55 @@ motore.compressore.NStadi = NaN;
     turbina.rh5         = NaN;
     
     
-    % Stadio
-        %velocità palette
-        turbina.U   = NaN;
-        % grado di reazione
-        turbina.R   = NaN;
-        % lavoro stadio
-        turbina.lStadio     = NaN;
-        turbina.nStadi      = NaN;
-        % Statore
-            turbina.statore.a       = NaN;
-            turbina.statore.alpha   = NaN;
-            turbina.statore.AIn     = NaN;
-            turbina.statore.AOut    = NaN;
-            turbina.statore.T       = NaN;
-            turbina.statore.P       = NaN;
-            turbina.statore.rho     = NaN;
-            % velocità
-            turbina.statore.vz      = NaN;
-            turbina.statore.vt      = NaN;
-            turbina.statore.v       = NaN;
-            turbina.statore.wz      = NaN;
-            turbina.statore.wt      = NaN;
-            turbina.statore.w       = NaN;
+        % Stadio
+            %velocità palette
+            turbina.U   = NaN;
+            % grado di reazione
+            turbina.R   = NaN;
+            % lavoro stadio
+            turbina.lStadio     = NaN;
+            turbina.nStadi      = NaN;
+            turbina.etaStadio   = NaN;
+            % Statore
+                turbina.statore.a       = NaN;
+                turbina.statore.alpha   = NaN;
+                turbina.statore.AIn     = NaN;
+                turbina.statore.AOut    = NaN;
+                turbina.statore.T       = NaN;
+                turbina.statore.P       = NaN;
+                turbina.statore.rho     = NaN;
+                % velocità
+                turbina.statore.vz      = NaN;
+                turbina.statore.vt      = NaN;
+                turbina.statore.v       = NaN;
+                turbina.statore.wz      = NaN;
+                turbina.statore.wt      = NaN;
+                turbina.statore.w       = NaN;
+        
+            % Rotore
+                turbina.rotore.AIn      = NaN;
+                turbina.rotore.AOut     = NaN;
+                turbina.rotore.T        = NaN;
+                turbina.rotore.T0       = NaN;
+                turbina.rotore.P        = NaN;
+                turbina.rotore.P0       = NaN;
+                turbina.rotore.rho      = NaN;
+                % velocità
+                turbina.rotore.vz       = NaN;
+                turbina.rotore.vt       = NaN;
+                turbina.rotore.v        = NaN;
+                turbina.rotore.wz       = NaN;
+                turbina.rotore.wt       = NaN;
+                turbina.rotore.w        = NaN;
+                turbina.rotore.wmachOut = 0.8;
     
-        % Rotore
-            turbina.rotore.AIn      = NaN;
-            turbina.rotore.AOut     = NaN;
-            turbina.rotore.T        = NaN;
-            turbina.rotore.T0       = NaN;
-            turbina.rotore.P        = NaN;
-            turbina.rotore.P0       = NaN;
-            turbina.rotore.rho      = NaN;
-            % velocità
-            turbina.rotore.vz       = NaN;
-            turbina.rotore.vt       = NaN;
-            turbina.rotore.v        = NaN;
-            turbina.rotore.wz       = NaN;
-            turbina.rotore.wt       = NaN;
-            turbina.rotore.w        = NaN;
-            turbina.rotore.wmachOut = NaN;
-
-            % geometria
-            turbina.rotore.hIn      = NaN;
-            turbina.rotore.rtIn     = NaN;
-            turbina.rotore.rhIn     = NaN;
-    
-    
-    
+                % geometria
+                turbina.rotore.hIn      = NaN;
+                turbina.rotore.rtIn     = NaN;
+                turbina.rotore.rhIn     = NaN;
+        
+        
+        
     
     % Salvataggio Struct
     motore.turbina  = turbina;

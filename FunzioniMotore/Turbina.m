@@ -127,31 +127,31 @@ function [motore] = Turbina(motore)
         statore.alpha = atan(statore.vt/statore.vz)*180/pi;
         % area all'uscita dello statore
         statore.AOut = mDotGas/(statore.rho*statore.v);
-
+        
         % Velocità Relative
         statore.wz = statore.vz;
         statore.wt = statore.vt- U;
         statore.w = sqrt(statore.wz^2+statore.wt^2);
         statore.AIn = A4;
-    
 
-    % ROTORE
-      % ricavo w3 da risoluzione problema pagina 20 cioè tutte le velocità
-      % di uscita dal rotore
-      rotore.w = sqrt((statore.a^2 + statore.w^2*(gammaGas-1)/2)/((gammaGas-1)/2+1/(propTurbina.rotore.wmachOut^2)));
-      rotore.vz = statore.vz;
-      rotore.wz = rotore.vz;
-      rotore.wt = sqrt(rotore.w^2-rotore.wz^2);
-      rotore.vt = U - rotore.wt;
-      rotore.v = sqrt(rotore.vt^2+rotore.vz^2);
 
-      % proprietà fluido rotore all'uscita
-      rotore.T0 = T04 - U*(statore.vt-rotore.vt)/cpGas;
-      rotore.T = rotore.T0 - rotore.v^2/(2*cpGas);
-      % P0 e T0 rimane invariata nello statore, statore ideale
-      rotore.P0 = P04*(rotore.T0/T04)^(gammaGas/((gammaGas-1)*etaP));
-      rotore.P = rotore.P0/(1+(gammaGas-1)/2*rotore.wmachOut^2)^((gammaGas)/(gammaGas-1));
-      rotore.rho = rotore.P/(RGas*rotore.T);
+     % ROTORE
+        % ricavo w3 da risoluzione problema pagina 20 cioè tutte le velocità
+        % di uscita dal rotore
+        rotore.w = sqrt((statore.a^2 + statore.w^2*(gammaGas-1)/2)/((gammaGas-1)/2+1/(propTurbina.rotore.wmachOut^2)));
+        rotore.vz = statore.vz;
+        rotore.wz = rotore.vz;
+        rotore.wt = -sqrt(rotore.w^2-rotore.wz^2);
+        rotore.vt = U + rotore.wt;
+        rotore.v = sqrt(rotore.vt^2+rotore.vz^2);
+        
+        % proprietà fluido rotore all'uscita
+        rotore.T0 = T04 - U*(statore.vt-rotore.vt)/cpGas;
+        rotore.T = rotore.T0 - rotore.v^2/(2*cpGas);
+        % P0 e T0 rimane invariata nello statore, statore ideale
+        rotore.P0 = P04*(rotore.T0/T04)^(gammaGas/((gammaGas-1)*etaP));
+        rotore.P = rotore.P0/(1+(gammaGas-1)/2*rotore.wmachOut^2)^((gammaGas)/(gammaGas-1));
+        rotore.rho = rotore.P/(RGas*rotore.T);
       
 
       
@@ -170,11 +170,13 @@ function [motore] = Turbina(motore)
   % Grado di reazione 
   R = 1 - (statore.vt + rotore.vt)/(2*U);
 
+
   % Lavoro 
   lStadio = U*(statore.vt-rotore.vt)*mDotGas;
   nStadi = ceil(lTurbina/lStadio);
-
-
+  etaStadio =(1-(rotore.T/T04))/(1-(rotore.T/T04)^(1/0.9));
+  % lStadio/(mDotGas*cpGas*T04*(1-(P04/rotore.P0)^((1-gammaGas)/gammaGas)));
+    
     
 
 
@@ -217,6 +219,7 @@ function [motore] = Turbina(motore)
     propTurbina.R = R;
     propTurbina.lStadio = lStadio;
     propTurbina.nStadi = nStadi;
+    propTurbina.etaStadio = etaStadio;
     
     
     % Aggiornameto della struct motore  

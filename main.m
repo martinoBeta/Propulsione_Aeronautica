@@ -704,7 +704,6 @@ N = length(T0I);
 % preallocazioni
 etan = zeros(1,N);
 coolPecentualeA = zeros(1,N);
-etos = zeros(1,N);
 P0Is = zeros(1,N);
 P0Us = zeros(1,N);
 T0Us_in = zeros(1,N);
@@ -713,6 +712,7 @@ spinta = zeros(1,N);
 A4s = zeros(1,N);
 A5s = zeros(1,N);
 machOut = zeros(1,N);
+sot = zeros(1,N);
 
 for i = 1:N
     motore = motoreBase;
@@ -726,7 +726,6 @@ for i = 1:N
 
     etan(i) = T.etaN;
     coolPecentualeA(i) = port.mDotRaff/port.mDot;
-    etos(i) = T.etaNRaff;
 
     P0Us(i) = T.P05;
     P0Is(i) = T.P04;
@@ -736,6 +735,7 @@ for i = 1:N
     A4s(i) = T.A4;
     A5s(i) = T.A5;
     machOut(i) = T.mach5;
+    sot(i) = 2/(1.33+1)*T.T04;
 
     % [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
     % 
@@ -743,25 +743,23 @@ for i = 1:N
 end
 %%
 %Rendimento isoentropico
-figure("name","Turbina");
+figure("name","rendimentoIsoentropicoTurbina");
 nexttile();
 title("rendimento isoentropico")
 plot(T0I,etan);
 title("Rendimento isoentropico")
-xlabel("T04 (camera di combustione) [K]")
-ylabel("$\eta_n$")
+xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
+ylabel('$\eta_t$')
 hold on
-plot(T0I,etos);
 grid on
-legend("Isoentropico Raff","Isoentropico Non Raff")
 %%
 figure('name','coolPercentagevsT04');
-plot(T0I, coolPecentualeA * 100);
+plot(T0I, coolPecentualeA * 100, T0I, T.coolingStatore(sot)*100,T0I, T.coolingRotore(sot)*100  );
 hold on
 grid on
-ylabel("Aria spillata per il raffreddamento [%]")
+ylabel("Aria spillata [%]")
 xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
-legend("Totale");
+legend("Totale","Statore","Rotore");
 %%
 % Forza light mode solo per questa figura
 
@@ -770,8 +768,8 @@ figure()
 title("rendimento vs rafreddamento")
 plot(coolPecentualeA*100,etos,"-");
 title("Rendimento isoentropico vs aria spillata per rafreddamento")
-xlabel("Aria spillata per rafreddamento [%]")
-ylabel("$\eta_n$")
+xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
+ylabel("$\eta_{\text{turbina}$")
 grid on
 
 
@@ -925,3 +923,322 @@ legend("In","Out")
 %--------------------------------------------------------------------------
 
 
+clear
+clc
+
+%% Impostazioni Grafiche Avanzate (LaTeX & Font)
+set(groot, ...
+    'defaultTextInterpreter', 'latex', ...
+    'defaultAxesTickLabelInterpreter', 'latex', ...
+    'defaultLegendInterpreter', 'latex', ...
+    'defaultColorbarTickLabelInterpreter', 'latex', ...
+    'defaultAxesFontSize', 12, ...
+    'defaultTextFontSize', 12, ...
+    'defaultLegendFontSize', 10, ...
+    'defaultAxesFontName', 'Latin Modern Roman');
+
+% Caricamento strutture dati
+parametri = structParametri();
+motoreBase = structMotore();
+
+% =========================================================================
+% 1. STUDIO DELLA VARIAZIONE DI T04 (Temperatura Uscita Camera)
+% =========================================================================
+T0I = 1100:10:1800;
+N_T = length(T0I);
+
+% Allocazione vettori
+rendG_T    = zeros(1, N_T);
+rendP_T    = zeros(1, N_T);
+rendTh_T   = zeros(1, N_T);
+rendSt_T   = zeros(1, N_T);
+spinta_T   = zeros(1, N_T);
+tsfc_T     = zeros(1, N_T);
+mfuel_T    = zeros(1, N_T);
+rpTurb_T   = zeros(1, N_T);
+ue_T       = zeros(1, N_T);
+
+parametri(2) = 30; % Rapporto di compressione fisso (beta = 30)
+
+for i = 1:N_T
+    parametri(3) = T0I(i);
+    [~, motore]  = runnerMotore(motoreBase, parametri);
+    
+    rendG_T(i)   = motore.performance.etaGlobal;
+    rendP_T(i)   = motore.performance.etaProp;
+    rendTh_T(i)  = motore.performance.etaTh;
+    rendSt_T(i)  = motore.turbina.etaN;
+    spinta_T(i)  = motore.performance.F;
+    tsfc_T(i)    = motore.performance.TSFC;
+    mfuel_T(i)   = motore.portate.mDotComb;
+    rpTurb_T(i)  = motore.turbina.rp;
+    ue_T(i)      = motore.ugello.Ue;
+end
+
+% GRAFICI: Effetto di T04
+figure('Name', 'Analisi_Prestazioni_vs_T04');
+tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+
+% 1. Rendimenti Energetici (Doppio Asse)
+nexttile;
+yyaxis left
+plot(T0I, rendG_T, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
+ylabel('$\eta_g$ [-]');
+yyaxis right
+plot(T0I, rendP_T, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
+plot(T0I, rendTh_T, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
+ylabel('$\eta_p$, $\eta_{th}$ [-]');
+grid on; xlabel('$T_{04}$ [K]');
+title('Rendimenti di Propulsione');
+legend('Location', 'best');
+
+% 2. Rendimento Isoentropico Turbina
+nexttile;
+plot(T0I, rendSt_T, 'm', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('$\eta_t$ [-]');
+title('Rendimento Turbina');
+
+% 3. Espansione in Turbina (Nuovo)
+nexttile;
+plot(T0I, rpTurb_T, '-', 'Color', [0.4660, 0.6740, 0.1880], 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('$r_{p,t}$ ($P_{04}/P_{05}$) [-]');
+title('Rapporto di Espansione Turbina');
+
+% 4. Spinta Motore
+nexttile;
+plot(T0I, spinta_T, 'g', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('Spinta $F$ [N]');
+title('Spinta erogata');
+
+% 5. Velocità di Efflusso Ugello (Nuovo)
+nexttile;
+plot(T0I, ue_T, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('$U_e$ [m/s]');
+title('Velocità di Efflusso Ugello');
+
+% 6. Consumo Specifico (TSFC)
+nexttile;
+plot(T0I, tsfc_T, 'c', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('TSFC [kg/(N$\cdot$h)]');
+title('Consumo Specifico (TSFC)');
+
+% 7. Portata Combustibile
+nexttile;
+plot(T0I, mfuel_T, 'k', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('\dot{m}_f [kg/s]');
+title('Portata Combustibile');
+
+
+%% =========================================================================
+%% 2. STUDIO DELLA VARIAZIONE DEL RAPPORTO DI COMPRESSIONE (rp)
+%% =========================================================================
+rp = 4:2:30;
+N_rp = length(rp);
+
+% Allocazione vettori
+rendG_rp   = zeros(1, N_rp);
+rendP_rp   = zeros(1, N_rp);
+rendTh_rp  = zeros(1, N_rp);
+rendSt_rp  = zeros(1, N_rp);
+spinta_rp  = zeros(1, N_rp);
+tsfc_rp    = zeros(1, N_rp);
+mfuel_rp   = zeros(1, N_rp);
+rpTurb_rp  = zeros(1, N_rp);
+ue_rp      = zeros(1, N_rp);
+
+parametri(3) = 1500; % Temperatura T04 fissa (1500 K)
+
+for i = 1:N_rp
+    parametri(2) = rp(i);
+    [~, motore]  = runnerMotore(motoreBase, parametri);
+    
+    rendG_rp(i)  = motore.performance.etaGlobal;
+    rendP_rp(i)  = motore.performance.etaProp;
+    rendTh_rp(i) = motore.performance.etaTh;
+    rendSt_rp(i) = motore.turbina.etaN;
+    spinta_rp(i) = motore.performance.F;
+    tsfc_rp(i)   = motore.performance.TSFC;
+    mfuel_rp(i)  = motore.portate.mDotComb;
+    rpTurb_rp(i) = motore.turbina.rp;
+    ue_rp(i)     = motore.ugello.Ue;
+end
+
+% GRAFICI: Effetto di rp ($\beta$)
+figure('Name', 'Analisi_Prestazioni_vs_rp');
+tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+
+% 1. Rendimenti Energetici (Doppio Asse)
+nexttile;
+yyaxis left
+plot(rp, rendG_rp, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
+ylabel('$\eta_g$ [-]');
+yyaxis right
+plot(rp, rendP_rp, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
+plot(rp, rendTh_rp, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
+ylabel('$\eta_p$, $\eta_{th}$ [-]');
+grid on; xlabel('Rapporto di compressione $\beta$');
+title('Rendimenti di Propulsione');
+legend('Location', 'best');
+
+% 2. Rendimento Isoentropico Turbina
+nexttile;
+plot(rp, rendSt_rp, 'm', 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$\eta_t$ [-]');
+title('Rendimento Turbina');
+
+% 3. Espansione in Turbina (Nuovo)
+nexttile;
+plot(rp, rpTurb_rp, '-', 'Color', [0.4660, 0.6740, 0.1880], 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$r_{p,t}$ ($P_{04}/P_{05}$) [-]');
+title('Rapporto di Espansione Turbina');
+
+% 4. Spinta Motore
+nexttile;
+plot(rp, spinta_rp, 'g', 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('Spinta $F$ [N]');
+title('Spinta erogata');
+
+% 5. Velocità di Efflusso Ugello (Nuovo)
+nexttile;
+plot(rp, ue_rp, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$U_e$ [m/s]');
+title('Velocità di Efflusso Ugello');
+
+% 6. Consumo Specifico (TSFC)
+nexttile;
+plot(rp, tsfc_rp, 'c', 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('TSFC [kg/(N$\cdot$h)]');
+title('Consumo Specifico (TSFC)');
+
+% 7. Portata Combustibile
+nexttile;
+plot(rp, mfuel_rp, 'k', 'LineWidth', 1.5);
+grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('\dot{m}_f [kg/s]');
+title('Portata Combustibile');
+
+%%
+% comp = 0.08m a stadio
+% turb = 0.147m a stadio
+
+
+%% Studio parametrici della Turbina: Effetto dei numeri di Mach
+
+% --- CONFIGURAZIONE E INPUT ---
+machRotoreAlto  = 0.80:0.01:0.9;
+machIngressoTurbina = 0.30:0.01:0.4;
+motoreBase = structMotore();
+numSimulazioni = length(machRotoreAlto); 
+
+% Preallocazione vettori per i risultati
+etaStadio_alto   = zeros(1, numSimulazioni);
+lavoroStadio_alto = zeros(1, numSimulazioni);
+etaStadio_basso   = zeros(1, numSimulazioni);
+lavoroStadio_basso = zeros(1, numSimulazioni);
+gradoReazione_alto = zeros(1, numSimulazioni);
+gradoReazione_basso = zeros(1, numSimulazioni);
+
+parametri(3) = 1500;
+parametri(2) = 20;
+parametri(1) = 40;
+
+motore = motoreBase; % Inizializzazione dal modello di partenza
+motore.turbina.mach4 = 0.3; % Fisso il mach4 a un valore costante
+
+for i = 1:numSimulazioni
+    % Aggiorna il Mach di uscita del rotore per il punto i-esimo
+    motore.turbina.rotore.wmachOut = machRotoreAlto(i);
+    
+    % Esecuzione del solutore del motore
+    [~, motore] = runnerMotore(motore, parametri);
+    
+    % Estrazione e salvataggio dei risultati dello stadio
+    etaStadio_alto(i)   = motore.turbina.etaStadio;
+    lavoroStadio_alto(i) = motore.turbina.lStadio;
+    gradoReazione_alto(i) = motore.turbina.R;
+end
+
+% --- SIMULAZIONE 2: Variazione Mach Ingresso Turbina (mach4) ---
+% Reset del motore allo stato base per garantire l'indipendenza delle simulazioni
+motore = motoreBase; 
+% NOTA: Qui motore.turbina.rotore.wmachOut utilizzerà il valore di default di motoreBase
+
+for i = 1:numSimulazioni
+    % Aggiorna il Mach di ingresso alla turbina per il punto i-esimo
+    motore.turbina.mach4 = machIngressoTurbina(i);
+    
+    % Esecuzione del solutore del motore
+    [~, motore] = runnerMotore(motore, parametri);
+    
+    % Estrazione e salvataggio dei risultati dello stadio
+    etaStadio_basso(i)   = motore.turbina.etaStadio;
+    lavoroStadio_basso(i) = motore.turbina.lStadio;
+    gradoReazione_basso(i) = motore.turbina.R;
+    
+end
+
+% --- GENERAZIONE GRAFICI ---
+figure("Name", "Analisi Parametrica Turbina: Effetto Mach");
+
+% Creazione di un layout a griglia (1 riga, 2 colonne)
+% --- Grafico 1: Effetto del Mach di Ingresso ---
+tiledlayout(1, 2); 
+nexttile();
+yyaxis left
+plot(machIngressoTurbina, etaStadio_basso, '-', 'LineWidth', 1.5);
+ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
+grid on;
+hold on;
+
+yyaxis right 
+plot(machIngressoTurbina, lavoroStadio_basso / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
+ylabel('Lavoro $[MW]$', 'Interpreter', 'latex')
+xlabel("Mach Ingresso Turbina ($Mach_4$)", 'Interpreter', 'latex')
+
+% --- Grafico 2: Effetto del Mach del Rotore ---
+nexttile();
+yyaxis left
+plot(machRotoreAlto, etaStadio_alto, '-', 'LineWidth', 1.5);
+ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
+grid on;
+hold on;
+
+yyaxis right 
+plot(machRotoreAlto, lavoroStadio_alto / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
+ylabel('Lavoro $[MW]$', 'Interpreter', 'latex')
+xlabel("Mach Relativo Uscita Rotore ($w_{machOut}$)", 'Interpreter', 'latex')
+
+% --- Grafico 3: Grado di reazione 
+figure()
+tiledlayout(1, 2); 
+nexttile();
+yyaxis left
+plot(machIngressoTurbina, gradoReazione_alto, '-', 'LineWidth', 1.5);
+ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
+grid on;
+hold on;
+
+% --- Grafico 2: Effetto del Mach del Rotore ---
+nexttile();
+yyaxis left
+plot(machRotoreAlto, gradoReazione_basso, '-', 'LineWidth', 1.5);
+ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
+grid on;
+hold on;
+
+%% traingolozzi
+figure('name', 'Statore/Rotore - vettori velocità')
+nexttile
+title('Statore')
+quiver(0, 0, s.vz, s.vt, 0)        % v assoluta
+hold on
+quiver(0, 0, s.wz, s.wt, 0)        % w relativa
+axis equal; grid on
+
+quiver(0, 0, r.vz, r.vt, 0,'g')        % v assoluta
+quiver(0, 0, r.wz, r.wt, 0)        % w relativa
+
+quiver(r.wz, r.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
+quiver(s.wz, s.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
+legend("v2","w2","v3","w3","U")
+xlabel("velocità assiale [m/s]")
+ylabel("velocità radiale [m/s]")

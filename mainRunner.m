@@ -68,9 +68,9 @@ end
 x1 = best_x;
 fprintf('Best fval across all runs: %.4f\n', best_f);
 
-% ── Post-process ──────────────────────────────────────────────────────────
-[T, motore] = runnerMotore(motoreBase, x1);
-[z, u]       = mycon(x1, motoreBase);
+%% ── Post-process ──────────────────────────────────────────────────────────
+[T, motore] = runnerMotore(motoreBase, best_x);
+[z, u]       = mycon(best_x, motoreBase);
 
 
 turb = motore.turbina

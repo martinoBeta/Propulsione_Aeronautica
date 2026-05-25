@@ -31,3 +31,6 @@ Thumbs.db
 # *.mat
 Figures/*.svg
 Figures/*.pdf
+viewMotore1.m
+dashboardMotore.m
+viewMotore.m
