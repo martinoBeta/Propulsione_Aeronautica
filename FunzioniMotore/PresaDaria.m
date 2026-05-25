@@ -1,4 +1,4 @@
-function motore = PresaDaria(motore)
+function motore = PresaDaria(motore,ramjet)
 
     regime = motore.presaAria.regime;
 
@@ -60,6 +60,19 @@ function motore = PresaDaria(motore)
     elseif regime == "supersonico"
 
         %% presaAria SUPERSONICA
+        R = ramjet.fluidi.aria.R;
+        gamma = ramjet.fluidi.aria.gamma;
+
+        P0   = ramjet.freestream.h12km.P0;
+        rho0 = ramjet.freestream.h12km.rho0;
+        V0   = ramjet.freestream.h12km.V0;
+        T00  = ramjet.freestream.h12km.T00;
+        P00  = ramjet.freestream.h12km.P00;
+
+        M2   = ramjet.presaAria.M2;
+        pi_d = ramjet.presaAria.pi_d;
+
+        mDotAir = ramjet.portate.mDot;
     else
 
         error('Regime presaAria non valido')

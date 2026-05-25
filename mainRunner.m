@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 20;
+n_runs = 150;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -344,3 +344,225 @@ function [ineq, eq] = mycon(x, motoreBase)
 end
 
 toc
+% Optimization finished: average change in the fitness value less than options.FunctionTolerance and constraint violation is less than options.ConstraintTolerance.
+% Switching to the hybrid optimization algorithm (FMINCON).
+% FMINCON terminated.
+%   fval = 0.1304
+% Best fval across all runs: 0.1155
+% 
+% turb = 
+% 
+%   struct with fields:
+% 
+%               etaM: 0.9200
+%               etaP: 0.9000
+%     coolingStatore: [function_handle]
+%      coolingRotore: [function_handle]
+%           lTurbina: 2.6619e+07
+%               etaN: 0.9218
+%           etaNRaff: 0.9218
+%              mach4: 0.3616
+%                P04: 9.4001e+05
+%                T04: 1.2756e+03
+%               rho4: 2.4069
+%                P05: 1.1446e+05
+%                T05: 797.0996
+%               rho5: 0.4508
+%              mach5: 0.4605
+%             T05Iso: 756.5234
+%                 rp: 0.1218
+%              TRaff: 763.5082
+%                 A4: 0.0800
+%                 A5: 0.4273
+%                 h5: 0.0957
+%                rt5: 0.7583
+%                rh5: 0.6626
+%                  U: 270.0026
+%                  R: 0.2797
+%            lStadio: 1.0436e+07
+%             nStadi: 3
+%            statore: [1×1 struct]
+%             rotore: [1×1 struct]
+% 
+% 
+% cam = 
+% 
+%   struct with fields:
+% 
+%               rMedio: 0.7104
+%      perditaDinamica: 20
+%     perditaPressione: 0.0600
+%                    I: 80.0255
+%                 etaB: 0.9800
+%                 ARef: 0.2858
+%                 hRef: 0.0640
+%               ALiner: 0.1008
+%                    V: 0.4332
+%                   LC: 1.5160
+%                 URef: 36.3427
+%                 qRef: 3.0070e+03
+%                 MRef: 0.0673
+%                 tRes: 0.0127
+%                    f: 0.0170
+%                  T04: 1.2756e+03
+%         mDotAirCalda: 16.6877
+%        mDotAirFredda: 30.6035
+%                  P04: 9.4001e+05
+%                 QDot: 3.4672e+07
+%                TComb: 2.3990e+03
+%                  phi: 0.7301
+% 
+% 
+% port = 
+% 
+%   struct with fields:
+% 
+%         mDot: 47.2911
+%      mDotAir: 47.2911
+%     mDotRaff: 0
+%      mDotGas: 48.0934
+%     mDotComb: 0.8022
+% 
+% 
+% comp = 
+% 
+%   struct with fields:
+% 
+%          piC: 34.5608
+%         etaP: 0.9000
+%         Utip: 360.0035
+%          U_m: 270.0026
+%       hubTip: 0.5000
+%          T03: 763.5082
+%          P03: 1.0526e+06
+%          L_c: 2.4490e+07
+%         etaC: 0.8425
+%      machRel: 0.9139
+%     Mach_abs: 0.4016
+%     CpStadio: 0.4659
+%     deHaller: 0.7308
+%           Va: 93.9793
+%        beta1: -70.8086
+%        beta2: -63.2701
+%       r_m_in: 0.5418
+%          hIn: 0.3612
+%       Aout_c: 0.1063
+%      r_m_out: 0.7104
+%         hOut: 0.0238
+%      DRotore: 0.4150
+%     DStatore: 0.5175
+%          R_m: 0.8456
+%          c_m: 0.0490
+%          N_R: 70
+%       NStadi: 23
+%        mach3: 0.1702
+% 
+% 
+% ug = 
+% 
+%   struct with fields:
+% 
+%      etaN: 0.9000
+%       P06: 9.0469e+04
+%       T06: 797.0996
+%     mach6: 1.6833
+%        Ue: 766.4462
+%     AStar: 0.3049
+%        AE: 0.4092
+%        DE: 0.7218
+% 
+% 
+% per = 
+% 
+%   struct with fields:
+% 
+%             F: 2.5000e+04
+%     etaGlobal: 0.1772
+%          TSFC: 0.1155
+%       etaProp: 0.4961
+%         etaTh: 0.3572
+%           ISP: 528.6404
+% 
+% 
+%           RISULTATI OTTIMIZZAZIONE            
+% 
+% --- PERFORMANCE ---
+% Spinta            = 24999.999 N
+% TSFC              = 0.115523547 kg/(N*h)
+% eta globale       = 0.177
+% 
+% --- PRESA D'ARIA ---
+% T02                  = 247.956 K
+% P02                  = 30457.801 Pa
+% Portata totale aria  = 47.291 kg/s
+% A ingresso           = 0.6082 m^2
+% A2                   = 1.2294 m^2
+% CPR                  = 0.957
+% 
+% --- COMPRESSORE ---
+% T03                        = 763.508 K
+% P03                        = 1052645.364 Pa
+% Rapporto compressione π_c  = 34.561
+% L_c                        = 24.490 MW
+% etaC                       = 0.842
+% Utip compressore           = 360.003 m/s
+% Mach ingresso compressore  = 0.300
+% Mach relativo              = 0.914
+% Mach assoluto              = 0.402
+% Cp stadio                  = 0.466
+% De Haller                  = 0.731
+% D rotore                   = 0.415
+% D statore                  = 0.517
+% N stadi                    = 23
+% N pale rotore              = 70
+% r_m_in                     = 0.5418 m
+% r_m_out                    = 0.7104 m
+% hIn                        = 0.3612 m
+% hOut                       = 0.0238 m
+% 
+% --- DIFFUSORE ---
+% T035      = 763.508 K
+% P035      = 1000013.096 Pa
+% Mach35    = 0.068
+% A3        = 0.1063 m^2
+% A35       = 0.2758 m^2
+% LD        = 0.3263 m
+% 
+% --- CAMERA DI COMBUSTIONE ---
+% T04               = 1275.630 K
+% P04               = 940012.310 Pa
+% f                 = 0.01696
+% phi               = 0.730
+% tRes              = 0.01266 s
+% ARef              = 0.2858 m^2
+% V camera          = 0.4332 m^3
+% LC                = 1.5160 m
+% 
+% --- TURBINA ---
+% T05               = 797.100 K
+% P05               = 114458.495 Pa
+% etaN              = 0.922
+% n stadi           = 3
+% A4                = 0.0800 m^2
+% A5                = 0.4273 m^2
+% 
+% --- UGELLO ---
+% Ue                = 766.446 m/s
+% Mach uscita       = 1.683
+% A*                = 0.30488 m^2
+% Ae                = 0.40918 m^2
+% De                = 0.7218 m
+% 
+% --- PORTATE ---
+% mDot totale       = 47.2911 kg/s
+% mDot aria camera  = 47.2911 kg/s
+% mDot raffredd.    = 0.0000 kg/s
+% mDot combustibile = 0.8022 kg/s
+% mDot gas          = 48.0934 kg/s
+% 
+% --- CONTROLLO VINCOLI ---
+% Max c             = -3.806646e-03
+% Norm ceq          = 5.489963e-04
+% Elapsed time is 2630.715187 seconds.
+% Elapsed time is 2630.715257 seconds.
+% Elapsed time is 2630.715275 seconds.
