@@ -1,13 +1,20 @@
 function [motore] = Performance(motore)
     % Calcolo Delle Performance Del Motore
     %% 
-    vVolo = motore.freestream.h12km.V0;
+    regime = motore.presaAria.regime;
+    if regime == "subsonico"
+        vVolo = motore.freestream.h12km.V0;
+    elseif regime == "supersonico"
+        vVolo = motore.freestream.h25km.V0;
+    end
+
+
     uE = motore.ugello.Ue;
     mDotComb = motore.portate.mDotComb;
 
     % SPINTA
     mDotGas = motore.portate.mDotGas;
-    mDotAria = motore.portate.mDotAir;
+    mDotAria = motore.portate.mDot;
     f = motore.camera.f;
 
     F = mDotGas*uE - mDotAria*vVolo;

@@ -2,21 +2,25 @@ clc
 clear 
 close all
 addpath("Funzioniramjet")
-ramjetBase = structramjet();
+addpath("FunzioniMotore")
+
+ramjetBase = structRamjet();
 
 % DA COMPLETARE!! % 
 
 %% OTTIMIZZAZIONE
 tic
 
-[parametri, rangeP] = structParametri();
+% [parametri, rangeP] = structParametri();
+rangeP = [5 400; 1300 1800];
+parametri = [5; 1600];
 
 nvars = length(parametri);
 M     = max(400, 20*nvars);
 lb    = rangeP(:,1)';
 ub    = rangeP(:,2)';
 
-fun     = @(x) runnerramjet(ramjetBase, x);
+fun     = @(x) runnerRamjet(ramjetBase, x);
 nonlcon = @(x) mycon(x, ramjetBase);
 
 % ── GA options ────────────────────────────────────────────────────────────
@@ -39,7 +43,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 30;
+n_runs = 15;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -64,8 +68,8 @@ end
 x1 = best_x;
 fprintf('Best fval across all runs: %.4f\n', best_f);
 
-% ── Post-process ──────────────────────────────────────────────────────────
-[T, ramjet] = runnerramjet(ramjetBase, x1);
+%% ── Post-process ──────────────────────────────────────────────────────────
+[T, ramjet] = runnerRamjet(ramjetBase, x1);
 [z, u]       = mycon(x1, ramjetBase);
 
 
@@ -208,3 +212,19 @@ fprintf('mDot gas          = %.4f kg/s\n', ramjet.portate.mDotGas)
 
 
 toc
+function X = lhs_sample(n, d)
+    X = zeros(n, d);
+    for j = 1:d
+        X(:,j) = (randperm(n)' - rand(n,1)) / n;
+    end
+end
+
+
+function [ineq, eq] = mycon(x, motoreBase)
+    FS = 0.98;
+    [~, motore] = runnerRamjet(motoreBase, x); % <
+    ineq = [ ... 
+        motore.performance.TSFC - 0.278;
+    ];
+    eq = [ motore.performance.F - 65000 ];
+end

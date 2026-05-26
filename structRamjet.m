@@ -29,6 +29,7 @@ gas.cp    = (gas.gamma * gas.R) / (gas.gamma - 1);
 
 % Proprietà combustibile (JP-7)
 combustibile.Mm  = 321.4964;
+combustibile.LHV = 43e6;
 combustibile.cp  = 1800;    % [J/(kg·K)]
 
 % salvataggio
@@ -81,14 +82,14 @@ ramjet.freestream.h25km.a0   = a0;
 
 % COMPLETARE/CONTROLLARE
 
-ramjet.presaAria.regime = "ipersonico";
+ramjet.presaAria.regime = "supersonico";
 ramjet.presaAria.T2     = NaN;
 ramjet.presaAria.P2     = NaN;
 ramjet.presaAria.T02    = NaN;
 ramjet.presaAria.P02    = NaN;
 ramjet.presaAria.M2     = NaN;
 ramjet.presaAria.eta_d  = NaN;
-ramjet.presaAria.pi_d   = NaN;
+ramjet.presaAria.pi_d   = 0.6;
 
 ramjet.presaAria.rho2       = NaN;
 ramjet.presaAria.V2         = NaN;
@@ -146,6 +147,11 @@ ramjet.ugello.DE    = NaN;              % diametro di efflusso
 %---------------------------------------------------------------------
 ramjet.performance.F         = NaN;
 ramjet.performance.etaGlobal = NaN;
+ramjet.performance.etaTh     = NaN;
+ramjet.performance.ISP       = NaN;
 ramjet.performance.TSFC      = NaN;
+ramjet.performance.etaProp   = NaN;
+
+ramjet.turbina.rt5           = 0.4;
 
 end

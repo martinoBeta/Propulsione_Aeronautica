@@ -11,7 +11,7 @@ R     = ramjet.fluidi.gas.R;
 Cp    = ramjet.fluidi.gas.cp;
 T0I   = ramjet.camera.T04;
 P0I   = ramjet.camera.P04;
-mach  = ramjet.camera.mach;
+mach  = ramjet.camera.mach4;
 mdot  = ramjet.portate.mDotGas; % portata
 eta_n = ramjet.ugello.etaN;
 

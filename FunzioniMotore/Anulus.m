@@ -4,16 +4,16 @@ function [ramjet] = Anulus(ramjet)
 %% Estrazione Variabili
 T0I           = ramjet.presaAria.T02;     % Temperatura totale in ingresso
 P0I           = ramjet.presaAria.P02;     % Pressione totale in ingresso
-mach          = ramjet.presaAria.mach;    % Numero di Mach
-rRam          = motore.turbina.rt5;       % Raggio interno
-mdot          = ramjet.portate.mDotAir;   % Portata
+machIn        = ramjet.presaAria.mach;    % Numero di Mach
+rRam          = ramjet.turbina.rt5;       % Raggio interno
+mdot          = ramjet.portate.mDot;       % Portata
 rho           = ramjet.presaAria.rho2;
 VIn           = ramjet.presaAria.V2;
 machOut       = ramjet.anulus.mach3;
 gamma         = ramjet.fluidi.gas.gamma;
 
 %% Calcolo Grandezze
-AreaIn = mdot/(Rho*VIn);
+AreaIn = mdot/(rho*VIn);
 rIn    = sqrt(AreaIn/pi + rRam);  % Raggio dell'anulus all'entrata
 
 AreaOut = AreaIn * (machIn/machOut) * ((1 + (gamma-1)/2 * machOut^2) ...
