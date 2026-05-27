@@ -18,8 +18,8 @@ function motore = PresaDaria(motore)
 
         M2   = motore.presaAria.M2;
         pi_d = motore.presaAria.pi_d;
-        A_ingresso = motore.presaAria.A_ingresso;
-
+        
+        mDotAir = motore.portate.mDot;
        
 
         T02 = T00;
@@ -35,7 +35,7 @@ function motore = PresaDaria(motore)
         a2 = sqrt(gamma * R * T2);
         V2 = M2 * a2;
 
-        mDotAir = A_ingresso * (rho0 * V0);
+        A_ingresso = mDotAir / (rho0 * V0);
 
         A2 = mDotAir / (rho2 * V2);
 
@@ -44,7 +44,8 @@ function motore = PresaDaria(motore)
         CPR = (P2 - P0) / q0;
 
         % OUTPUT
-        motore.portate.mDot = mDotAir;
+        motore.presaAria.A_ingresso = A_ingresso;
+        
         motore.presaAria.T02 = T02;
         motore.presaAria.P02 = P02;
 

@@ -22,7 +22,6 @@ function [motore] = Diffusore(motore)
     pi_d    = propDiffusore.pi_d;   % Rendimento pneumatico diffusore 
     theta   = propDiffusore.theta;  % Angolo di apertura del diffusore
     mach3 =  propDiffusore.mach3;
-    v35 = propDiffusore.vTargetCamera;
     T03 = propDiffusore.T03;
     P03 = propDiffusore.P03;
     % 2. CONDIZIONI TERMODINAMICHE D'USCITA
@@ -30,6 +29,7 @@ function [motore] = Diffusore(motore)
     T035 = T03; 
     % La pressione totale diminuisce
     P035 = P03 * pi_d; 
+    mach35 = propDiffusore.mach35; % Mach imposto in uscita diffusore
     
     % 3. CALCOLO GEOMETRICO 
     % Sezione di ingresso (Area 1 - uscita compressore)
@@ -40,9 +40,12 @@ function [motore] = Diffusore(motore)
     A3 = m_a / (rho1 * v3); 
     
     % Sezione di uscita 
-    T35 = T035 - (v35^2 / (2 * cp)); % Temperatura statica uscita
+
+     % Temperatura statica uscita
+
+    T35 = T035 / (1 + (gamma-1)/2 * mach35^2); % Temperatura statica uscita
     a2 = sqrt(gamma*R*T35);
-    mach35 = v35/a2;
+    v35 = mach35*a2;
     P35 = P035 / (1 + (gamma-1)/2 * mach35^2)^(gamma/(gamma-1)); % Pressione statica uscita
     rho2 = P35 / (R * T35);
     A35 = m_a / (rho2 * v35); % Area uscita 
@@ -59,7 +62,7 @@ function [motore] = Diffusore(motore)
     % Aggiornamento cose
     propDiffusore.T035 = T035;
     propDiffusore.P035 = P035;
-    propDiffusore.mach35 = mach35;
+
     
 
 

@@ -18,14 +18,13 @@ function [motore] = Parametri(motore,parametri)
     regime = motore.presaAria.regime;
     
         if regime == "subsonico"
-            motore.presaAria.M2 = parametri(1);
-            motore.compressore.piC = parametri(2);
-            motore.compressore.Utip = parametri(3);
-            motore.diffusore.vTargetCamera = parametri(4);
+            motore.portate.mDot = parametri(1);
+            motore.presaAria.M2 = parametri(2);
+            motore.compressore.piC = parametri(3);
+            motore.compressore.Utip = parametri(4);
             motore.camera.T04 = parametri(5);
             motore.turbina.mach4 = parametri(6);
             motore.turbina.rotore.wmachOut = parametri(7);
-            motore.portate.mDot = parametri(8);
         elseif regime == "supersonico"
             motore.portate.mDot = parametri(1);
             motore.camera.Tmax = parametri(2);

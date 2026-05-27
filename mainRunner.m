@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 3;
+n_runs = 10;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -272,7 +272,7 @@ fprintf('hOut                       = %.4f m\n', motore.compressore.hOut)
 fprintf('\n--- DIFFUSORE ---\n')
 fprintf('T035      = %.3f K\n', motore.diffusore.T035)
 fprintf('P035      = %.3f Pa\n', motore.diffusore.P035)
-fprintf('v35    = %.3f\n', motore.diffusore.vTargetCamera)
+fprintf('v35       = %.3f m/2\n', motore.diffusore.vTargetCamera)
 fprintf('Mach35    = %.3f\n', motore.diffusore.mach35)
 fprintf('A3        = %.4f m^2\n', motore.diffusore.A3)
 fprintf('A35       = %.4f m^2\n', motore.diffusore.A35)
@@ -344,12 +344,14 @@ function [ineq, eq] = mycon(x, motoreBase)
         (0.1 - motore.turbina.rh5) / 0.1; 
         - motore.compressore.hOut + 0.02;
         motore.presaAria.CPR - 0.78;
-        motore.compressore.NStadi - 14;
-        motore.diffusore.A35 - 2.0 
-        motore.compressore.NStadi - 14
+        motore.compressore.NStadi - 12;
+        motore.diffusore.A35 - 1.0 
+        motore.turbina.A5 - 1
+        motore.camera.ARef - 1
         motore.turbina.nStadi - 5
-        motore.diffusore.A35 - 1.2
-        motore.camera.ARef - 1.2
+        motore.performance.TSFC - 0.13
+
+        
     ];
     eq = [ motore.performance.F - 25000 ];
 end
