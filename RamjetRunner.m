@@ -42,7 +42,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 15;
+n_runs = 5;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -57,11 +57,15 @@ for i = 1:n_runs
     [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
     fHistory(i) = fi;
     xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f
+    if fi < best_f && all(condDisEq <= 0)
         best_f = fi;
         best_x = xi;
     end
+end
+if isempty(best_x)
+    error('Nessuna soluzione fattibile trovata')
 end
 
 x1 = best_x;
