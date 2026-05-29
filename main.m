@@ -1137,9 +1137,7 @@ lavoroStadio_basso = zeros(1, numSimulazioni);
 gradoReazione_alto = zeros(1, numSimulazioni);
 gradoReazione_basso = zeros(1, numSimulazioni);
 
-parametri(3) = 1500;
-parametri(2) = 20;
-parametri(1) = 40;
+parametri = structParametri();
 
 motore = motoreBase; % Inizializzazione dal modello di partenza
 motore.turbina.mach4 = 0.3; % Fisso il mach4 a un valore costante
@@ -1242,3 +1240,96 @@ quiver(s.wz, s.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
 legend("v2","w2","v3","w3","U")
 xlabel("velocità assiale [m/s]")
 ylabel("velocità radiale [m/s]")
+
+
+
+% =========================================================================
+% 1. RAMHET
+% =========================================================================
+clear
+clc
+
+%% Impostazioni Grafiche Avanzate (LaTeX & Font)
+set(groot, ...
+    'defaultTextInterpreter', 'latex', ...
+    'defaultAxesTickLabelInterpreter', 'latex', ...
+    'defaultLegendInterpreter', 'latex', ...
+    'defaultColorbarTickLabelInterpreter', 'latex', ...
+    'defaultAxesFontSize', 12, ...
+    'defaultTextFontSize', 12, ...
+    'defaultLegendFontSize', 10, ...
+    'defaultAxesFontName', 'Latin Modern Roman');
+
+% Caricamento strutture dati
+parametri = [113, 1000];
+motoreBase = structRamjet();
+
+T0I = 1100:10:1800;
+N_T = length(T0I);
+
+% Allocazione vettori
+rendG_T    = zeros(1, N_T);
+rendP_T    = zeros(1, N_T);
+rendTh_T   = zeros(1, N_T);
+rendSt_T   = zeros(1, N_T);
+spinta_T   = zeros(1, N_T);
+tsfc_T     = zeros(1, N_T);
+mfuel_T    = zeros(1, N_T);
+rpTurb_T   = zeros(1, N_T);
+ue_T       = zeros(1, N_T);
+
+
+for i = 1:N_T
+    parametri(2) = T0I(i);
+    [~, motore]  = runnerRamjet(motoreBase, parametri);
+    
+    rendG_T(i)   = motore.performance.etaGlobal;
+    rendP_T(i)   = motore.performance.etaProp;
+    rendTh_T(i)  = motore.performance.etaTh;
+    spinta_T(i)  = motore.performance.F;
+    tsfc_T(i)    = motore.performance.TSFC;
+    mfuel_T(i)   = motore.portate.mDotComb;
+    ue_T(i)      = motore.ugello.Ue;
+end
+
+% GRAFICI: Effetto di T04
+figure('Name', 'Analisi_Prestazioni_vs_T04');
+tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+
+% 1. Rendimenti Energetici (Doppio Asse)
+nexttile;
+yyaxis left
+plot(T0I, rendG_T, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
+ylabel('$\eta_g$ [-]');
+yyaxis right
+plot(T0I, rendP_T, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
+plot(T0I, rendTh_T, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
+ylabel('$\eta_p$, $\eta_{th}$ [-]');
+grid on; xlabel('$T_{04}$ [K]');
+title('Rendimenti di Propulsione');
+legend('Location', 'best');
+
+
+% 4. Spinta Motore
+nexttile;
+plot(T0I, spinta_T, 'g', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('Spinta $F$ [N]');
+title('Spinta erogata');
+
+% 5. Velocità di Efflusso Ugello (Nuovo)
+nexttile;
+plot(T0I, ue_T, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('$U_e$ [m/s]');
+title('Velocità di Efflusso Ugello');
+
+% 6. Consumo Specifico (TSFC)
+nexttile;
+plot(T0I, tsfc_T, 'c', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('TSFC [kg/(N$\cdot$h)]');
+title('Consumo Specifico (TSFC)');
+
+% 7. Portata Combustibile
+nexttile;
+plot(T0I, mfuel_T, 'k', 'LineWidth', 1.5);
+grid on; xlabel('$T_{04}$ [K]'); ylabel('\dot{m}_f [kg/s]');
+title('Portata Combustibile');
