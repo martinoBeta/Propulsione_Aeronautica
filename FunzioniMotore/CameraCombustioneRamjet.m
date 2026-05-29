@@ -8,7 +8,7 @@ function [ramjet] = CameraCombustioneRamjet(ramjet)
 % Estrazione variabili
 T0I           = ramjet.anulus.T03;     % Temperatura totale in ingresso
 P0I           = ramjet.anulus.P03;     % Pressione totale in ingresso
-mach          = ramjet.presaAria.mach;    % Numero di Mach
+mach          = ramjet.anulus.mach3;    % Numero di Mach
 PiAB          = ramjet.camera.pi_ab;   % Perdita di carico
 mDotAir       = ramjet.portate.mDot; % Portata di aria in ingresso
 TMax          = ramjet.camera.Tmax;    % Temperatura massima raggiungibile

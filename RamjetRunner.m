@@ -1,7 +1,6 @@
 clc
 clear 
 close all
-addpath("Funzioniramjet")
 addpath("FunzioniMotore")
 
 ramjetBase = structRamjet();
@@ -12,7 +11,7 @@ ramjetBase = structRamjet();
 tic
 
 % [parametri, rangeP] = structParametri();
-rangeP = [5 400; 1300 1800];
+rangeP = [5 400; 1300 2800];
 parametri = [5; 1600];
 
 nvars = length(parametri);
@@ -145,9 +144,10 @@ title('Temperatura totale lungo il ramjet')
 %% Aree principali lungo il ramjet
 
 Aree = [
-    ramjet.presaAria.A_ingresso
+    ramjet.presaAria.ACatt
     ramjet.presaAria.A2
-    ramjet.anulus.A
+    ramjet.anulus.AIn
+    ramjet.anulus.AOut
     ramjet.ugello.AStar
     ramjet.ugello.AE
 ];
@@ -155,8 +155,8 @@ Aree = [
 nomiAree = {
     'A ingresso presa'
     'A_2 ingresso anulus/fine presa.'
-    'A_anulus area anulus'
-    'A_a area anulus'
+    'A_anulus area anulus ingresso'
+    'A_a area anulus uscita'
     'A^* ugello'
     'A_e ugello'};
 
@@ -181,14 +181,15 @@ fprintf('\n--- PRESA D''ARIA ---\n')
 fprintf('T02                  = %.3f K\n', ramjet.presaAria.T02)
 fprintf('P02                  = %.3f Pa\n', ramjet.presaAria.P02)
 fprintf('Portata totale aria  = %.3f kg/s\n', ramjet.portate.mDot)
-fprintf('A ingresso           = %.4f m^2\n', ramjet.presaAria.A_ingresso)
+fprintf('A cattura           = %.4f m^2\n', ramjet.presaAria.ACatt)
 fprintf('A2                   = %.4f m^2\n', ramjet.presaAria.A2)
 fprintf('CPR                  = %.3f\n', ramjet.presaAria.CPR)
 
 fprintf('\n--- ANULUS ---\n')
 fprintf('T03                  = %.3f K\n', ramjet.anulus.T03)
 fprintf('P03                  = %.3f Pa\n', ramjet.anulus.P03)
-fprintf('A_a                  = %.4f m^2\n', ramjet.anulus.A)
+fprintf('A_a_in                  = %.4f m^2\n', ramjet.anulus.AIn)
+fprintf('A_a_out                 = %.4f m^2\n', ramjet.anulus.AIn)
 
 fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
 fprintf('T04               = %.3f K\n', ramjet.camera.T04)
