@@ -11,7 +11,7 @@ ramjetBase = structRamjet();
 tic
 
 % [parametri, rangeP] = structParametri();
-rangeP = [5 400; 1300 2800];
+rangeP = [5 400; 1300 2100];
 parametri = [5; 1600];
 
 nvars = length(parametri);
@@ -42,7 +42,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 3;
+n_runs = 15;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);

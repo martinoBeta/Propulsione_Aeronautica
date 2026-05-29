@@ -37,7 +37,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 2;
+n_runs = 150;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
