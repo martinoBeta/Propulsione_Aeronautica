@@ -302,7 +302,7 @@ deHaller_vec = zeros(1,n);
 
 NStadi_vec = zeros(1,n);
 
-R_m_vec = zeros(1,n);
+RStadio_vec = zeros(1,n);
 
 DRotore_vec = zeros(1,n);
 DStatore_vec = zeros(1,n);
@@ -324,7 +324,7 @@ for i = 1:n
 
     NStadi_vec(i) = motore.compressore.NStadi;
 
-    R_m_vec(i) = motore.compressore.R_m;
+    RStadio_vec(i) = motore.compressore.RStadio;
 
     DRotore_vec(i) = motore.compressore.DRotore;
     DStatore_vec(i) = motore.compressore.DStatore;
@@ -370,10 +370,10 @@ title('Numero di stadi al variare di U_{tip}')
 figure
 
 subplot(3,1,1)
-plot(Utip_range, R_m_vec, 'LineWidth',1.5)
+plot(Utip_range, RStadio_vec, 'LineWidth',1.5)
 grid on
 xlabel('U_{tip} [m/s]')
-ylabel('R_m')
+ylabel('RStadio')
 title('Grado di reazione')
 
 subplot(3,1,2)
@@ -412,7 +412,7 @@ deHaller_vec = zeros(1,n);
 
 NStadi_vec = zeros(1,n);
 
-R_m_vec = zeros(1,n);
+RStadio_vec = zeros(1,n);
 
 DRotore_vec = zeros(1,n);
 DStatore_vec = zeros(1,n);
@@ -435,7 +435,7 @@ for i = 1:n
 
     NStadi_vec(i) = motore.compressore.NStadi;
 
-    R_m_vec(i) = motore.compressore.R_m;
+    RStadio_vec(i) = motore.compressore.RStadio;
 
     DRotore_vec(i) = motore.compressore.DRotore;
     DStatore_vec(i) = motore.compressore.DStatore;
@@ -525,7 +525,7 @@ title('Diffusion factor statore')
 % 
 %         [T0U, P0U, lComp, etaC, machRel, Mach_abs, CpStadio, ...
 %          deHaller, Va, beta1, beta2, Ain, rM2, h2, ...
-%          Aout, rM3, hOut, DRotore, DStatore, R_m, ...
+%          Aout, rM3, hOut, DRotore, DStatore, RStadio, ...
 %          c_m, N_R, NStadi] = ...
 %             compressore(T0I, P0I, mDot, piC, etaP, Utip, ...
 %                         mach2s, hubTip, propFluidi);
@@ -567,7 +567,7 @@ title('Diffusion factor statore')
 % 
 %                 best_DRotore = DRotore;
 %                 best_DStatore = DStatore;
-%                 best_R_m = R_m;
+%                 best_RStadio = RStadio;
 % 
 %                 best_Va = Va;
 %                 best_beta1 = beta1;
@@ -606,7 +606,7 @@ title('Diffusion factor statore')
 % fprintf('De Haller     = %.3f\n', best_deHaller)
 % fprintf('D rotore      = %.3f\n', best_DRotore)
 % fprintf('D statore     = %.3f\n', best_DStatore)
-% fprintf('R_m           = %.3f\n', best_R_m)
+% fprintf('RStadio           = %.3f\n', best_RStadio)
 % 
 % fprintf('\n--- Prestazioni ---\n')
 % fprintf('T0U      = %.2f K\n', best_T0U)
@@ -631,7 +631,7 @@ title('Diffusion factor statore')
 % Parametri da PDF Politecnico di Milano e specifiche JP-7
 propCombust.LHV = 44.1e6;       % JP-7 LHV [J/kg]
 propCamera.I = 8;               % Intensità [MW/(m^3*bar)] (Slide 8) 
-propCamera.r_m = best_R_m;      % Raggio medio dal compressore [cite: 138, 142]
+propCamera.RStadio = best_RStadio;      % Raggio medio dal compressore [cite: 138, 142]
 propCamera.DP_su_qref = 20;     % Valore tipico camera Anulare (Slide 6) [cite: 114]
 propCamera.DP_su_P3_target = 0.06; % Perdita 6% (Slide 6) [cite: 106, 114]
 

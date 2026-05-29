@@ -1,4 +1,3 @@
-clc
 clear 
 close all
 addpath("FunzioniMotore")
@@ -38,7 +37,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 3;
+n_runs = 2;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -263,7 +262,7 @@ fprintf('De Haller                  = %.3f\n', motore.compressore.deHaller)
 fprintf('D rotore                   = %.3f\n', motore.compressore.DRotore)
 fprintf('D statore                  = %.3f\n', motore.compressore.DStatore)
 fprintf('N stadi                    = %d\n', motore.compressore.NStadi)
-fprintf('N pale rotore              = %d\n', motore.compressore.N_R)
+fprintf('N pale rotore              = %d\n', motore.compressore.NPaleComp)
 fprintf('rM2                     = %.4f m\n', motore.compressore.rM2)
 fprintf('rM3                    = %.4f m\n', motore.compressore.rM3)
 fprintf('h2                        = %.4f m\n', motore.compressore.h2)
@@ -464,7 +463,7 @@ toc
 %         hOut: 0.0238
 %      DRotore: 0.4150
 %     DStatore: 0.5175
-%          R_m: 0.8456
+%          RStadio: 0.8456
 %          c_m: 0.0490
 %          N_R: 70
 %       NStadi: 23

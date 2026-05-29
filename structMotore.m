@@ -139,9 +139,9 @@ motore.compressore.rM3 = NaN;
 motore.compressore.h3 = NaN;
 motore.compressore.DRotore = NaN;
 motore.compressore.DStatore = NaN;
-motore.compressore.R_m = NaN;
+motore.compressore.RStadio = NaN;
 motore.compressore.c_m = NaN;
-motore.compressore.N_R = NaN;
+
 motore.compressore.NStadi = NaN;
     %%  DIFFUSORE ANULARE  (tra compressore e camera)
 
