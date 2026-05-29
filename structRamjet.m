@@ -82,21 +82,32 @@ ramjet.freestream.h25km.a0   = a0;
 
 % COMPLETARE/CONTROLLARE
 
-ramjet.presaAria.regime = "supersonico";
-ramjet.presaAria.T2     = NaN;
-ramjet.presaAria.P2     = NaN;
-ramjet.presaAria.T02    = NaN;
-ramjet.presaAria.P02    = NaN;
-ramjet.presaAria.M2     = NaN;
-ramjet.presaAria.eta_d  = NaN;
-ramjet.presaAria.pi_d   = 0.6;
-
+ramjet.presaAria.regime     = "supersonico";
+ramjet.presaAria.T2         = NaN;
+ramjet.presaAria.P2         = NaN;
+ramjet.presaAria.T02        = NaN;
+ramjet.presaAria.P02        = NaN;
+ramjet.presaAria.M2         = NaN;
+ramjet.presaAria.eta_d      = NaN;
 ramjet.presaAria.rho2       = NaN;
 ramjet.presaAria.V2         = NaN;
-ramjet.presaAria.A_ingresso = NaN;
-ramjet.presaAria.A2         = NaN;
 ramjet.presaAria.CPR        = NaN;
-ramjet.presaAria.mach       = NaN;
+
+% Parametri fissi/scelti:
+ramjet.presaAria.LSuper     = NaN;
+ramjet.presaAria.LRampa12   = NaN;
+ramjet.presaAria.LRampa23   = NaN;
+ramjet.presaAria.hCatt      = NaN;
+ramjet.presaAria.hGola      = NaN;
+ramjet.presaAria.ACatt      = NaN;
+ramjet.presaAria.A2         = NaN;
+ramjet.presaAria.piTot      = NaN;
+ramjet.presaAria.delta1     = deg2rad(16);
+ramjet.presaAria.delta2     = deg2rad(20);
+ramjet.presaAria.theta1     = deg2rad(30);
+ramjet.presaAria.theta2     = deg2rad(43);
+ramjet.presaAria.delta3     = NaN;
+ramjet.presaAria.deltaS     = NaN;
 
 %---------------------------------------------------------------------
 %% ANULUS
