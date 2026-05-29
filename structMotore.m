@@ -93,12 +93,12 @@ motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
 motore.presaAria.M2 = 0.35;
-motore.presaAria.eta_d = 0.975;
-motore.presaAria.pi_d = 0.95;
+motore.presaAria.etaD = 0.975;
+motore.presaAria.piD = 0.95;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
-motore.presaAria.A_ingresso = 0.50;% <-------------- VALORE PROVVISORIO ( viene dall'ottimizzazione del ramjet)
+motore.presaAria.A0 = 0.50;% <-------------- VALORE PROVVISORIO ( viene dall'ottimizzazione del ramjet)
 motore.presaAria.A2 = NaN;
 motore.presaAria.CPR = NaN;
 
@@ -115,7 +115,7 @@ motore.presaAria.CPR = NaN;
 motore.compressore.piC = NaN;
 motore.compressore.etaP = 0.9;
 motore.compressore.Utip = 400;
-motore.compressore.U_m = NaN;
+motore.compressore.UM = NaN;
 
 
 motore.compressore.hubTip = 0.5;
@@ -123,21 +123,20 @@ motore.compressore.hubTip = 0.5;
 
 motore.compressore.T03 = NaN;
 motore.compressore.P03 = NaN;
-motore.compressore.L_c = NaN;
+motore.compressore.LC = NaN;
 motore.compressore.etaC = NaN;
 motore.compressore.machRel = NaN;
-motore.compressore.Mach_abs = NaN;
+motore.compressore.MachAbs = NaN;
 motore.compressore.CpStadio = NaN;
 motore.compressore.deHaller = NaN;
 motore.compressore.Va = NaN;
 motore.compressore.beta1 = NaN;
 motore.compressore.beta2 = NaN;
-%motore.compressore.Ain_c = NaN; = area uscita presa
-motore.compressore.r_m_in = NaN;
-motore.compressore.hIn = NaN;
-motore.compressore.Aout_c = NaN;
-motore.compressore.r_m_out = NaN;
-motore.compressore.hOut = NaN;
+motore.compressore.rM2 = NaN;
+motore.compressore.h2 = NaN;
+motore.compressore.A3 = NaN;
+motore.compressore.rM3 = NaN;
+motore.compressore.h3 = NaN;
 motore.compressore.DRotore = NaN;
 motore.compressore.DStatore = NaN;
 motore.compressore.R_m = NaN;
@@ -156,7 +155,7 @@ motore.compressore.NStadi = NaN;
 
     % Aggiornati nel main dopo compressore.m
     motore.diffusore.mach3  = NaN;  % Mach ingresso (= machOut compressore) [-]
-    motore.diffusore.rMedio = NaN;  % raggio medio  (= r_m_out compressore)  [m]
+    motore.diffusore.rMedio = NaN;  % raggio medio  (= rM3 compressore)  [m]
     motore.diffusore.T03    = NaN;
     motore.diffusore.P03    = NaN;
     motore.diffusore.T035   = NaN;
@@ -298,9 +297,9 @@ motore.compressore.NStadi = NaN;
                 turbina.rotore.wmachOut = 0.8;
     
                 % geometria
-                turbina.rotore.hIn      = NaN;
+                turbina.rotore.h2      = NaN;
                 turbina.rotore.rtIn     = NaN;
-                turbina.rotore.rhIn     = NaN;
+                turbina.rotore.rh2     = NaN;
         
         
         

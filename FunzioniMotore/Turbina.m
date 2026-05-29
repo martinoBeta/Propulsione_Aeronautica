@@ -32,9 +32,9 @@ function [motore] = Turbina(motore)
     machIn = propTurbina.mach4;                 %Mach in ingresso turbina               []
     
     % DATI DA COMPRESSORE
-    uM = motore.compressore.U_m;                %Velocitò pallette a raggio medio       [m/s]
-    rM = motore.compressore.r_m_out;             %Raggio medio da compressore            [m]
-    lCompressore = motore.compressore.L_c;      %Lavoro compressore                     [W]
+    uM = motore.compressore.UM;                %Velocitò pallette a raggio medio       [m/s]
+    rM = motore.compressore.rM3;             %Raggio medio da compressore            [m]
+    lCompressore = motore.compressore.LC;      %Lavoro compressore                     [W]
     TRaff = motore.compressore.T03;             %Temperatura aria raffredamento turbina [K]
     
     % TURBINA CONSTANTI

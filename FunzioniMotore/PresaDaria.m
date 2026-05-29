@@ -16,24 +16,24 @@ function motore = PresaDaria(motore)
         T00  = motore.freestream.h12km.T00;
         P00  = motore.freestream.h12km.P00;
 
-        M2   = motore.presaAria.M2;
-        pi_d = motore.presaAria.pi_d;
+        mach2   = motore.presaAria.mach2;
+        piD= motore.presaAria.piD;
         
         mDotAir = motore.portate.mDot;
        
 
         T02 = T00;
-        P02 = pi_d * P00;
+        P02 = piD * P00;
 
-        T2 = T02 / (1 + (gamma - 1)/2 * M2^2);
+        T2 = T02 / (1 + (gamma - 1)/2 * mach2^2);
 
-        P2 = P02 / (1 + (gamma - 1)/2 * M2^2)^ ...
+        P2 = P02 / (1 + (gamma - 1)/2 * mach2^2)^ ...
              (gamma/(gamma - 1));
 
         rho2 = P2 / (R * T2);
 
         a2 = sqrt(gamma * R * T2);
-        V2 = M2 * a2;
+        V2 = mach2 * a2;
 
         A_ingresso = mDotAir / (rho0 * V0);
 
@@ -44,7 +44,7 @@ function motore = PresaDaria(motore)
         CPR = (P2 - P0) / q0;
 
         % OUTPUT
-        motore.presaAria.A_ingresso = A_ingresso;
+        motore.presaAria.A0 = A_ingresso;
         
         motore.presaAria.T02 = T02;
         motore.presaAria.P02 = P02;
@@ -55,7 +55,7 @@ function motore = PresaDaria(motore)
         motore.presaAria.rho2 = rho2;
         motore.presaAria.V2 = V2;
 
-        motore.presaAria.A_ingresso = A_ingresso;
+        motore.presaAria.A0 = A_ingresso;
         motore.presaAria.A2 = A2;
 
         motore.presaAria.CPR = CPR;
@@ -75,8 +75,8 @@ function motore = PresaDaria(motore)
         ramjet.freestream.h25km.V0   = V0;
         ramjet.freestream.h25km.a0   = a0;
 
-        M2   = motore.presaAria.M2;
-        pi_d = motore.presaAria.pi_d;
+        mach2   = motore.presaAria.mach2;
+        piD = motore.presaAria.piD;
 
         mDotAir = ramjet.portate.mDot;
 

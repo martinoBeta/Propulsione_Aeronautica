@@ -50,7 +50,7 @@ function [motore] = CameraCombustione(motore)
     rho3 = P3Statica / (Ra * T3Statica);  % [kg/s]
 
     % Camera
-    rMedio            = motore.compressore.r_m_out;             % raggio medio anulare [m]
+    rMedio            = motore.compressore.rM3;             % raggio medio anulare [m]
     perditaDinamica   = motore.camera.perditaDinamica;    % fattore perdita dinamica [-]
     perditaPressione  = motore.camera.perditaPressione;   % perdita di pressione target [-]
     I                 = motore.camera.I;                  % intensità di combustione [W/(m³·Pa)]

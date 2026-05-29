@@ -12,9 +12,9 @@ motore.portate.mDotRaff = 5;
 motore.portate.mDotComb = 1;
 
 
-motore.compressore.U_m    = 350;
-motore.compressore.r_m_out = 0.25;
-motore.compressore.L_c    = 8e6;
+motore.compressore.UM    = 350;
+motore.compressore.rM3 = 0.25;
+motore.compressore.LC    = 8e6;
 motore.compressore.T03    = 420;
 
 motore.camera.T04 = 1500;

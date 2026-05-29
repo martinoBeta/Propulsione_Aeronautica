@@ -38,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 10;
+n_runs = 3;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -150,9 +150,9 @@ title('Temperatura totale lungo il motore')
 %% Aree principali lungo il motore
 
 Aree = [
-    motore.presaAria.A_ingresso
+    motore.presaAria.A0
     motore.presaAria.A2
-    motore.compressore.Aout_c
+    motore.compressore.A3
     motore.diffusore.A35
     motore.turbina.A4
     motore.turbina.A5
@@ -244,7 +244,7 @@ fprintf('\n--- PRESA D''ARIA ---\n')
 fprintf('T02                  = %.3f K\n', motore.presaAria.T02)
 fprintf('P02                  = %.3f Pa\n', motore.presaAria.P02)
 fprintf('Portata totale aria  = %.3f kg/s\n', motore.portate.mDot)
-fprintf('A ingresso           = %.4f m^2\n', motore.presaAria.A_ingresso)
+fprintf('A ingresso           = %.4f m^2\n', motore.presaAria.A0)
 fprintf('A2                   = %.4f m^2\n', motore.presaAria.A2)
 fprintf('CPR                  = %.3f\n', motore.presaAria.CPR)
 
@@ -252,22 +252,22 @@ fprintf('\n--- COMPRESSORE ---\n')
 fprintf('T03                        = %.3f K\n', motore.compressore.T03)
 fprintf('P03                        = %.3f Pa\n', motore.compressore.P03)
 fprintf('Rapporto compressione π_c  = %.3f\n', motore.compressore.piC)
-fprintf('L_c                        = %.3f MW\n', motore.compressore.L_c/1e6)
+fprintf('L_c                        = %.3f MW\n', motore.compressore.LC/1e6)
 fprintf('etaC                       = %.3f\n', motore.compressore.etaC)
 fprintf('Utip compressore           = %.3f m/s\n', motore.compressore.Utip)
 fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.M2)
 fprintf('Mach relativo              = %.3f\n', motore.compressore.machRel)
-fprintf('Mach assoluto              = %.3f\n', motore.compressore.Mach_abs)
+fprintf('Mach assoluto              = %.3f\n', motore.compressore.MachAbs)
 fprintf('Cp stadio                  = %.3f\n', motore.compressore.CpStadio)
 fprintf('De Haller                  = %.3f\n', motore.compressore.deHaller)
 fprintf('D rotore                   = %.3f\n', motore.compressore.DRotore)
 fprintf('D statore                  = %.3f\n', motore.compressore.DStatore)
 fprintf('N stadi                    = %d\n', motore.compressore.NStadi)
 fprintf('N pale rotore              = %d\n', motore.compressore.N_R)
-fprintf('r_m_in                     = %.4f m\n', motore.compressore.r_m_in)
-fprintf('r_m_out                    = %.4f m\n', motore.compressore.r_m_out)
-fprintf('hIn                        = %.4f m\n', motore.compressore.hIn)
-fprintf('hOut                       = %.4f m\n', motore.compressore.hOut)
+fprintf('rM2                     = %.4f m\n', motore.compressore.rM2)
+fprintf('rM3                    = %.4f m\n', motore.compressore.rM3)
+fprintf('h2                        = %.4f m\n', motore.compressore.h2)
+fprintf('hOut                       = %.4f m\n', motore.compressore.h3)
 
 fprintf('\n--- DIFFUSORE ---\n')
 fprintf('T035      = %.3f K\n', motore.diffusore.T035)
@@ -342,7 +342,7 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.camera.phi            - 1.1;
         0.7   - motore.camera.phi;
         (0.1 - motore.turbina.rh5) / 0.1; 
-        - motore.compressore.hOut + 0.02;
+        - motore.compressore.h3 + 0.02;
         motore.presaAria.CPR - 0.78;
         motore.compressore.NStadi - 12;
         motore.diffusore.A35 - 1.0 
@@ -358,7 +358,7 @@ end
 
 toc
 % Optimization finished: average change in the fitness value less than options.FunctionTolerance and constraint violation is less than options.ConstraintTolerance.
-% Switching to the hybrid optimization algorithm (FMINCON).
+% Switch2g to the hybrid optimization algorithm (FMINCON).
 % FMINCON terminated.
 %   fval = 0.1304
 % Best fval across all runs: 0.1155
@@ -457,10 +457,10 @@ toc
 %           Va: 93.9793
 %        beta1: -70.8086
 %        beta2: -63.2701
-%       r_m_in: 0.5418
-%          hIn: 0.3612
-%       Aout_c: 0.1063
-%      r_m_out: 0.7104
+%       rM2: 0.5418
+%          h2: 0.3612
+%       A3: 0.1063
+%      rM3: 0.7104
 %         hOut: 0.0238
 %      DRotore: 0.4150
 %     DStatore: 0.5175
@@ -528,9 +528,9 @@ toc
 % D statore                  = 0.517
 % N stadi                    = 23
 % N pale rotore              = 70
-% r_m_in                     = 0.5418 m
-% r_m_out                    = 0.7104 m
-% hIn                        = 0.3612 m
+% rM2                     = 0.5418 m
+% rM3                    = 0.7104 m
+% h2                        = 0.3612 m
 % hOut                       = 0.0238 m
 % 
 % --- DIFFUSORE ---

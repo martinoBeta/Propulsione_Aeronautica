@@ -3,7 +3,7 @@ function [motore] = Parametri(motore,parametri)
 %   Detailed explanation goes here
 % parametri = [ ...
 %     35;     % mDot     -> Portata massica in ingresso
-%     0.35;   % mach2    -> Mach ingresso compressore (M2)
+%     0.35;   % mach2    -> Mach ingresso compressore (mach2)
 %     7;      % pi_c     -> Rapporto di compressione compressore
 %     350;    % Utip     -> Velocità periferica tip compressore
 %     5;      % theta    -> Angolo apertura diffusore
@@ -19,7 +19,7 @@ function [motore] = Parametri(motore,parametri)
     
         if regime == "subsonico"
             motore.portate.mDot = parametri(1);
-            motore.presaAria.M2 = parametri(2);
+            motore.presaAria.mach2 = parametri(2);
             motore.compressore.piC = parametri(3);
             motore.compressore.Utip = parametri(4);
             motore.camera.T04 = parametri(5);

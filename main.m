@@ -103,7 +103,7 @@ for i = 1:n
 
     motore = PresaDaria(motore);
 
-    A_ingresso_vec(i) = motore.presaAria.A_ingresso;
+    A_ingresso_vec(i) = motore.presaAria.A0;
     A2_vec(i) = motore.presaAria.A2;
     CPR_vec(i) = motore.presaAria.CPR;
 
@@ -152,7 +152,7 @@ for i = 1:n
     motore = PresaDaria(motore);
 
    
-    A_ingresso_vec(i) = motore.presaAria.A_ingresso;
+    A_ingresso_vec(i) = motore.presaAria.A0;
     A2_vec(i) = motore.presaAria.A2;
 
 end
@@ -205,14 +205,14 @@ for i = 1:n
     T03_vec(i) = motore.compressore.T03;
     P03_vec(i) = motore.compressore.P03;
     etaC_vec(i) = motore.compressore.etaC;
-    L_vec(i) = motore.compressore.L_c;
+    L_vec(i) = motore.compressore.LC;
 
     machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+    Mach_abs_vec(i) = motore.compressore.MachAbs;
     Cp_vec(i) = motore.compressore.CpStadio;
     deHaller_vec(i) = motore.compressore.deHaller;
 
-    Aout_vec(i) = motore.compressore.Aout_c;
+    Aout_vec(i) = motore.compressore.A3;
     NStadi_vec(i) = motore.compressore.NStadi;
 
 end
@@ -314,7 +314,7 @@ for i = 1:n
     motore = Compressore(motore);
 
     machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+    Mach_abs_vec(i) = motore.compressore.MachAbs;
 
     beta1_vec(i) = motore.compressore.beta1;
     beta2_vec(i) = motore.compressore.beta2;
@@ -399,8 +399,8 @@ title('Diffusion factor statore')
 motore.compressore.piC = 9;
 motore.compressore.Utip = 350;
 
-machIn_range = 0.20:0.01:0.60;
-n = length(machIn_range);
+mach2_range = 0.20:0.01:0.60;
+n = length(mach2_range);
 
 A2_vec = zeros(1,n);
 
@@ -419,7 +419,7 @@ DStatore_vec = zeros(1,n);
 
 for i = 1:n
 
-    motore.presaAria.M2 = machIn_range(i);
+    motore.presaAria.M2 = mach2_range(i);
 
     motore = Compressore(motore);
 
@@ -427,7 +427,7 @@ for i = 1:n
     A2_vec(i) = motore.presaAria.A2;
 
     machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.Mach_abs;
+    Mach_abs_vec(i) = motore.compressore.MachAbs;
 
     Cp_vec(i) = motore.compressore.CpStadio;
 
@@ -445,14 +445,14 @@ end
 figure
 
 subplot(2,2,1)
-plot(machIn_range, A2_vec, 'LineWidth',1.5)
+plot(mach2_range, A2_vec, 'LineWidth',1.5)
 grid on
 xlabel('M_2 ingresso compressore')
 ylabel('A_2 [m^2]')
 title('Area ingresso compressore')
 
 subplot(2,2,2)
-plot(machIn_range, machRel_vec, 'LineWidth',1.5)
+plot(mach2_range, machRel_vec, 'LineWidth',1.5)
 hold on
 yline(1,'--r','Limite Mach relativo = 1')
 grid on
@@ -461,7 +461,7 @@ ylabel('Mach relativo')
 title('Mach relativo al variare di M_2')
 
 subplot(2,2,3)
-plot(machIn_range, Cp_vec, 'LineWidth',1.5)
+plot(mach2_range, Cp_vec, 'LineWidth',1.5)
 hold on
 yline(0.5,'--r','Limite Cp_R = 0.5')
 grid on
@@ -470,7 +470,7 @@ ylabel('Cp_R')
 title('Cp rotore al variare di M_2')
 
 subplot(2,2,4)
-plot(machIn_range, NStadi_vec, 'LineWidth',1.5)
+plot(mach2_range, NStadi_vec, 'LineWidth',1.5)
 grid on
 xlabel('M_2 ingresso compressore')
 ylabel('N_{stadi}')
@@ -479,7 +479,7 @@ title('Numero di stadi al variare di M_2')
 figure
 
 subplot(3,1,1)
-plot(machIn_range, deHaller_vec, 'LineWidth',1.5)
+plot(mach2_range, deHaller_vec, 'LineWidth',1.5)
 hold on
 yline(0.72,'--r','Limite De Haller')
 grid on
@@ -488,7 +488,7 @@ ylabel('W_2/W_1')
 title('Criterio di De Haller')
 
 subplot(3,1,2)
-plot(machIn_range, DRotore_vec, 'LineWidth',1.5)
+plot(mach2_range, DRotore_vec, 'LineWidth',1.5)
 hold on
 yline(0.6,'--r','Limite D_{rotore}')
 grid on
@@ -497,7 +497,7 @@ ylabel('D_{rotore}')
 title('Diffusion factor rotore')
 
 subplot(3,1,3)
-plot(machIn_range, DStatore_vec, 'LineWidth',1.5)
+plot(mach2_range, DStatore_vec, 'LineWidth',1.5)
 hold on
 yline(0.6,'--r','Limite D_{statore}')
 grid on
@@ -513,22 +513,22 @@ title('Diffusion factor statore')
 % % Utip = 400;   troppo alto
 % Utip_range = 340:5:400;
 % 
-% machIn_range = 0.20:0.01:0.45;
+% mach2_range = 0.20:0.01:0.45;
 % piC_range   = 7:0.1:11;
 % 
 % best_NStadi = 100000;
 % best_Ain     = 100000;
 % 
 % for Utip = Utip_range
-% for machIns = machIn_range
+% for mach2s = mach2_range
 %     for piC = piC_range
 % 
 %         [T0U, P0U, lComp, etaC, machRel, Mach_abs, CpStadio, ...
-%          deHaller, Va, beta1, beta2, Ain, r_m_in, hIn, ...
-%          Aout, r_m_out, hOut, DRotore, DStatore, R_m, ...
+%          deHaller, Va, beta1, beta2, Ain, rM2, h2, ...
+%          Aout, rM3, hOut, DRotore, DStatore, R_m, ...
 %          c_m, N_R, NStadi] = ...
 %             compressore(T0I, P0I, mDot, piC, etaP, Utip, ...
-%                         machIns, hubTip, propFluidi);
+%                         mach2s, hubTip, propFluidi);
 % 
 %         if machRel < FS*1.0 && ...
 %            CpStadio < FS*0.5 && ...
@@ -550,7 +550,7 @@ title('Diffusion factor statore')
 %                 best_NStadi = NStadi;
 %                 best_Ain = Ain;
 % 
-%                 best_machIn = machIns;
+%                 best_mach2 = mach2s;
 %                 best_Utip = Utip;
 %                 best_piC = piC;
 % 
@@ -575,10 +575,10 @@ title('Diffusion factor statore')
 % 
 %                 best_Aout = Aout;
 % 
-%                 best_r_m_in = r_m_in;
-%                 best_hIn = hIn;
+%                 best_rM2 = rM2;
+%                 best_h2 = h2;
 % 
-%                 best_r_m_out = r_m_out;
+%                 best_rM3 = rM3;
 %                 best_hOut = hOut;
 % 
 %                 best_c_m = c_m;
@@ -595,7 +595,7 @@ title('Diffusion factor statore')
 % end
 % 
 % fprintf('\n=========== CONFIGURAZIONE COMPRESSORE COMPATTO ===========\n')
-% fprintf('machIn    = %.2f\n', best_machIn)
+% fprintf('mach2    = %.2f\n', best_mach2)
 % fprintf('Utip      = %.1f m/s\n', best_Utip)
 % fprintf('NStadi   = %d\n', best_NStadi)
 % fprintf('piC      = %.2f\n', best_piC)
@@ -617,7 +617,7 @@ title('Diffusion factor statore')
 % fprintf('\n--- Geometria ---\n')
 % fprintf('Ain      = %.4f m^2\n', best_Ain)
 % fprintf('Aout     = %.4f m^2\n', best_Aout)
-% fprintf('hIn     = %.4f m\n', best_hIn)
+% fprintf('h2     = %.4f m\n', best_h2)
 % fprintf('hOut    = %.4f m\n', best_hOut)
 % 
 % fprintf('\n--- Primo stadio ---\n')
@@ -683,17 +683,17 @@ if (~exist('best_lComp', 'var'))
 
     motoreBase.turbina.mach4 = 0.3;
     motoreBase.turbina.rotore.wmachOut = 0.8;
-    best_machIn = 0.3;
+    best_mach2 = 0.3;
     motoreBase.portate.mDot = 35;
     motoreBase.compressore.U_m = 350;
-    motoreBase.compressore.r_m_out = 0.4;
+    motoreBase.compressore.rM3 = 0.4;
     motoreBase.compressore.T04 = 420;
     motoreBase.portate.mDotComb = 0.9;
 
 
 else 
     motoreBase.compressore.L_c = best_lComp;
-    motoreBase.turbina.mach4 = best_machIn;
+    motoreBase.turbina.mach4 = best_mach2;
     motoreBase.turbina.P04 = best_P0U;
     motoreBase.turbina.TRaff = best_T0U;
 end
@@ -810,7 +810,7 @@ legend("In","Out")
 %mach
 nexttile();
 title("in e out mach")
-plot(T0I,best_machIn*ones(size(T0I)))
+plot(T0I,best_mach2*ones(size(T0I)))
 hold on
 plot(T0I,machOut)
 grid on
@@ -828,11 +828,11 @@ yline(25000,'--r','Spinta minima = 25000N')
 
 %% -----
 % variazione mahc in ingresso
-machIns = 0.3:0.02:0.4;
+mach2s = 0.3:0.02:0.4;
 
 motoreBase.turbina.T0I = 1400;
 
-N = length(machIns);
+N = length(mach2s);
 etan = zeros(1,N);
 coolPecentualeA = zeros(1,N);
 Sota = zeros(1,N);
@@ -848,7 +848,7 @@ machOut = zeros(1,N);
 
 for i = 1:N
     motore = motoreBase;
-    motore.turbina.machIn = machIns(i);
+    motore.turbina.mach2 = mach2s(i);
 
     motore = turbina(propFluidi, motore);
 
@@ -879,8 +879,8 @@ end
 
 %Spinta generata al variare della temperatura in camera. 
 figure("name","spinta")
-plot(machIns,spinta)
-xlabel("machIN")
+plot(mach2s,spinta)
+xlabel("mach2")
 ylabel("Spinta [N]")
 yline(25000,'--r','Spinta minima = 25000N')
 
@@ -888,12 +888,12 @@ yline(25000,'--r','Spinta minima = 25000N')
 figure("name","Turbina");
 nexttile();
 title("rendimento isoentropico")
-plot(machIns,etan);
+plot(mach2s,etan);
 title("Rendimento isoentropico")
-xlabel("machIN")
+xlabel("mach2")
 ylabel("\eta_n")
 hold on
-plot(machIns,etos);
+plot(mach2s,etos);
 legend("Isoentropico Raff","Isoentropico Non Raff")
 
 
@@ -901,20 +901,20 @@ legend("Isoentropico Raff","Isoentropico Non Raff")
 figure("Name","In e Out motore")
 nexttile();
 title("in e out aree")
-plot(machIns,A4s)
+plot(mach2s,A4s)
 hold on
-plot(machIns,A5s)
-xlabel("machIN")
+plot(mach2s,A5s)
+xlabel("mach2")
 ylabel("area [m^2]")
 legend("In","Out")
 
 %mach
 nexttile();
 title("in e out mach")
-plot(machIns,machIns)
+plot(mach2s,mach2s)
 hold on
-plot(machIns,machOut)
-xlabel("machIN")
+plot(mach2s,machOut)
+xlabel("mach2")
 ylabel("mach]")
 legend("In","Out")
 
@@ -1125,7 +1125,7 @@ title('Portata Combustibile');
 
 % --- CONFIGURAZIONE E INPUT ---
 machRotoreAlto  = 0.80:0.01:0.9;
-machIngressoTurbina = 0.30:0.01:0.4;
+mach2gressoTurbina = 0.30:0.01:0.4;
 motoreBase = structMotore();
 numSimulazioni = length(machRotoreAlto); 
 
@@ -1164,7 +1164,7 @@ motore = motoreBase;
 
 for i = 1:numSimulazioni
     % Aggiorna il Mach di ingresso alla turbina per il punto i-esimo
-    motore.turbina.mach4 = machIngressoTurbina(i);
+    motore.turbina.mach4 = mach2gressoTurbina(i);
     
     % Esecuzione del solutore del motore
     [~, motore] = runnerMotore(motore, parametri);
@@ -1184,13 +1184,13 @@ figure("Name", "Analisi Parametrica Turbina: Effetto Mach");
 tiledlayout(1, 2); 
 nexttile();
 yyaxis left
-plot(machIngressoTurbina, etaStadio_basso, '-', 'LineWidth', 1.5);
+plot(mach2gressoTurbina, etaStadio_basso, '-', 'LineWidth', 1.5);
 ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
 grid on;
 hold on;
 
 yyaxis right 
-plot(machIngressoTurbina, lavoroStadio_basso / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
+plot(mach2gressoTurbina, lavoroStadio_basso / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
 ylabel('Lavoro $[MW]$', 'Interpreter', 'latex')
 xlabel("Mach Ingresso Turbina ($Mach_4$)", 'Interpreter', 'latex')
 
@@ -1212,7 +1212,7 @@ figure()
 tiledlayout(1, 2); 
 nexttile();
 yyaxis left
-plot(machIngressoTurbina, gradoReazione_alto, '-', 'LineWidth', 1.5);
+plot(mach2gressoTurbina, gradoReazione_alto, '-', 'LineWidth', 1.5);
 ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
 grid on;
 hold on;

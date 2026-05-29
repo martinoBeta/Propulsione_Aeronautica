@@ -8,7 +8,7 @@ function [motore] = Diffusore(motore)
     propDiffusore.mach3 = motore.compressore.mach3;
     propDiffusore.T03 = motore.compressore.T03;
     propDiffusore.P03 = motore.compressore.P03;
-    rMedio = motore.compressore.r_m_out;
+    rMedio = motore.compressore.rM3;
     propDiffusore.rMedio = rMedio;
     %calcolo velcoità
     

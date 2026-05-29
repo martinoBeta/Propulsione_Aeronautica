@@ -9,8 +9,8 @@ function [opt,motore] = runnerMotore(motore,parametri)
     motore = Ugello(motore); 
     motore = Performance(motore);
 
-    % max_radius = max(motore.turbina.rt5,(motore.compressore.r_m_out+motore.compressore.hOut/2));%1/motore.performance.etaGlobal;%motore.performance.TSFC;
+    % max_radius = max(motore.turbina.rt5,(motore.compressore.rM3+motore.compressore.h3/2));%1/motore.performance.etaGlobal;%motore.performance.TSFC;
     %opt = motore.performance.TSFC;% max_radius;
 
-    opt = motore.performance.ISP;
+    opt = 1/motore.performance.ISP;
 end

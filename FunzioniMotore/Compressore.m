@@ -13,14 +13,14 @@ function [motore] = Compressore(motore)
 
 % Vincoli geometrici indicativi larghi da imporre nell'ottimizzazione:
 %   A2 / Ain_c      < 2.0 m^2      area ingresso compressore max
-%   Aout_c          < 1.5 m^2      area uscita compressore max
-%   r_m_in          < 1.2 m        raggio medio ingresso max
-%   r_m_out         < 1.2 m        raggio medio uscita max
-%   hIn            < 0.60 m       altezza pala ingresso max
-%   hOut           < 0.45 m       altezza pala uscita max
-%   hIn, hOut     > 0.02 m       altezza pala minima
+%   A3          < 1.5 m^2      area uscita compressore max
+%   rM2          < 1.2 m        raggio medio ingresso max
+%   rM3         < 1.2 m        raggio medio uscita max
+%   h2            < 0.60 m       altezza pala ingresso max
+%   h3           < 0.45 m       altezza pala uscita max
+%   h2, h3     > 0.02 m       altezza pala minima
 %   NStadi         < 20           numero stadi massimo
-%   N_R             < 180          numero pale rotoriche massimo
+%   NPaleComp             < 180          numero pale rotoriche massimo
 %
 % Questi limiti non sono vincoli stringenti: servono solo
 % a scartare configurazioni geometricamente non plausibili.
@@ -30,13 +30,13 @@ function [motore] = Compressore(motore)
 
 
     % Inizializzazione
-    T0I = motore.presaAria.T02;
-    P0I = motore.presaAria.P02;
+    T02 = motore.presaAria.T02;
+    P02 = motore.presaAria.P02;
     piC = motore.compressore.piC;
     mDot = motore.portate.mDot;
     etaP = motore.compressore.etaP;
     Utip = motore.compressore.Utip; 
-    machIn = motore.presaAria.M2;
+    mach2 = motore.presaAria.mach2;
     hubTip = motore.compressore.hubTip;
 
     gamma = motore.fluidi.aria.gamma;
@@ -46,50 +46,50 @@ function [motore] = Compressore(motore)
     etaC = (piC^((gamma-1)/gamma) - 1) / ...
             (piC^((gamma-1)/(gamma*etaP)) - 1);
 
-    P0U = piC * P0I;
+    P03 = piC * P02;
 
-    T02s = T0I * piC^((gamma - 1)/gamma);
-    T0U  = T0I + (T02s - T0I)/etaC;
+    T02s = T02 * piC^((gamma - 1)/gamma);
+    T03  = T02 + (T02s - T02)/etaC;
 
-    lComp = cp * (T0U - T0I);
+    lComp = cp * (T03 - T02);
     LComp = mDot * lComp;
 
     % Ingresso compressore
-    T1 = T0I / (1 + (gamma - 1)/2 * machIn^2);
-    P1 = P0I / (1 + (gamma - 1)/2 * machIn^2)^(gamma/(gamma - 1));
-    rho1 = P1 / (Rgas * T1);
+    T2 = T02 / (1 + (gamma - 1)/2 * mach2^2);
+    P2 = P02 / (1 + (gamma - 1)/2 * mach2^2)^(gamma/(gamma - 1));
+    rho2 = P2 / (Rgas * T2);
 
-    a1 = sqrt(gamma * Rgas * T1);
-    Va = machIn * a1;
+    a2 = sqrt(gamma * Rgas * T2);
+    Va = mach2 * a2;
 
     % Geometria ingresso
-    Ain = mDot / (rho1 * Va);
-    r_TIn = sqrt(Ain/(pi*(1 - hubTip^2)));
+    A2 = mDot / (rho2 * Va);
+    rT2 = sqrt(A2/(pi*(1 - hubTip^2)));
     
-    r_hIn = hubTip * r_TIn;
-    r_m_in = (r_TIn + r_hIn)/2;
-    hIn = r_TIn - r_hIn;
+    rH2 = hubTip * rT2;
+    rM2 = (rT2 + rH2)/2;
+    h2 = rT2 - rH2;
 
     % Fisso Utip e ricavo U alla sezione media
-    omega = Utip / r_TIn;
-    U = omega * r_m_in;
+    omega = Utip / rT2;
+    U = omega * rM2;
 
     % Uscita compressore
-    TOut = T0U - Va^2/(2*cp);
-    a_out = sqrt(gamma * Rgas * TOut);
-    machOut = Va / a_out;
+    T3 = T03 - Va^2/(2*cp);
+    a3 = sqrt(gamma * Rgas * T3);
+    mach3 = Va / a3;
 
-    P_out = P0U / (1 + (gamma - 1)/2 * machOut^2)^(gamma/(gamma - 1));
-    rhoOut = P_out / (Rgas * TOut);
+    P3 = P03 / (1 + (gamma - 1)/2 * mach3^2)^(gamma/(gamma - 1));
+    rho3 = P3 / (Rgas * T3);
 
     % Geometria uscita
-    Aout = mDot / (rhoOut * Va);
+    A3 = mDot / (rho3 * Va);
 
     % Rt costante
-    r_TOut = r_TIn;
-    r_hOut = sqrt(r_TOut^2 - Aout/pi);
-    hOut  = r_TOut - r_hOut;
-    r_m_out = (r_TOut + r_hOut)/2;
+    rT3 = rT2;
+    rH3 = sqrt(rT3^2 - A3/pi);
+    h3  = rT3 - rH3;
+    rM3 = (rT3 + rH3)/2;
 
     % Primo stadio
     % Ipotesi: alpha1 = 0 --> Vt1 = 0
@@ -101,20 +101,20 @@ function [motore] = Compressore(motore)
     % Scelta progettuale: De Haller target
     deHaller_target = 0.72;
 
-    W2_target = deHaller_target * W1;
+    W2Target = deHaller_target * W1;
 
     % Va = cost lungo lo stadio
-    Wt2 = -sqrt(W2_target^2 - Va^2);
+    Wt2 = -sqrt(W2Target^2 - Va^2);
     Vt2 = Wt2 + U;
 
-    l_stadio_teorico = U * (Vt2 - Vt1);
+    lStadioTeorico = U * (Vt2 - Vt1);
 
-    NStadi = ceil(lComp / l_stadio_teorico);
+    NStadi = ceil(lComp / lStadioTeorico);
 
     % Ricalcolo triangolo con numero di stadi intero
-    l_stadio = lComp / NStadi;
+    lStadio = lComp / NStadi;
 
-    Vt2 = Vt1 + l_stadio / U;
+    Vt2 = Vt1 + lStadio / U;
 
     V1 = sqrt(Va^2 + Vt1^2);
     V2 = sqrt(Va^2 + Vt2^2);
@@ -131,8 +131,8 @@ function [motore] = Compressore(motore)
     beta1 = atan(Wt1/Va) * 180/pi;
     beta2 = atan(Wt2/Va) * 180/pi;
 
-    Mach_abs = max([V1/a1, V2/a1]);
-    machRel = max([W1/a1, W2/a1]);
+    machAbs = max([V1/a2, V2/a2]);
+    machRel = max([W1/a2, W2/a2]);
 
     % Sezione media
     sigma_r = 1.0;
@@ -141,24 +141,24 @@ function [motore] = Compressore(motore)
     DRotore = 1 - W2/W1 + abs(Vt2 - Vt1)/(2*sigma_r*W1);
     DStatore = 1 - Va/V2 + abs(Vt2 - Vt1)/(2*sigma_s*V2);
 
-    R_m = 1 - (Vt1 + Vt2)/(2*U);
+    RStadio = 1 - (Vt1 + Vt2)/(2*U);
 
     % Numero di pale rotoriche
-    Re_min = 300000;
+    ReMin = 300000;
     nu1 = 4.67e-5;
 
-    c_m = Re_min * nu1 / W1;
+    c_m = ReMin * nu1 / W1;
 
     s_r = c_m / sigma_r;
-    N_R = ceil(2*pi*r_m_in / s_r);
+    NPaleComp = ceil(2*pi*rM2 / s_r);
 
     % Salvataggio nella struct
-    motore.compressore.T03 = T0U;
-    motore.compressore.P03 = P0U;
-    motore.compressore.L_c = LComp;
+    motore.compressore.T03 = T03;
+    motore.compressore.P03 = P03;
+    motore.compressore.LC = LComp;
     motore.compressore.etaC = etaC;
     motore.compressore.machRel = machRel;
-    motore.compressore.Mach_abs = Mach_abs;
+    motore.compressore.MachAbs = machAbs;
     motore.compressore.CpStadio = CpStadio;
     motore.compressore.deHaller = deHaller;
     motore.compressore.Va = Va;
@@ -167,19 +167,19 @@ function [motore] = Compressore(motore)
 
     %motore.compressore.Ain_c = Ain;
 
-    motore.compressore.r_m_in = r_m_in;
-    motore.compressore.hIn = hIn;
-    motore.compressore.Aout_c = Aout;
-    motore.compressore.r_m_out = r_m_out;
-    motore.compressore.hOut = hOut;
+    motore.compressore.rM2 = rM2;
+    motore.compressore.h2 = h2;
+    motore.compressore.A3 = A3;
+    motore.compressore.rM3 = rM3;
+    motore.compressore.h3 = h3;
     motore.compressore.DRotore = DRotore;
     motore.compressore.DStatore = DStatore;
-    motore.compressore.R_m = R_m;
+    motore.compressore.RStadio = RStadio;
     motore.compressore.c_m = c_m;
-    motore.compressore.N_R = N_R;
+    motore.compressore.NPaleComp = NPaleComp;
     motore.compressore.NStadi = NStadi;
-    motore.compressore.U_m = U;
-    motore.compressore.mach3 = machOut;
+    motore.compressore.UM = U;
+    motore.compressore.mach3 = mach3;
 
 
 
