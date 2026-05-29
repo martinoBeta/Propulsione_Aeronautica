@@ -114,20 +114,23 @@ function [motore] = Turbina(motore)
     % STATORE
     % assunzione che cooling viene applicato prima di espandere in turbina
     % espansione in statore fino a mach 1: (tutte queste quantità dopo espansione fino a mach 1)
-        statore.T = T04/(1+(gammaGas-1)/2);
+
+        statore.Tmisc = T04/(1+(gammaGas-1)/2);
         statore.P = P04 / (1 + (gammaGas - 1)/2)^(gammaGas/(gammaGas - 1));
-        statore.rho = statore.P / (RGas * statore.T);
+        statore.rho = statore.P / (RGas * statore.Tmisc);
         % velocità del suono dopo statore
-        statore.a = sqrt(statore.T*gammaGas*RGas);
+        statore.a = sqrt(statore.Tmisc*gammaGas*RGas);
         % calcolo velocita all uscita dello statore
         statore.vz = v4z;
-        statore.v = sqrt(gammaGas*RGas*statore.T);
+        statore.v = sqrt(gammaGas*RGas*statore.Tmisc);
         statore.vt = sqrt(statore.v^2-statore.vz^2);
+        statore.T = T0M - statore.v^2/(2*cpGas);
         % angolo statore.alpha
         statore.alpha = atan(statore.vt/statore.vz)*180/pi;
         % area all'uscita dello statore
         statore.AOut = mDotGas/(statore.rho*statore.v);
         
+
         % Velocità Relative
         statore.wz = statore.vz;
         statore.wt = statore.vt- U;
@@ -146,7 +149,7 @@ function [motore] = Turbina(motore)
         rotore.v = sqrt(rotore.vt^2+rotore.vz^2);
         
         % proprietà fluido rotore all'uscita
-        rotore.T0 = T04 - U*(statore.vt-rotore.vt)/cpGas;
+        rotore.T0 = T0M - U*(statore.vt-rotore.vt)/cpGas;
         rotore.T = rotore.T0 - rotore.v^2/(2*cpGas);
         % P0 e T0 rimane invariata nello statore, statore ideale
         rotore.P0 = P04*(rotore.T0/T04)^(gammaGas/((gammaGas-1)*etaP));

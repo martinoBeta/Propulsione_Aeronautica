@@ -57,11 +57,15 @@ for i = 1:n_runs
     [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
     fHistory(i) = fi;
     xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f
+    if fi < best_f && all(condDisEq <= 0)
         best_f = fi;
         best_x = xi;
     end
+end
+if isempty(best_x)
+    error('Nessuna soluzione fattibile trovata')
 end
 
 x1 = best_x;
