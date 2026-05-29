@@ -55,7 +55,7 @@ for i = 1:n_runs
     xHistory(i,:) = xi;
     [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f && all(condDisEq <= 1e-7) && norm(condEq) <= 1e-6
+    if fi < best_f && all(condDisEq <= 0) %&& all(condEq <= 0)
        best_f = fi;
        best_x = xi;
     end
@@ -349,7 +349,7 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.turbina.A5 - 1
         motore.camera.ARef - 1
         motore.turbina.nStadi - 5
-        motore.performance.TSFC - 0.13
+        % motore.performance.TSFC - 0.1
 
         
     ];
