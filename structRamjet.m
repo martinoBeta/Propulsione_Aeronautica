@@ -116,11 +116,14 @@ ramjet.presaAria.deltaS     = NaN;
 
 ramjet.anulus.T03   = NaN;   % Temperatura totale in uscita
 ramjet.anulus.P03   = NaN;   % Pressione totale in uscita
+ramjet.anulus.T3    = NaN;   % Temperatura in uscita
+ramjet.anulus.P3    = NaN;   % Pressione in uscita
 ramjet.anulus.AIn   = NaN;   % Area di ingresso dell'anulus
 ramjet.anulus.AOut  = NaN;   % Area di uscita
 ramjet.anulus.rIn   = NaN;   % Raggio esterno all'entrata del casing
 ramjet.anulus.rOut  = NaN;   % Raggio esterno all'uscita del casing
 ramjet.anulus.mach3 = 0.25;  % Numero di mach in uscita
+ramjet.anulus.U     = NaN;   % Velocità in uscita
 
 
 %---------------------------------------------------------------------
@@ -143,7 +146,7 @@ ramjet.camera.L       = NaN;          % Lunghezza camera
 %---------------------------------------------------------------------
 %% UGELLO
 %---------------------------------------------------------------------
-ramjet.ugello.etaN  = 0.9;              % Rendimento
+ramjet.ugello.etaN  = 0.95;              % Rendimento
 ramjet.ugello.P05   = NaN;              % Pressione totale in uscita
 ramjet.ugello.T05   = NaN;              % Temperatura totale in uscita
 ramjet.ugello.mach5 = NaN;              % Numero di Mach
