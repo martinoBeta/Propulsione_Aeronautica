@@ -13,25 +13,18 @@ function [parametri,RangeParametri] = structParametri()
 
 parametri = [ ...
     35;     % mDot     -> Portata massica in ingresso
-    0.5;   % mach2    -> Mach ingresso compressore (M2)
     4;      % piC     -> Rapporto di compressione compressore
     400;    % Utip     -> Velocità periferica tip compressore
-    
-    
     1600;   % T04      -> Temperatura totale uscita camera / ingresso turbina
-    
     0.3;    % mach4    -> Mach ingresso turbina
     0.9;    % wmachOut -> Mach relativo uscita rotore turbina
 ];
 RangeParametri = [...
 
     20 60
-    0.5 0.51;
     3 30;
     360 450;
-
     1200 1700;
-
     0.3 0.4;
     0.8 0.9;
 ];

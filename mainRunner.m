@@ -37,7 +37,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 3;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -254,7 +254,7 @@ fprintf('Rapporto compressione π_c  = %.3f\n', motore.compressore.piC)
 fprintf('L_c                        = %.3f MW\n', motore.compressore.LC/1e6)
 fprintf('etaC                       = %.3f\n', motore.compressore.etaC)
 fprintf('Utip compressore           = %.3f m/s\n', motore.compressore.Utip)
-fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.M2)
+fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.mach2)
 fprintf('Mach relativo              = %.3f\n', motore.compressore.machRel)
 fprintf('Mach assoluto              = %.3f\n', motore.compressore.MachAbs)
 fprintf('Cp stadio                  = %.3f\n', motore.compressore.CpStadio)
@@ -343,11 +343,11 @@ function [ineq, eq] = mycon(x, motoreBase)
         (0.1 - motore.turbina.rh5) / 0.1; 
         - motore.compressore.h3 + 0.02;
         motore.presaAria.CPR - 0.78;
-        motore.compressore.NStadi - 12;
-        motore.diffusore.A35 - 1.0 
-        motore.turbina.A5 - 1
-        motore.camera.ARef - 1
-        motore.turbina.nStadi - 5
+        %motore.compressore.NStadi - 12;
+        %motore.diffusore.A35 - 1.0 
+        %motore.turbina.A5 - 1
+        %motore.camera.ARef - 1
+        %motore.turbina.nStadi - 5
         % motore.performance.TSFC - 0.1
 
         

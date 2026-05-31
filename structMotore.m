@@ -92,21 +92,15 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.M2 = 0.35;
+motore.presaAria.mach2 = 0.5;
 motore.presaAria.etaD = 0.975;
 motore.presaAria.piD = 0.95;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
-motore.presaAria.A0 = 0.50;% <-------------- VALORE PROVVISORIO ( viene dall'ottimizzazione del ramjet)
+motore.presaAria.A0 = NaN;
 motore.presaAria.A2 = NaN;
 motore.presaAria.CPR = NaN;
-
-
-
-% T0I, P0I, TIn, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
-
-
 
 %---------------------------------------------------------------------
 %% COMPRESSORE
@@ -141,8 +135,8 @@ motore.compressore.DRotore = NaN;
 motore.compressore.DStatore = NaN;
 motore.compressore.RStadio = NaN;
 motore.compressore.c_m = NaN;
-
 motore.compressore.NStadi = NaN;
+
     %%  DIFFUSORE ANULARE  (tra compressore e camera)
 
     % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
