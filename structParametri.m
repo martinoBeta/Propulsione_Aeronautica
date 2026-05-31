@@ -16,16 +16,16 @@ parametri = [ ...
     4;      % piC     -> Rapporto di compressione compressore
     400;    % Utip     -> Velocità periferica tip compressore
     1600;   % T04      -> Temperatura totale uscita camera / ingresso turbina
-    0.3;    % mach4    -> Mach ingresso turbina
+    
     0.9;    % wmachOut -> Mach relativo uscita rotore turbina
 ];
 RangeParametri = [...
 
     20 60
     3 30;
-    360 450;
+    330 410;
     1200 1700;
-    0.3 0.4;
+
     0.8 0.9;
 ];
 

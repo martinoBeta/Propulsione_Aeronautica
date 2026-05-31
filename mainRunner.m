@@ -54,7 +54,7 @@ for i = 1:n_runs
     xHistory(i,:) = xi;
     [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f && all(condDisEq <= 0) %&& all(condEq <= 0)
+    if fi < best_f && all(condDisEq <= 0) && all(condEq <= 0)
        best_f = fi;
        best_x = xi;
     end
@@ -69,8 +69,10 @@ fprintf('Best fval across all runs: %.4f\n', best_f);
 
 %% ── Post-process ──────────────────────────────────────────────────────────
 [T, motore] = runnerMotore(motoreBase, best_x);
-[z, u]       = mycon(best_x, motoreBase);
 
+%%
+
+[z, u]       = mycon(best_x, motoreBase);
 
 turb = motore.turbina
 cam = motore.camera
@@ -330,7 +332,7 @@ toc
 
 function [ineq, eq] = mycon(x, motoreBase)
     FS = 0.98;
-    [~, motore] = runnerMotore(motoreBase, x); % <
+    [~, motore] = runnerMotore(motoreBase, x); 
     ineq = [ ... 
         motore.compressore.machRel   - 1 * FS;
         0.72 - motore.compressore.deHaller;
@@ -341,14 +343,15 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.camera.phi            - 1.1;
         0.7   - motore.camera.phi;
         (0.1 - motore.turbina.rh5) / 0.1; 
-        - motore.compressore.h3 + 0.02;
+        - motore.compressore.h3 + 0.03;
         motore.presaAria.CPR - 0.78;
-        %motore.compressore.NStadi - 12;
-        %motore.diffusore.A35 - 1.0 
-        %motore.turbina.A5 - 1
-        %motore.camera.ARef - 1
-        %motore.turbina.nStadi - 5
-        % motore.performance.TSFC - 0.1
+        motore.compressore.NStadi - 15;
+        motore.diffusore.A35 - 0.8 
+        motore.turbina.A5 - 0.8
+        motore.camera.ARef - 0.8
+        motore.turbina.nStadi - 5
+        motore.camera.LC - 1.8
+        motore.performance.TSFC - 0.14
 
         
     ];

@@ -21,9 +21,8 @@ function [motore] = Parametri(motore,parametri)
             motore.portate.mDot = parametri(1);
             motore.compressore.piC = parametri(2);
             motore.compressore.Utip = parametri(3);
-            motore.camera.T04 = parametri(4);
-            motore.turbina.mach4 = parametri(5);
-            motore.turbina.rotore.wmachOut = parametri(6);
+            motore.camera.T04 = parametri(4);   
+            motore.turbina.rotore.wmachOut = parametri(5);
         elseif regime == "supersonico"
             motore.portate.mDot = parametri(1);
             motore.camera.Tmax = parametri(2);

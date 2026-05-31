@@ -92,7 +92,7 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.mach2 = 0.5;
+motore.presaAria.mach2 = 0.51;
 motore.presaAria.etaD = 0.975;
 motore.presaAria.piD = 0.95;
 
@@ -223,7 +223,7 @@ motore.compressore.NStadi = NaN;
     turbina.etaN        = NaN;
     
     % IN
-    turbina.mach4   = NaN;
+    turbina.mach4   = 0.5;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
