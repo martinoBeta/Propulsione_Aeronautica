@@ -1,4 +1,4 @@
-function [ramjet] = CameraCombustioneRamjet(ramjet)
+function [ramjet] = CameraCombustioneRamjet(ramjet, motore)
 % CAMERA DI COMBUSTIONE / POSTBRUCIATORE
 %
 % Funzione che permette di dimensionare la camera di combustione del ramjet
@@ -8,13 +8,14 @@ function [ramjet] = CameraCombustioneRamjet(ramjet)
 % Estrazione variabili
 T0I           = ramjet.anulus.T03;     % Temperatura totale in ingresso
 P0I           = ramjet.anulus.P03;     % Pressione totale in ingresso
-mach          = ramjet.anulus.mach3;    % Numero di Mach
+mach          = ramjet.anulus.mach3;   % Numero di Mach
+U             = ramjet.anulus.U;       % Velocità
 PiAB          = ramjet.camera.pi_ab;   % Perdita di carico
-mDotAir       = ramjet.portate.mDot; % Portata di aria in ingresso
+mDotAir       = ramjet.portate.mDot;   % Portata di aria in ingresso
 TMax          = ramjet.camera.Tmax;    % Temperatura massima raggiungibile
 LH            = ramjet.camera.LH;      % Rapporto Lunghezza/Diametro
 B             = ramjet.camera.B;       % Bloccaggio
-ChamberRadius = ramjet.camera.r;       % Raggio camera
+ChamberRadius = motore.turbina.rt5;    % Raggio camera
 
 CpA = ramjet.fluidi.aria.cp;            % Cp dell'aria in ingresso
 gammaA = ramjet.fluidi.aria.gamma;      % gamma dell'aria in ingresso
@@ -37,10 +38,11 @@ mDotFuel = mDotAir*f;         % Portata di carburante
 mDotGas  = mDotFuel+mDotAir;  % Portata totale in uscita
 
 
-ChamberLength = ChamberRadius*LH;
+ChamberLength = 2*ChamberRadius*LH;
 FlameHolderD  = B*ChamberRadius;  % Diametro degli stabilizzatori di fiamma
 
-mach4 = sqrt(gammaG*RA*TMax);
+mach4 = U/sqrt(gammaG*RA*TMax);
+
 
 
 % Assegnazione variabili
@@ -50,6 +52,7 @@ ramjet.camera.P04       = P0U;
 ramjet.camera.f         = f;
 ramjet.camera.L         = ChamberLength;
 ramjet.camera.d         = FlameHolderD;
+ramjet.camera.r         = ChamberRadius;
 ramjet.camera.mach4     = mach4;
 ramjet.portate.mDotComb = mDotFuel;
 ramjet.portate.mDotGas  = mDotGas;

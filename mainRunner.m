@@ -358,6 +358,8 @@ function [ineq, eq] = mycon(x, motoreBase)
     eq = [ motore.performance.F - 25000 ];
 end
 
+save('turbogetto.mat', 'motore');
+
 toc
 % Optimization finished: average change in the fitness value less than options.FunctionTolerance and constraint violation is less than options.ConstraintTolerance.
 % Switch2g to the hybrid optimization algorithm (FMINCON).

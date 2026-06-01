@@ -4,6 +4,7 @@ close all
 addpath("FunzioniMotore")
 
 ramjetBase = structRamjet();
+load('turbogetto.mat')
 
 % DA COMPLETARE!! % 
 
@@ -19,8 +20,8 @@ M     = max(400, 20*nvars);
 lb    = rangeP(:,1)';
 ub    = rangeP(:,2)';
 
-fun     = @(x) runnerRamjet(ramjetBase, x);
-nonlcon = @(x) mycon(x, ramjetBase);
+fun     = @(x) runnerRamjet(ramjetBase, x, motore);
+nonlcon = @(x) mycon(x, ramjetBase, motore);
 
 % ── GA options ────────────────────────────────────────────────────────────
 hybrid_opts = optimoptions('fmincon', ...
@@ -42,7 +43,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 15;
+n_runs = 20;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -72,8 +73,8 @@ x1 = best_x;
 fprintf('Best fval across all runs: %.4f\n', best_f);
 
 %% ── Post-process ──────────────────────────────────────────────────────────
-[T, ramjet] = runnerRamjet(ramjetBase, x1);
-[z, u]       = mycon(x1, ramjetBase);
+[T, ramjet] = runnerRamjet(ramjetBase, x1, motore);
+[z, u]       = mycon(x1, ramjetBase, motore);
 
 
 cam  = ramjet.camera
@@ -198,7 +199,7 @@ fprintf('A_a_out                 = %.4f m^2\n', ramjet.anulus.AIn)
 fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
 fprintf('T04               = %.3f K\n', ramjet.camera.T04)
 fprintf('P04               = %.3f Pa\n', ramjet.camera.P04)
-fprintf('f                 = %.5f\n', ramjet.camera.f)
+fprintf('f                 = %.5f\n',   ramjet.camera.f)
 fprintf('d                 = %.4f m\n', ramjet.camera.d)
 fprintf('L                 = %.4f m\n', ramjet.camera.L)
 
@@ -225,9 +226,9 @@ function X = lhs_sample(n, d)
 end
 
 
-function [ineq, eq] = mycon(x, motoreBase)
+function [ineq, eq] = mycon(x, motoreBase, motore)
     FS = 0.98;
-    [~, motore] = runnerRamjet(motoreBase, x); % <
+    [~, motore] = runnerRamjet(motoreBase, x, motore); % <
     ineq = [ ... 
         motore.performance.TSFC - 0.278;
     ];
