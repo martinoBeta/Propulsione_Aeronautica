@@ -17,7 +17,7 @@ eta_n = ramjet.ugello.etaN;
 
 %% calcolo gradenzze
 TI  = T0I/(1 + (gamma-1)/2 * mach^2);
-P0I = P0I*0.98; % Pressione totale persa per afterburner (non attivo)
+P0I = P0I*0.98; % Pressione totale persa per afterburner (attivo)
 PE  = 4*PU; % Pressione in uscita
 NPR = P0I/PE; % Nozzle Pressure Ratio
 
