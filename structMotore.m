@@ -288,7 +288,7 @@ motore.compressore.NStadi = NaN;
                 turbina.rotore.wz       = NaN;
                 turbina.rotore.wt       = NaN;
                 turbina.rotore.w        = NaN;
-                turbina.rotore.wmachOut = 0.8;
+                turbina.rotore.wmachOut = 0.85;
     
                 % geometria
                 turbina.rotore.h2      = NaN;
@@ -319,8 +319,8 @@ motore.compressore.NStadi = NaN;
     %% PERFORMANCE
     motore.performance.F         = NaN;
     motore.performance.etaGlobal = NaN;
-    motore.performance.TSFC     = NaN;
-    motore.performance.etaProp  = NaN;
-     motore.performance.etaTh  = NaN;
+    motore.performance.TSFC      = NaN;
+    motore.performance.etaProp   = NaN;
+    motore.performance.etaTh     = NaN;
 
 end
