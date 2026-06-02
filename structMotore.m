@@ -312,7 +312,8 @@ motore.compressore.NStadi = NaN;
     motore.ugello.Ue    = NaN;              % velocità di efflusso
     motore.ugello.AStar = NaN;              % area di gola
     motore.ugello.AE    = NaN;              % area di efflusso
-    motore.ugello.DE    = NaN;              % diametro di efflusso 
+    motore.ugello.DE    = NaN;              % diametro di efflusso
+    motore.ugello.PE    = NaN;              % pressione di efflusso
 
 
     %% PERFORMANCE

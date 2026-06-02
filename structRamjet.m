@@ -146,7 +146,7 @@ ramjet.camera.L       = NaN;          % Lunghezza camera
 %---------------------------------------------------------------------
 %% UGELLO
 %---------------------------------------------------------------------
-ramjet.ugello.etaN  = 0.95;              % Rendimento
+ramjet.ugello.etaN  = 0.95;             % Rendimento
 ramjet.ugello.P05   = NaN;              % Pressione totale in uscita
 ramjet.ugello.T05   = NaN;              % Temperatura totale in uscita
 ramjet.ugello.mach5 = NaN;              % Numero di Mach
@@ -154,6 +154,8 @@ ramjet.ugello.Ue    = NaN;              % velocità di efflusso
 ramjet.ugello.AStar = NaN;              % area di gola
 ramjet.ugello.AE    = NaN;              % area di efflusso
 ramjet.ugello.DE    = NaN;              % diametro di efflusso
+ramjet.ugello.PE    = NaN;              % Pressione di efflusso
+ramjet.ugello.P0E   = NaN;              % Pressione totale di efflusso
 
 
 %---------------------------------------------------------------------
