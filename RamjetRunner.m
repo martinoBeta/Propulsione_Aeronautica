@@ -43,7 +43,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 20;
+n_runs = 3;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -194,7 +194,7 @@ fprintf('\n--- ANULUS ---\n')
 fprintf('T03                  = %.3f K\n', ramjet.anulus.T03)
 fprintf('P03                  = %.3f Pa\n', ramjet.anulus.P03)
 fprintf('A_a_in                  = %.4f m^2\n', ramjet.anulus.AIn)
-fprintf('A_a_out                 = %.4f m^2\n', ramjet.anulus.AIn)
+fprintf('A_a_out                 = %.4f m^2\n', ramjet.anulus.AOut)
 
 fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
 fprintf('T04               = %.3f K\n', ramjet.camera.T04)
@@ -217,6 +217,14 @@ fprintf('mDot combustibile = %.4f kg/s\n', ramjet.portate.mDotComb)
 fprintf('mDot gas          = %.4f kg/s\n', ramjet.portate.mDotGas)
 
 
+fprintf('\n--- CONTROLLO VINCOLI ---\n')
+fprintf('Max c             = %.6e\n', max(z))
+fprintf('Norm ceq          = %.6e\n', norm(u))
+
+
+
+
+
 toc
 function X = lhs_sample(n, d)
     X = zeros(n, d);
@@ -227,10 +235,10 @@ end
 
 
 function [ineq, eq] = mycon(x, motoreBase, motore)
-    FS = 0.98;
     [~, motore] = runnerRamjet(motoreBase, x, motore); % <
     ineq = [ ... 
         motore.performance.TSFC - 0.278;
+        motore.ugello.DE - 2.4;
     ];
     eq = [ motore.performance.F - 65000 ];
 end

@@ -166,6 +166,6 @@ ramjet.performance.ISP       = NaN;
 ramjet.performance.TSFC      = NaN;
 ramjet.performance.etaProp   = NaN;
 
-ramjet.turbina.rt5           = 0.4;
+ramjet.turbina.rt5           = 0.4;%0.208;
 
 end

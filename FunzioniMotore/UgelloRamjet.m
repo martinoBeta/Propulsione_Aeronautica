@@ -15,7 +15,7 @@ mach  = ramjet.camera.mach4;
 mdot  = ramjet.portate.mDotGas; % portata
 eta_n = ramjet.ugello.etaN;
 
-%% calcolo gradenzze
+%% calcolo gradezze
 TI = T0I/(1 + (gamma-1)/2 * mach^2);
 P0I = P0I*0.98; %Pressione totale persa per afterburner (non attivo)
 NPR = P0I/PU; %Nozzle Pressure Ratio

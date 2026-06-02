@@ -15,7 +15,6 @@ function [motore] = Performance(motore)
     % SPINTA
     mDotGas = motore.portate.mDotGas;
     mDotAria = motore.portate.mDot;
-    f = motore.camera.f;
 
     F = mDotGas*uE - mDotAria*vVolo;
 

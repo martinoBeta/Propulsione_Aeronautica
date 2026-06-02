@@ -226,7 +226,7 @@ per = motore.performance
 figure
 plot(1:n_runs, fHistory, 'o-')
 xlabel('Run')
-ylabel('TSFC minimo')
+ylabel('Minimo della funzione obiettivo')
 grid on
 
 %% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
@@ -237,7 +237,7 @@ grid on
 figure
 plot(1:n_runs, cummin(fHistory), 'o-')
 xlabel('Run')
-ylabel('Minor TSFC finora')
+ylabel('Minimo cumulativo della funzione obiettivo')
 grid on
 
 
