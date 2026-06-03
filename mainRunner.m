@@ -37,7 +37,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 15;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -254,7 +254,7 @@ fprintf('Rapporto compressione π_c  = %.3f\n', motore.compressore.piC)
 fprintf('L_c                        = %.3f MW\n', motore.compressore.LC/1e6)
 fprintf('etaC                       = %.3f\n', motore.compressore.etaC)
 fprintf('Utip compressore           = %.3f m/s\n', motore.compressore.Utip)
-fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.M2)
+fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.mach2)
 fprintf('Mach relativo              = %.3f\n', motore.compressore.machRel)
 fprintf('Mach assoluto              = %.3f\n', motore.compressore.MachAbs)
 fprintf('Cp stadio                  = %.3f\n', motore.compressore.CpStadio)
@@ -329,7 +329,7 @@ end
 toc
 
 function [ineq, eq] = mycon(x, motoreBase)
-    FS = 0.98;
+    FS = 1;
     [~, motore] = runnerMotore(motoreBase, x); % <
     ineq = [ ... 
         motore.compressore.machRel   - 1 * FS;

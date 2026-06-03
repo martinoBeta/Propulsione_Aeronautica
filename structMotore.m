@@ -92,7 +92,7 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.M2 = 0.35;
+motore.presaAria.M2 = NaN;
 motore.presaAria.etaD = 0.975;
 motore.presaAria.piD = 0.95;
 

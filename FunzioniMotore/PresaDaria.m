@@ -163,7 +163,8 @@ function [motore] = PresaDaria(motore)
 
         % Ricavo i dati per la progettazione della gola:
         hGola = hCatt - LRampa12*sin(delta1) - LRampa23*sin(delta2);
-        AGola = hGola * wCatt;
+        AGola = mDot / (rho3 * V3);
+        wGola = AGola / hGola;
 
         ramjet.presaAria.T2         = T3;
         ramjet.presaAria.P2         = P3;
@@ -180,6 +181,8 @@ function [motore] = PresaDaria(motore)
         ramjet.presaAria.hCatt      = hCatt;
         ramjet.presaAria.hGola      = hGola;
         ramjet.presaAria.ACatt      = ACatt;
+        ramjet.presaAria.wCatt      = wCatt;
+        ramjet.presaAria.wGola      = wGola;
         ramjet.presaAria.A2         = AGola;
         ramjet.presaAria.piTot      = piTot;
         ramjet.presaAria.eta_d      = eta_d;
