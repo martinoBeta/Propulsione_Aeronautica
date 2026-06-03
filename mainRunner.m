@@ -491,7 +491,7 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.turbina.A5 - 0.8
         motore.camera.ARef - 0.8
         motore.turbina.nStadi - 5
-        motore.camera.LC - 1.8
+        % motore.camera.LC - 1.8
         motore.performance.TSFC - 0.14
 
         

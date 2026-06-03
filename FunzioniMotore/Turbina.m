@@ -22,19 +22,17 @@ function [motore] = Turbina(motore)
     % INIZIALIZZAZIONE DELLE VARIABILI
     propTurbina = motore.turbina;
     statore = propTurbina.statore;
-    rotore = propTurbina.rotore;
-    propTurbina.T04 = motore.camera.T04;
-    propTurbina.P04 = motore.camera.P04;        
+    rotore = propTurbina.rotore;  
     
     % TURBINA INPUT
-    T04 = propTurbina.T04;                      %Temperatura in ingresso turbina        [K]
-    P04 = propTurbina.P04;                      %Pressione in ingresso turbina          [Pa]
+    T04 = motore.camera.T04;                    %Temperatura in ingresso turbina        [K]
+    P04 = motore.camera.P04;                    %Pressione in ingresso turbina          [Pa]
     machIn = propTurbina.mach4;                 %Mach in ingresso turbina               []
     
     % DATI DA COMPRESSORE
-    uM = motore.compressore.UM;                %Velocitò pallette a raggio medio       [m/s]
-    rM = motore.compressore.rM3;             %Raggio medio da compressore            [m]
-    lCompressore = motore.compressore.LC;      %Lavoro compressore                     [W]
+    uM = motore.compressore.UM;                 %Velocitò pallette a raggio medio       [m/s]
+    rM = motore.compressore.rM3;                %Raggio medio da compressore            [m]
+    lCompressore = motore.compressore.LC;       %Lavoro compressore                     [W]
     TRaff = motore.compressore.T03;             %Temperatura aria raffredamento turbina [K]
     
     % TURBINA CONSTANTI

@@ -224,8 +224,6 @@ motore.compressore.NStadi = NaN;
     
     % IN
     turbina.mach4   = 0.5;
-    turbina.P04     = NaN;
-    turbina.T04     = NaN;
     turbina.rho4    = NaN;
 
     
