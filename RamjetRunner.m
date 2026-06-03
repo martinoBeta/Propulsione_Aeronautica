@@ -12,8 +12,8 @@ load('turbogetto.mat')
 tic
 
 % [parametri, rangeP] = structParametri();
-rangeP = [5 400; 1300 2100];
-parametri = [5; 1600];
+rangeP = [5 400; 1300 2100; 4 10];
+parametri = [5; 1600; 2];
 
 nvars = length(parametri);
 M     = max(400, 20*nvars);
@@ -43,7 +43,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 3;
+n_runs = 10;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -153,6 +153,7 @@ Aree = [
     ramjet.presaAria.A2
     ramjet.anulus.AIn
     ramjet.anulus.AOut
+    motore.turbina.A5
     ramjet.ugello.AStar
     ramjet.ugello.AE
 ];
@@ -162,6 +163,7 @@ nomiAree = {
     'A_2 ingresso anulus/fine presa.'
     'A_anulus area anulus ingresso'
     'A_a area anulus uscita'
+    'A post Bruciatore'
     'A^* ugello'
     'A_e ugello'};
 
@@ -173,6 +175,31 @@ xtickangle(35)
 ylabel('Area [m^2]')
 title('Aree principali del ramjet')
 
+%% diametri/ altezze principali ramjet
+RD = [
+    ramjet.presaAria.hCatt
+    ramjet.presaAria.hGola
+    ramjet.anulus.rIn
+    ramjet.anulus.rOut
+    motore.turbina.rt5
+    ramjet.ugello.AStar
+    ramjet.ugello.AE];
+
+nomiRD = {
+    'altezza di cattura' 
+    'alezza gola presadaria'
+    'anulus r2' 
+    'anulus r3' 
+    'post bruciatore' 
+    'gola ' 
+    'AE'};
+figure
+bar(RD)
+grid on
+set(gca,'XTickLabel',nomiRD)
+% xtickangle(35)
+ylabel('H/r [m]')
+title('H/raggi principali del ramjet')
 
 %% STAMPA RISULTATI A VIDEO
 fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')

@@ -1,5 +1,6 @@
 %% 
 clear 
+clc
 close all
 addpath("FunzioniMotore")
 motoreBase = structMotore();

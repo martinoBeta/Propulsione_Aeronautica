@@ -14,11 +14,12 @@ P0I   = ramjet.camera.P04;
 mach  = ramjet.camera.mach4;
 mdot  = ramjet.portate.mDotGas; % portata
 eta_n = ramjet.ugello.etaN;
+piC   = ramjet.ugello.piC;
 
 %% calcolo gradenzze
 TI  = T0I/(1 + (gamma-1)/2 * mach^2);
-P0I = P0I*0.98; % Pressione totale persa per afterburner (attivo)
-PE  = 4*PU; % Pressione in uscita
+P0I = P0I*0.96; % Pressione totale persa per afterburner (attivo)
+PE  = piC*PU; % Pressione in uscita
 NPR = P0I/PE; % Nozzle Pressure Ratio
 
 TE_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)

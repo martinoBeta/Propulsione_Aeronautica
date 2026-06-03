@@ -26,6 +26,7 @@ function [motore] = Parametri(motore,parametri)
         elseif regime == "supersonico"
             motore.portate.mDot = parametri(1);
             motore.camera.Tmax = parametri(2);
+            motore.ugello.piC  = parametri(3);
         end
 
 

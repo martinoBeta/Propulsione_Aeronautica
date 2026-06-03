@@ -1,11 +1,11 @@
-function [ramjet] = Anulus(ramjet)
+function [ramjet] = Anulus(ramjet,motore)
 % funzione che permette di dimensionare l'anulus del ramjet
 
 %% Estrazione Variabili
 T0I           = ramjet.presaAria.T02;     % Temperatura totale in ingresso
 P0I           = ramjet.presaAria.P02;     % Pressione totale in ingresso
 machIn        = ramjet.presaAria.M2;      % Numero di Mach
-rRam          = ramjet.turbina.rt5;       % Raggio interno
+rRam          = motore.turbina.rt5;       % Raggio interno
 mdot          = ramjet.portate.mDot;      % Portata
 rho           = ramjet.presaAria.rho2;
 VIn           = ramjet.presaAria.V2;

@@ -122,7 +122,7 @@ ramjet.anulus.AIn   = NaN;   % Area di ingresso dell'anulus
 ramjet.anulus.AOut  = NaN;   % Area di uscita
 ramjet.anulus.rIn   = NaN;   % Raggio esterno all'entrata del casing
 ramjet.anulus.rOut  = NaN;   % Raggio esterno all'uscita del casing
-ramjet.anulus.mach3 = 0.25;  % Numero di mach in uscita
+ramjet.anulus.mach3 = 0.6;  % Numero di mach in uscita
 ramjet.anulus.U     = NaN;   % Velocità in uscita
 
 
@@ -156,6 +156,7 @@ ramjet.ugello.AE    = NaN;              % area di efflusso
 ramjet.ugello.DE    = NaN;              % diametro di efflusso
 ramjet.ugello.PE    = NaN;              % Pressione di efflusso
 ramjet.ugello.P0E   = NaN;              % Pressione totale di efflusso
+ramjet.ugello.piC   = NaN;              % Fattore per compressione 
 
 
 %---------------------------------------------------------------------
