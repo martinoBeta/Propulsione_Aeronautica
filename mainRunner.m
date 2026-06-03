@@ -1,3 +1,4 @@
+%% 
 clear 
 close all
 addpath("FunzioniMotore")
@@ -37,7 +38,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 15;
+n_runs = 3;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -54,7 +55,7 @@ for i = 1:n_runs
     xHistory(i,:) = xi;
     [condDisEq, condEq] = nonlcon(xi);
     fprintf('  fval = %.4f\n', fi);
-    if fi < best_f && all(condDisEq <= 0) %&& all(condEq <= 0)
+    if fi < best_f && all(condDisEq <= 0) && all(condEq <= 0)
        best_f = fi;
        best_x = xi;
     end
@@ -69,8 +70,150 @@ fprintf('Best fval across all runs: %.4f\n', best_f);
 
 %% ── Post-process ──────────────────────────────────────────────────────────
 [T, motore] = runnerMotore(motoreBase, best_x);
-[z, u]       = mycon(best_x, motoreBase);
 
+%% Diagramma T-s reale del ciclo turbogetto
+
+gammaA = motore.fluidi.aria.gamma;
+RA     = motore.fluidi.aria.R;
+cpA    = motore.fluidi.aria.cp;
+
+gammaG = motore.fluidi.gas.gamma;
+RG     = motore.fluidi.gas.R;
+cpG    = motore.fluidi.gas.cp;
+
+N = 200;
+
+%% Stati statici reali
+
+% 0 - freestream
+T0 = motore.freestream.h12km.T0;
+P0 = motore.freestream.h12km.P0;
+
+% 2 - uscita presa / ingresso compressore
+T2 = motore.presaAria.T2;
+P2 = motore.presaAria.P2;
+
+% 3 - uscita compressore
+M3 = motore.compressore.mach3;
+T3 = motore.compressore.T03/(1 + (gammaA-1)/2*M3^2);
+P3 = motore.compressore.P03/(1 + (gammaA-1)/2*M3^2)^(gammaA/(gammaA-1));
+
+% 3.5 - uscita diffusore / ingresso camera
+M35 = motore.diffusore.mach35;
+T35 = motore.diffusore.T035/(1 + (gammaA-1)/2*M35^2);
+P35 = motore.diffusore.P035/(1 + (gammaA-1)/2*M35^2)^(gammaA/(gammaA-1));
+
+% 4 - uscita camera / ingresso turbina
+M4 = motore.turbina.mach4;
+T4 = motore.camera.T04/(1 + (gammaG-1)/2*M4^2);
+P4 = motore.camera.P04/(1 + (gammaG-1)/2*M4^2)^(gammaG/(gammaG-1));
+
+% 5 - uscita turbina
+M5 = motore.turbina.mach5;
+T5 = motore.turbina.T05/(1 + (gammaG-1)/2*M5^2);
+P5 = motore.turbina.P05/(1 + (gammaG-1)/2*M5^2)^(gammaG/(gammaG-1));
+
+% 6 - uscita ugello
+M6 = motore.ugello.mach6;
+T6 = motore.ugello.T06/(1 + (gammaG-1)/2*M6^2);
+P6 = motore.ugello.P06/(1 + (gammaG-1)/2*M6^2)^(gammaG/(gammaG-1));
+
+%% Funzioni
+
+entropiaAria = @(T,P,Tref,Pref,sref) ...
+    sref + (cpA*log(T./Tref) - RA*log(P./Pref))/1000;
+
+entropiaGas = @(T,P,Tref,Pref,sref) ...
+    sref + (cpG*log(T./Tref) - RG*log(P./Pref))/1000;
+
+poly_curve = @(Ti,Pi,Tf,Pf,N) deal( ...
+    linspace(Pi,Pf,N), ...
+    Ti*(linspace(Pi,Pf,N)/Pi).^(log(Tf/Ti)/log(Pf/Pi)) ); % Non rappresenta la vera trasformazione termodinamica
+%                                                           ma una sua approssimazione usando una legge esponenziale
+
+%% Entropie calcolate nei punti reali
+
+s0 = 0;
+s2  = entropiaAria(T2, P2, T0, P0, s0);
+s3  = entropiaAria(T3, P3, T2, P2, s2);
+s35 = entropiaAria(T35, P35, T3, P3, s3);
+
+s4  = entropiaGas(T4, P4, T35, P35, s35);
+s5  = entropiaGas(T5, P5, T4, P4, s4);
+s6  = entropiaGas(T6, P6, T5, P5, s5);
+
+%% Curve reali
+
+% 0 -> 2 presa reale
+[P02_curve,T02_curve] = poly_curve(T0,P0,T2,P2,N);
+s02_curve = entropiaAria(T02_curve,P02_curve,T0,P0,s0);
+
+% 2 -> 3 compressione reale
+[P23_curve,T23_curve] = poly_curve(T2,P2,T3,P3,N);
+s23_curve = entropiaAria(T23_curve,P23_curve,T2,P2,s2);
+
+% 3 -> 3.5 diffusore reale
+[P335_curve,T335_curve] = poly_curve(T3,P3,T35,P35,N);
+s335_curve = entropiaAria(T335_curve,P335_curve,T3,P3,s3);
+
+% 3.5 -> 4 combustione reale con perdita di pressione
+T354_curve = linspace(T35,T4,N);
+P354_curve = linspace(P35,P4,N);
+s354_curve = entropiaGas(T354_curve,P354_curve,T35,P35,s35);
+
+% 4 -> 5 espansione turbina reale
+[P45_curve,T45_curve] = poly_curve(T4,P4,T5,P5,N);
+s45_curve = entropiaGas(T45_curve,P45_curve,T4,P4,s4);
+
+% 5 -> 6 espansione ugello reale
+[P56_curve,T56_curve] = poly_curve(T5,P5,T6,P6,N);
+s56_curve = entropiaGas(T56_curve,P56_curve,T5,P5,s5);
+
+%% Plot
+
+figure
+hold on
+grid on
+box on
+
+plot(s02_curve,T02_curve,'LineWidth',1.6)
+plot(s23_curve,T23_curve,'LineWidth',1.8)
+plot(s335_curve,T335_curve,'LineWidth',1.6)
+plot(s354_curve,T354_curve,'LineWidth',1.8)
+plot(s45_curve,T45_curve,'LineWidth',1.8)
+plot(s56_curve,T56_curve,'LineWidth',1.6)
+
+s_points = [s0 s2 s3 s35 s4 s5 s6];
+T_points = [T0 T2 T3 T35 T4 T5 T6];
+labels = {'0','2','3','3.5','4','5','6'};
+
+plot(s_points,T_points,'ko','MarkerFaceColor','w','LineWidth',1.2)
+
+text(s0  -0.008 , T0  -30 , '0'  ,'FontSize',10)
+text(s2  -0.008, T2  +30 , '2'  ,'FontSize',10)
+
+text(s3  -0.008 , T3  +30 , '3'  ,'FontSize',10)
+text(s35 +0.005 , T35 +30 , '3.5','FontSize',10)
+
+text(s4  +0.006 , T4  +8  , '4'  ,'FontSize',10)
+text(s5  +0.006 , T5  +8  , '5'  ,'FontSize',10)
+text(s6  +0.006 , T6  +8  , '6'  ,'FontSize',10)
+
+plot([s6 s0],[T6 T0], ...
+    '--', ...
+    'Color',[0.5 0.5 0.5], ...
+    'LineWidth',1);
+
+xlabel('$s-s_0$ [kJ/(kg K)]','Interpreter','latex')
+ylabel('$T$ [K]','Interpreter','latex')
+title('Diagramma $T-s$ reale del ciclo turbogetto','Interpreter','latex')
+
+set(gca,'FontSize',11)
+hold off
+
+%%
+
+[z, u]       = mycon(best_x, motoreBase);
 
 turb = motore.turbina
 cam = motore.camera
@@ -83,7 +226,7 @@ per = motore.performance
 figure
 plot(1:n_runs, fHistory, 'o-')
 xlabel('Run')
-ylabel('TSFC minimo')
+ylabel('Minimo della funzione obiettivo')
 grid on
 
 %% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
@@ -94,7 +237,7 @@ grid on
 figure
 plot(1:n_runs, cummin(fHistory), 'o-')
 xlabel('Run')
-ylabel('Minor TSFC finora')
+ylabel('Minimo cumulativo della funzione obiettivo')
 grid on
 
 
@@ -317,7 +460,6 @@ fprintf('Norm ceq          = %.6e\n', norm(u))
 
 
 
-
 toc
 
 function X = lhs_sample(n, d)
@@ -329,8 +471,8 @@ end
 toc
 
 function [ineq, eq] = mycon(x, motoreBase)
-    FS = 1;
-    [~, motore] = runnerMotore(motoreBase, x); % <
+    FS = 0.98;
+    [~, motore] = runnerMotore(motoreBase, x); 
     ineq = [ ... 
         motore.compressore.machRel   - 1 * FS;
         0.72 - motore.compressore.deHaller;
@@ -341,19 +483,22 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.camera.phi            - 1.1;
         0.7   - motore.camera.phi;
         (0.1 - motore.turbina.rh5) / 0.1; 
-        - motore.compressore.h3 + 0.02;
+        - motore.compressore.h3 + 0.03;
         motore.presaAria.CPR - 0.78;
-        motore.compressore.NStadi - 12;
-        motore.diffusore.A35 - 1.0 
-        motore.turbina.A5 - 1
-        motore.camera.ARef - 1
+        motore.compressore.NStadi - 15;
+        motore.diffusore.A35 - 0.8 
+        motore.turbina.A5 - 0.8
+        motore.camera.ARef - 0.8
         motore.turbina.nStadi - 5
-        % motore.performance.TSFC - 0.1
+        motore.camera.LC - 1.8
+        motore.performance.TSFC - 0.14
 
         
     ];
     eq = [ motore.performance.F - 25000 ];
 end
+
+save('turbogetto.mat', 'motore');
 
 toc
 % Optimization finished: average change in the fitness value less than options.FunctionTolerance and constraint violation is less than options.ConstraintTolerance.

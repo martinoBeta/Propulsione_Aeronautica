@@ -92,21 +92,15 @@ motore.presaAria.T2 = NaN;
 motore.presaAria.P2 = NaN;
 motore.presaAria.T02 = NaN;
 motore.presaAria.P02 = NaN;
-motore.presaAria.M2 = NaN;
+motore.presaAria.mach2 = 0.5;
 motore.presaAria.etaD = 0.975;
 motore.presaAria.piD = 0.95;
 
 motore.presaAria.rho2 = NaN;
 motore.presaAria.V2 = NaN;
-motore.presaAria.A0 = 0.50;% <-------------- VALORE PROVVISORIO ( viene dall'ottimizzazione del ramjet)
+motore.presaAria.A0 = NaN;
 motore.presaAria.A2 = NaN;
 motore.presaAria.CPR = NaN;
-
-
-
-% T0I, P0I, TIn, P_in, rho_in, V_in, A0, Ain, pi_d, CPR
-
-
 
 %---------------------------------------------------------------------
 %% COMPRESSORE
@@ -141,8 +135,8 @@ motore.compressore.DRotore = NaN;
 motore.compressore.DStatore = NaN;
 motore.compressore.RStadio = NaN;
 motore.compressore.c_m = NaN;
-
 motore.compressore.NStadi = NaN;
+
     %%  DIFFUSORE ANULARE  (tra compressore e camera)
 
     % M_in e rm dipendono dall'uscita del compressore: vengono aggiornati
@@ -229,7 +223,7 @@ motore.compressore.NStadi = NaN;
     turbina.etaN        = NaN;
     
     % IN
-    turbina.mach4   = NaN;
+    turbina.mach4   = 0.5;
     turbina.P04     = NaN;
     turbina.T04     = NaN;
     turbina.rho4    = NaN;
@@ -294,7 +288,7 @@ motore.compressore.NStadi = NaN;
                 turbina.rotore.wz       = NaN;
                 turbina.rotore.wt       = NaN;
                 turbina.rotore.w        = NaN;
-                turbina.rotore.wmachOut = 0.8;
+                turbina.rotore.wmachOut = 0.85;
     
                 % geometria
                 turbina.rotore.h2      = NaN;
@@ -311,21 +305,22 @@ motore.compressore.NStadi = NaN;
 
 
     %% UGELLO
-    motore.ugello.etaN  = 0.9;              % Rendimento
+    motore.ugello.etaN  = 0.95;              % Rendimento
     motore.ugello.P06   = NaN;              % Pressione totale in uscita
     motore.ugello.T06   = NaN;              % Temperatura totale in uscita
     motore.ugello.mach6 = NaN;              % Numero di Mach
     motore.ugello.Ue    = NaN;              % velocità di efflusso
     motore.ugello.AStar = NaN;              % area di gola
     motore.ugello.AE    = NaN;              % area di efflusso
-    motore.ugello.DE    = NaN;              % diametro di efflusso 
+    motore.ugello.DE    = NaN;              % diametro di efflusso
+    motore.ugello.PE    = NaN;              % pressione di efflusso
 
 
     %% PERFORMANCE
     motore.performance.F         = NaN;
     motore.performance.etaGlobal = NaN;
-    motore.performance.TSFC     = NaN;
-    motore.performance.etaProp  = NaN;
-     motore.performance.etaTh  = NaN;
+    motore.performance.TSFC      = NaN;
+    motore.performance.etaProp   = NaN;
+    motore.performance.etaTh     = NaN;
 
 end

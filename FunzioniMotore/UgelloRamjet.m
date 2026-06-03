@@ -16,9 +16,10 @@ mdot  = ramjet.portate.mDotGas; % portata
 eta_n = ramjet.ugello.etaN;
 
 %% calcolo gradenzze
-TI = T0I/(1 + (gamma-1)/2 * mach^2);
-P0I = P0I*0.98; %Pressione totale persa per afterburner (non attivo)
-NPR = P0I/PU; %Nozzle Pressure Ratio
+TI  = T0I/(1 + (gamma-1)/2 * mach^2);
+P0I = P0I*0.98; % Pressione totale persa per afterburner (attivo)
+PE  = 4*PU; % Pressione in uscita
+NPR = P0I/PE; % Nozzle Pressure Ratio
 
 TE_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
 TE    = T0I - eta_n*(T0I-TE_is); % temperatura in uscita
@@ -27,7 +28,7 @@ Ue  = sqrt(2*Cp*(T0I-TE)); % velocità di efflusso
 mach = Ue/sqrt(gamma*R*TE);    %mach di efflusso
 
 T0U = T0I; % temperatura totale di efflusso
-P0U = PU*(1+((gamma-1)/2)*mach^2)^(gamma/(gamma-1)); % pressione totale di efflusso
+P0E = PE*(1+((gamma-1)/2)*mach^2)^(gamma/(gamma-1)); % pressione totale di efflusso
 
 AStar = (mdot/P0I)*sqrt(R*T0I/gamma)*((gamma+1)/2)^((gamma+1)/(2*(gamma-1))); % area di gola
 AE    = (AStar/mach)*((2/(gamma+1))*(1+(gamma-1)/2*mach^2))^((gamma+1)/(2*(gamma-1))); %area di efflusso
@@ -41,8 +42,10 @@ ramjet.ugello.Ue    = Ue;       % velocità di efflusso
 ramjet.ugello.AStar = AStar;    % area di gola
 ramjet.ugello.AE    = AE;       % area di efflusso
 ramjet.ugello.DE    = DE;       % diametro di efflusso  
+ramjet.ugello.PE    = PE;
+ramjet.ugello.P0E   = P0E;
 
-ramjet.ugello.P05   = P0U;
+ramjet.ugello.P05   = P0E;
 ramjet.ugello.T05   = T0U;
 
 end

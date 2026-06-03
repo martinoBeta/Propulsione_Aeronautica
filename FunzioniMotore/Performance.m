@@ -16,8 +16,16 @@ function [motore] = Performance(motore)
     mDotGas = motore.portate.mDotGas;
     mDotAria = motore.portate.mDot;
     f = motore.camera.f;
-
-    F = mDotGas*uE - mDotAria*vVolo;
+    
+    if regime == "subsonico"
+        F = mDotGas*uE - mDotAria*vVolo;
+    elseif regime == "supersonico"
+        AE = motore.ugello.AE;
+        PU = motore.freestream.h25km.P0;
+        PE = motore.ugello.PE;
+        F = mDotGas*uE - mDotAria*vVolo + AE*(PE-PU);
+    end
+    
 
     % TSFC
     TSFC = mDotComb/F*3600; %kg/(hN)

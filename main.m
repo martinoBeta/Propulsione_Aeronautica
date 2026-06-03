@@ -49,7 +49,7 @@ V2_vec = zeros(1,n);
 
 for i = 1:n
 
-    motore.presaAria.M2 = M2_range(i);
+    motore.presaAria.mach2 = M2_range(i);
 
     motore = PresaDaria(motore);
 
@@ -175,7 +175,7 @@ title('Aree presa al variare della portata aria')
 %--------------------------------------------------------------------------
 motore.compressore.piC = 12;
 motore.portate.mDot = 0.35;
-motore.presaAria.M2 = 0.35;
+motore.presaAria.mach2 = 0.35;
 
 
 %% ANALISI 1: vario il rapporto di compressione
@@ -285,7 +285,7 @@ title('Sezione uscita compressore')
 
 %% ANALISI 2: VARIO U
 
-motore.presaAria.M2 = 0.35;
+motore.presaAria.mach2 = 0.35;
 motore.compressore.piC = 9;
 
 Utip_range = 390:1:410;
@@ -419,7 +419,7 @@ DStatore_vec = zeros(1,n);
 
 for i = 1:n
 
-    motore.presaAria.M2 = mach2_range(i);
+    motore.presaAria.mach2 = mach2_range(i);
 
     motore = Compressore(motore);
 
