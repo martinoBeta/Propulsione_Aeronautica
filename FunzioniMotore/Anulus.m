@@ -24,7 +24,7 @@ rOut    = sqrt(AreaOut/pi + rRam^2);
 TU = T0I/(1+(gamma-1)/2*machOut^2);
 PU = P0I*(TU/T0I)^(gamma/(gamma-1));
 
-U=sqrt(gamma*R*TU);
+U = sqrt(gamma*R*TU);
 
 %% Assegnazione Variabili
 ramjet.anulus.rIn  = rIn;
