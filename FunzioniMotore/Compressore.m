@@ -48,8 +48,8 @@ function [motore] = Compressore(motore)
 
     P03 = piC * P02;
 
-    T02s = T02 * piC^((gamma - 1)/gamma);
-    T03  = T02 + (T02s - T02)/etaC;
+    T03s = T02 * piC^((gamma - 1)/gamma);
+    T03  = T02 + (T03s - T02)/etaC;
 
     lComp = cp * (T03 - T02);
     LComp = mDot * lComp;
