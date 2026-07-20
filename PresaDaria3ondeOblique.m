@@ -145,7 +145,8 @@ motore = ramjet;
 % FUNZIONI LOCALI
 
 function piTotVal = ottimizzaUrti(rRatio, M0, gamma, recPressTot)
-    % Calcola il recupero totale a partire da un dato rapporto di pressione statica
+    % Calcola il recupero totale a partire da un dato rapporto di pressione
+    % statica
     Mn = sqrt(1 + (rRatio-1)*(gamma+1)/(2*gamma));
     
     % Controlli di sicurezza per Mn
@@ -174,11 +175,11 @@ function piTotVal = ottimizzaUrti(rRatio, M0, gamma, recPressTot)
     M3 = Mn23 / sin(th3 - de3);
     if ~isreal(M3) || M3 <= 1; piTotVal = 0; return; end
     
-    % Recupero Totale (da minimizzare negativamente)
+    % Recupero Totale (da minimizzare)
     pi1 = recPressTot(Mn, gamma);
     pi2 = recPressTot(Mn, gamma);
     pi3 = recPressTot(Mn, gamma);
-    pi4 = recPressTot(M3, gamma); % Ultimo urto normale
-    
+    pi4 = recPressTot(M3, gamma); 
+
     piTotVal = pi1 * pi2 * pi3 * pi4;
 end
