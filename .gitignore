@@ -34,3 +34,5 @@ Figures/*.pdf
 viewMotore1.m
 dashboardMotore.m
 viewMotore.m
+dati_motore.json
+test/saveJason.m
