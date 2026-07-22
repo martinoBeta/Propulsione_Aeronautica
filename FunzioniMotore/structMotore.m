@@ -247,14 +247,14 @@ motore.compressore.NStadi = NaN;
     
     
         % Stadio
-            %velocità palette
-            turbina.U   = NaN;
-            % grado di reazione
-            turbina.R   = NaN;
-            % lavoro stadio
-            turbina.lStadio     = NaN;
-            turbina.nStadi      = NaN;
-            turbina.etaStadio   = NaN;
+        %velocità palette
+        turbina.U   = NaN;
+        % grado di reazione
+        turbina.R   = NaN;
+        % lavoro stadio
+        turbina.lStadio     = NaN;
+        turbina.nStadi      = NaN;
+        turbina.etaStadio   = NaN;
             % Statore
                 turbina.statore.a       = NaN;
                 turbina.statore.alpha   = NaN;
@@ -289,9 +289,15 @@ motore.compressore.NStadi = NaN;
                 turbina.rotore.wmachOut = 0.85;
     
                 % geometria
-                turbina.rotore.h2      = NaN;
+                turbina.rotore.hOut      = NaN;
+                turbina.rotore.rtOut     = NaN;
+                turbina.rotore.rhOut     = NaN;
+                turbina.rotore.hIn      = NaN;
                 turbina.rotore.rtIn     = NaN;
-                turbina.rotore.rh2     = NaN;
+                turbina.rotore.rhIn     = NaN;
+                
+
+                
         
         
         

@@ -68,7 +68,7 @@ function [motore] = Turbina(motore)
 
     %Calcolo della pressione a uscita della turbina
     betaP =  (T05/T04)^(gammaGas/((gammaGas-1)*etaP));
-    P0U = P04 * betaP;
+    P05 = P04 * betaP;
 
     % temperatura isoentropica
     T05Iso = T04*betaP^((gammaGas-1)/gammaGas);
@@ -76,12 +76,12 @@ function [motore] = Turbina(motore)
 
 
     % Lavoro isoentropico rafreddato
-    lIsoRaff = mDotGas*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
+    %lIsoRaff = mDotGas*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
  
     % rendimento adiabatico
    
-    etaN = lTurbina/lIsoRaff;
-    T0U = T05;
+    %etaNS = lTurbina/lIsoRaff;                                      % Rendimento piu correntto però diverso dalle slide
+    etaN = (1 - (T05/T04))/(1-(P05/P04)^((gammaGas-1)/gammaGas));
     
     % INLET TURBINE
     T4 = T04 /(1+(gammaGas-1)/2*machIn.^2);
@@ -94,7 +94,7 @@ function [motore] = Turbina(motore)
     v5z = v4z;                  %velocità assiale costante
     T5 = T05 - v5z^2/(2*cpGas);
     mach5 = sqrt((2/(gammaGas-1)) * ((T05/T5) - 1));
-    P5 =  P0U / (1 + (gammaGas - 1)/2 * mach5^2)^(gammaGas/(gammaGas - 1));
+    P5 =  P05 / (1 + (gammaGas - 1)/2 * mach5^2)^(gammaGas/(gammaGas - 1));
     rho5 = P5 / (RGas * T5);
     A5 = mDotGas/(rho5*v5z);
     
@@ -156,14 +156,17 @@ function [motore] = Turbina(motore)
       
 
       
-      % SEZIONI
-      % entrata rotore
-      rotore.AIn = mDotGas/(statore.rho*statore.vz);
-      rotore.hIn = rotore.AIn/(2*pi*rM);
-      rotore.rtIn = rM + rotore.hIn/2;
-      rotore.rhIn = rM - rotore.hIn/2;
-      % usicta rotore
-      rotore.AOut = mDotGas/(rotore.rho*rotore.vz);
+        % SEZIONI
+        % entrata rotore
+        rotore.AIn = mDotGas/(statore.rho*statore.vz);
+        rotore.hIn = rotore.AIn/(2*pi*rM);
+        rotore.rtIn = rM + rotore.hIn/2;
+        rotore.rhIn = rM - rotore.hIn/2;
+        % usicta rotore
+        rotore.AOut = mDotGas/(rotore.rho*rotore.vz);
+        rotore.hOut = rotore.AOut/(2*pi*rM);
+        rotore.rtOut = rM + rotore.hOut/2;
+        rotore.rhOut = rM - rotore.hOut/2;
 
 
 
@@ -191,13 +194,13 @@ function [motore] = Turbina(motore)
     % ---------------------------------------------------------------------
     % AGGIORNAMENTO DEGLI OUTPUT
     % output
-    propTurbina.P05 = P0U;
-    propTurbina.T05 = T0U;
+    propTurbina.P05 = P05;
+    propTurbina.T05 = T05;
     propTurbina.T05Iso = T05Iso;
     propTurbina.mach5 = mach5;
     propTurbina.rho4 = rho4;
     propTurbina.rho5 = rho5;
-    propTurbina.rp = P0U/P04;
+    propTurbina.rp = P05/P04;
     
     % Lavoro e rendimento
     propTurbina.lTurbina = lTurbina;
