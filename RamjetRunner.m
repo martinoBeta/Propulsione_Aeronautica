@@ -269,3 +269,5 @@ function [ineq, eq] = mycon(x, motoreBase, motore)
     ];
     eq = [ motore.performance.F - 65000 ];
 end
+
+save('ramjet.mat', 'ramjet');
