@@ -150,30 +150,42 @@ function piTotVal = ottimizzaUrti(rRatio, M0, gamma, recPressTot)
     Mn = sqrt(1 + (rRatio-1)*(gamma+1)/(2*gamma));
     
     % Controlli di sicurezza per Mn
-    if Mn <= 1 || Mn >= M0; piTotVal = 0; return; end
+    if Mn <= 1 || Mn >= M0; piTotVal = 0; 
+        return; 
+    end
     
     % Urto 1
     th1 = asin(Mn/M0);
     de1 = atan( 2*cot(th1) * (M0^2*sin(th1)^2 - 1) / (M0^2*(gamma+cos(2*th1)) + 2) );
     Mn21 = sqrt( (1+(gamma-1)/2*Mn^2) / (gamma*Mn^2 - (gamma-1)/2) );
     M1 = Mn21 / sin(th1 - de1);
-    if ~isreal(M1) || M1 <= 1; piTotVal = 0; return; end
+    if ~isreal(M1) || M1 <= 1; piTotVal = 0; 
+        return; 
+    end
     
     % Urto 2
-    if Mn >= M1; piTotVal = 0; return; end
+    if Mn >= M1; piTotVal = 0; 
+        return; 
+    end
     th2 = asin(Mn/M1);
     de2 = atan( 2*cot(th2) * (M1^2*sin(th2)^2 - 1) / (M1^2*(gamma+cos(2*th2)) + 2) );
     Mn22 = sqrt( (1+(gamma-1)/2*Mn^2) / (gamma*Mn^2 - (gamma-1)/2) );
     M2 = Mn22 / sin(th2 - de2);
-    if ~isreal(M2) || M2 <= 1; piTotVal = 0; return; end
+    if ~isreal(M2) || M2 <= 1; piTotVal = 0; 
+        return; 
+    end
     
     % Urto 3
-    if Mn >= M2; piTotVal = 0; return; end
+    if Mn >= M2; piTotVal = 0; 
+        return; 
+    end
     th3 = asin(Mn/M2);
     de3 = atan( 2*cot(th3) * (M2^2*sin(th3)^2 - 1) / (M2^2*(gamma+cos(2*th3)) + 2) );
     Mn23 = sqrt( (1+(gamma-1)/2*Mn^2) / (gamma*Mn^2 - (gamma-1)/2) );
     M3 = Mn23 / sin(th3 - de3);
-    if ~isreal(M3) || M3 <= 1; piTotVal = 0; return; end
+    if ~isreal(M3) || M3 <= 1; piTotVal = 0; 
+        return; 
+    end
     
     % Recupero Totale (da minimizzare)
     pi1 = recPressTot(Mn, gamma);
