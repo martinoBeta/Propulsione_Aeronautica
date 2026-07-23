@@ -1224,6 +1224,10 @@ grid on;
 hold on;
 
 %% traingolozzi
+T = motore.turbina;
+s = T.statore;
+r = T.rotore;
+
 figure('name', 'Statore/Rotore - vettori velocità')
 nexttile
 title('Statore')
@@ -1240,6 +1244,8 @@ quiver(s.wz, s.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
 legend("v2","w2","v3","w3","U")
 xlabel("velocità assiale [m/s]")
 ylabel("velocità radiale [m/s]")
+
+
 
 
 
