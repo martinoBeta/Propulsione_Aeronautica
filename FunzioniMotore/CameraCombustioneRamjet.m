@@ -1,6 +1,6 @@
 function [ramjet] = CameraCombustioneRamjet(ramjet, motore)
 
-% Estrazione variabili
+%% Estrazione variabili
 T0I      = ramjet.anulus.T03;
 P0I      = ramjet.anulus.P03;
 machIn   = ramjet.camera.machIn;
@@ -20,7 +20,7 @@ DeltaH   = ramjet.fluidi.combustibile.LHV;
 EtaC     = ramjet.camera.etaC;
 
 
-% Calcolo grandezze
+%% Calcolo grandezze
 
 ChamberArea = mDotAir * sqrt(T0I) / (P0I * machIn * sqrt(gammaA/RA) * ...
              (1 + (gammaA-1)/2 * machIn^2)^(-(gammaA+1)/(2*(gammaA-1))));
@@ -36,7 +36,7 @@ mDotGas  = mDotFuel+mDotAir;
 
 mach4     = U/sqrt(gammaG*RG*TMax);
 
-% Assegnazione variabili
+%% Assegnazione variabili
 ramjet.camera.T04       = T0U;
 ramjet.camera.P04       = P0U;
 ramjet.camera.f         = f;
