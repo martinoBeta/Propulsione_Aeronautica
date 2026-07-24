@@ -88,7 +88,7 @@ plot([xHinge, xMax], [yRoofCurve(end), yRoofCurve(end)], 'k-', 'LineWidth', 1.5)
 % --- Paratia Mobile ---
 dx_flap = xHinge - xE;
 P0_flap = [xE, yE];
-P1_flap = [xE + 0.35*dx_flap, yE - 0.35*dx_flap*tan(theta_flow)]; 
+P1_flap = [xE + 0.35*dx_flap, yE - 0.25*dx_flap*tan(theta_flow)]; 
 P2_flap = [xHinge - 0.35*dx_flap, yHinge];     
 P3_flap = [xHinge, yHinge];
 xFlap = bezier(P0_flap(1), P1_flap(1), P2_flap(1), P3_flap(1), t);
@@ -99,7 +99,7 @@ plot(xHinge, yHinge, 'o', 'MarkerSize', 6, 'MarkerFaceColor', [0.85 0.5 0], 'Mar
 % --- Pavimento Ramjet ---
 dx_floor = xHinge - xLip;
 P0_floor = [xLip, yLip];
-P1_floor = [xLip + 0.35*dx_floor, yLip - 0.35*dx_floor*tan(theta_flow)]; 
+P1_floor = [xLip + 0.35*dx_floor, yLip - 0.25*dx_floor*tan(theta_flow)]; 
 P2_floor = [xHinge - 0.35*dx_floor, yFloor];
 P3_floor = [xHinge, yFloor];
 xFloor = bezier(P0_floor(1), P1_floor(1), P2_floor(1), P3_floor(1), t);
