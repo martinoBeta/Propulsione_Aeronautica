@@ -19,7 +19,7 @@ M0     = ramjet.freestream.h25km.M0;
 % Aree e altezze
 A2_turbo = motore.presaAria.A2;
 h_comp   = 2*sqrt(A2_turbo / pi);
-A2Ram    = ramjet.presaAria.A2;
+A2Ram    = ramjet.anulus.AIn;
 
 % Deflessione totale del flusso
 theta_flow = d1 + d2 + d3; 
@@ -48,7 +48,7 @@ xHinge = xE + 0.80 * L_sup;
 xMax   = xHinge + 0.25 * L_sup; 
 
 yFloor = -0.45 * h;              
-yHinge = yFloor + A2Ram/wCatt;   
+yHinge = yFloor + sqrt(A2Ram/pi);   
 yRoof  = yHinge + h_comp;         
 
 % Funzione curve di Bezier Cubiche

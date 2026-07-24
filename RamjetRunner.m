@@ -179,11 +179,12 @@ title('Aree principali del ramjet')
 RD = [
     ramjet.presaAria.hCatt
     ramjet.presaAria.hGola
-    ramjet.anulus.rIn
-    ramjet.anulus.rOut
-    motore.turbina.rt5
-    ramjet.ugello.AStar
-    ramjet.ugello.AE];
+    2*ramjet.anulus.rIn
+    2*ramjet.anulus.rOut
+    2*sqrt(ramjet.camera.A/pi)
+    2*sqrt(ramjet.ugello.AStar/pi)
+    2*sqrt(ramjet.ugello.AE/pi)
+]
 
 nomiRD = {
     'altezza di cattura' 
@@ -200,6 +201,8 @@ set(gca,'XTickLabel',nomiRD)
 % xtickangle(35)
 ylabel('H/r [m]')
 title('H/raggi principali del ramjet')
+hold on
+bar([0,0,0,sqrt(motore.turbina.A5/pi)*2], 'FaceColor', [1,0,0])
 
 %% STAMPA RISULTATI A VIDEO
 fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')
@@ -271,3 +274,4 @@ function [ineq, eq] = mycon(x, motoreBase, motore)
 end
 
 save('ramjet.mat', 'ramjet');
+GraficoPresa
