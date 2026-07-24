@@ -153,7 +153,7 @@ Aree = [
     ramjet.presaAria.A2
     ramjet.anulus.AIn
     ramjet.anulus.AOut
-    motore.turbina.A5
+    ramjet.camera.A
     ramjet.ugello.AStar
     ramjet.ugello.AE
 ];

@@ -34,7 +34,7 @@ f        = (CpG*TMax-CpA*T0I)/(DeltaH*EtaC-CpG*TMax);
 mDotFuel = mDotAir*f;
 mDotGas  = mDotFuel+mDotAir;
 
-mach4     = U/sqrt(gammaG*RG*TMax);
+mach4 = sqrt((U^2)/(gammaG*RG*TMax - 0.5*(gammaG-1)*(U^2)));
 
 %% Assegnazione variabili
 ramjet.camera.T04       = T0U;
