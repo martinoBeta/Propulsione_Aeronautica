@@ -12,7 +12,7 @@ load('turbogetto.mat')
 tic
 
 % [parametri, rangeP] = structParametri();
-rangeP = [5 400; 1300 2100; 4 10];
+rangeP = [5 400;2100 2100; 4 10];
 parametri = [5; 1600; 2];
 
 nvars = length(parametri);
