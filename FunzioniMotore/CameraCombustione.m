@@ -66,13 +66,12 @@ function [motore] = CameraCombustione(motore)
     fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
     fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04 + cpF *Tfuel);
     
-    % Mi ricavo il rapporto di equivalenza:
+    % Rapporto di equivalenza:
     fStechio = 0.068;
     phi = fLiner/fStechio;
 
-    % Da questo posso ricavare la suddivisone di tra porta in ingresso nel
-    % liner e portata in ingresso nel casing, dalla formula di miscelazione
-    % adiabatica: 
+    % Suddivisone tra portata in ingresso nel liner e portata in ingresso 
+    % nel casing, attraverso la formula di miscelazione adiabatica: 
     % mDotAirCalda*(cpG*TComb-cpA*T03Primo) = mDotAir*(cpG*T04-cpA*T03Primo)
 
     mDotAirCalda = mDotAir * (cpG*T04-cpA*T03Primo) / (cpG*TComb-cpA*T03Primo);  % portata aria calda [kg/s]
@@ -97,11 +96,12 @@ function [motore] = CameraCombustione(motore)
     qRef = 0.5 * rho3 * URef^2;                  % pressione dinamica di riferimento [Pa]
     MRef = URef / sqrt(gammaG * Rg * T03Primo);  % Mach di riferimento [-]
 
-    % Per il tempo di residenza devo utilizzare i parametri del liner:
+    % Per il tempo di residenza si utilizzino i parametri del liner:
     ALiner = ARef * (mDotAirCalda/mDotAir);  % Area di riferimento del Liner
     rhoLiner = P3Statica / (Rg*TComb);
     ULiner = (mDotAirCalda+mDotComb)/(ALiner*rhoLiner);
     MLiner = ULiner / sqrt(gammaG * Rg * TComb);
+    
     % 4. DIMENSIONAMENTO VOLUMETRICO E LONGITUDINALE
     % Volume della camera da intensità di combustione: I = QDot / (V * P03)
     V  = QDot / (I * P03Primo);  % [m³]
