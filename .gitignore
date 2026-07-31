@@ -36,3 +36,4 @@ dashboardMotore.m
 viewMotore.m
 dati_motore.json
 test/saveJason.m
+compareStructs.m
