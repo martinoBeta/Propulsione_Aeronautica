@@ -101,7 +101,7 @@ function [motore] = Turbina(motore)
     h5 = A5/(2*pi*rM);
     rt5 = rM + h5/2;
     rh5 = rM - h5/2;
-
+   
 
     %% STADIO
     % Raggio medio uguale a quello del compressore e turbina monoalbero(Quindi anche U) 
@@ -116,17 +116,19 @@ function [motore] = Turbina(motore)
         statore.Tmisc = T04/(1+(gammaGas-1)/2);
         statore.P = P04 / (1 + (gammaGas - 1)/2)^(gammaGas/(gammaGas - 1));
         statore.rho = statore.P / (RGas * statore.Tmisc);
-        % velocità del suono dopo statore
-        statore.a = sqrt(statore.Tmisc*gammaGas*RGas);
+    
         % calcolo velocita all uscita dello statore
         statore.vz = v4z;
         statore.v = sqrt(gammaGas*RGas*statore.Tmisc);
         statore.vt = sqrt(statore.v^2-statore.vz^2);
         statore.T = T0M - statore.v^2/(2*cpGas);
+        % velocità del suono dopo statore
+        statore.a = sqrt(statore.T*gammaGas*RGas);
         % angolo statore.alpha
         statore.alpha = atan(statore.vt/statore.vz)*180/pi;
         % area all'uscita dello statore
-        statore.AOut = mDotGas/(statore.rho*statore.v);
+        statore.AOut = mDotGas*(1-raffPecentuale)/(statore.rho*statore.v);  
+
         
 
         % Velocità Relative
@@ -134,7 +136,7 @@ function [motore] = Turbina(motore)
         statore.wt = statore.vt- U;
         statore.w = sqrt(statore.wz^2+statore.wt^2);
         statore.AIn = A4;
-
+        
 
      % ROTORE
         % ricavo w3 da risoluzione problema pagina 20 cioè tutte le velocità
@@ -153,12 +155,13 @@ function [motore] = Turbina(motore)
         rotore.P0 = P04*(rotore.T0/T04)^(gammaGas/((gammaGas-1)*etaP));
         rotore.P = rotore.P0/(1+(gammaGas-1)/2*rotore.wmachOut^2)^((gammaGas)/(gammaGas-1));
         rotore.rho = rotore.P/(RGas*rotore.T);
-      
+        machInRotore = statore.v/statore.a;
+        rotore.rhoIn = P04 / (RGas * statore.T * (1 + (gammaGas - 1)/2 * machInRotore^2)^(gammaGas / (gammaGas - 1)));
 
       
         % SEZIONI
         % entrata rotore
-        rotore.AIn = mDotGas/(statore.rho*statore.vz);
+        rotore.AIn = mDotGas/(rotore.rhoIn*statore.vz);
         rotore.hIn = rotore.AIn/(2*pi*rM);
         rotore.rtIn = rM + rotore.hIn/2;
         rotore.rhIn = rM - rotore.hIn/2;
