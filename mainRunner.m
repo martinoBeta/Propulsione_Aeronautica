@@ -91,28 +91,28 @@ T0 = motore.freestream.h12km.T0;
 P0 = motore.freestream.h12km.P0;
 
 % 2 - uscita presa / ingresso compressore
-T2 = motore.presaAria.T2;
-P2 = motore.presaAria.P2;
+T2 = motore.presaAria.T02;
+P2 = motore.presaAria.P02;
 
 % 3 - uscita compressore
 M3 = motore.compressore.mach3;
-T3 = motore.compressore.T03/(1 + (gammaA-1)/2*M3^2);
-P3 = motore.compressore.P03/(1 + (gammaA-1)/2*M3^2)^(gammaA/(gammaA-1));
+T3 = motore.compressore.T03%/(1 + (gammaA-1)/2*M3^2);
+P3 = motore.compressore.P03%/(1 + (gammaA-1)/2*M3^2)^(gammaA/(gammaA-1));
 
 % 3.5 - uscita diffusore / ingresso camera
 M35 = motore.diffusore.mach35;
-T35 = motore.diffusore.T035/(1 + (gammaA-1)/2*M35^2);
-P35 = motore.diffusore.P035/(1 + (gammaA-1)/2*M35^2)^(gammaA/(gammaA-1));
+T35 = motore.diffusore.T035%/(1 + (gammaA-1)/2*M35^2);
+P35 = motore.diffusore.P035%/(1 + (gammaA-1)/2*M35^2)^(gammaA/(gammaA-1));
 
 % 4 - uscita camera / ingresso turbina
 M4 = motore.turbina.mach4;
-T4 = motore.camera.T04/(1 + (gammaG-1)/2*M4^2);
-P4 = motore.camera.P04/(1 + (gammaG-1)/2*M4^2)^(gammaG/(gammaG-1));
+T4 = motore.camera.T04%/(1 + (gammaG-1)/2*M4^2);
+P4 = motore.camera.P04%/(1 + (gammaG-1)/2*M4^2)^(gammaG/(gammaG-1));
 
 % 5 - uscita turbina
 M5 = motore.turbina.mach5;
-T5 = motore.turbina.T05/(1 + (gammaG-1)/2*M5^2);
-P5 = motore.turbina.P05/(1 + (gammaG-1)/2*M5^2)^(gammaG/(gammaG-1));
+T5 = motore.turbina.T05%/(1 + (gammaG-1)/2*M5^2);
+P5 = motore.turbina.P05%/(1 + (gammaG-1)/2*M5^2)^(gammaG/(gammaG-1));
 
 % 6 - uscita ugello
 M6 = motore.ugello.mach6;
@@ -186,19 +186,19 @@ plot(s56_curve,T56_curve,'LineWidth',1.6)
 
 s_points = [s0 s2 s3 s35 s4 s5 s6];
 T_points = [T0 T2 T3 T35 T4 T5 T6];
-labels = {'0','2','3','3.5','4','5','6'};
+labels = {'0','02','03','03.5','04','05','6'};
 
-plot(s_points,T_points,'ko','MarkerFaceColor','w','LineWidth',1.2)
+plot(s_points, T_points, 'ko', 'MarkerFaceColor', 'w', 'LineWidth', 0.1, 'MarkerSize', 3)
 
-text(s0  -0.008 , T0  -30 , '0'  ,'FontSize',10)
-text(s2  -0.008, T2  +30 , '2'  ,'FontSize',10)
+text(s0  -0.008 , T0  -30 , 'T_{0}'  ,'FontSize',8)
+text(s2  -0.008, T2  +30 , 'T_{02}'  ,'FontSize',8)
 
-text(s3  -0.008 , T3  +30 , '3'  ,'FontSize',10)
-text(s35 +0.005 , T35 +30 , '3.5','FontSize',10)
+text(s3  -0.008 , T3  +30 , 'T_{03}'  ,'FontSize',8)
+text(s35 +0.005 , T35 +30 , 'T_{03.5}','FontSize',8)
 
-text(s4  +0.006 , T4  +8  , '4'  ,'FontSize',10)
-text(s5  +0.006 , T5  +8  , '5'  ,'FontSize',10)
-text(s6  +0.006 , T6  +8  , '6'  ,'FontSize',10)
+text(s4  +0.006 , T4  +8  , 'T_{04}'  ,'FontSize',8)
+text(s5  +0.006 , T5  +8  , 'T_{05}'  ,'FontSize',8)
+text(s6  +0.006 , T6  +8  , 'T_{6}'  ,'FontSize',8)
 
 plot([s6 s0],[T6 T0], ...
     '--', ...
@@ -211,6 +211,8 @@ title('Diagramma $T-s$ reale del ciclo turbogetto','Interpreter','latex')
 
 set(gca,'FontSize',11)
 hold off
+xlim([-0.05 1.5])
+ylim([-20 1650])
 
 %%
 

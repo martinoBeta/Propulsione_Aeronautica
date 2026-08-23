@@ -24,7 +24,7 @@ end
 
 figs = findall(groot, 'Type', 'figure');
 W_cm = 24;
-H_cm = 16;
+H_cm = 8;
 
 for k = 1:length(figs)
     fig = figs(k);
