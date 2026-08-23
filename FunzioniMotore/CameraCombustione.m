@@ -63,7 +63,7 @@ function [motore] = CameraCombustione(motore)
     % Derivazione di fLiner e fGlobal dal bilancio entalpico tra ingresso e uscita:
     % Risolvendo per f = mDotComb / mDotAirCalda:
     Tfuel = 273.15;
-    fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb);
+    fLiner  = (cpG * TComb - cpA * T03Primo) / (LHV * etaB - cpG * TComb + cpF * Tfuel);
     fGlobal  = (cpG * T04 - cpA * T03Primo) / (LHV * etaB - cpG * T04 + cpF *Tfuel);
     
     % Rapporto di equivalenza:
