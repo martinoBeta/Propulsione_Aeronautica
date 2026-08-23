@@ -166,8 +166,6 @@ AGola = mDot / (rho2 * V2);
 wGola = AGola / hGola;
 
 deltaS = 0.1 * LSuper;
-deltaCaren = deg2rad(4);
-
 
 % 4. SALVATAGGIO IN STRUCT
 
@@ -202,7 +200,6 @@ ramjet.presaAria.wGola      = wGola;
 ramjet.presaAria.A2         = AGola;
 ramjet.presaAria.piTot      = piTot;
 ramjet.presaAria.deltaS     = deltaS;
-ramjet.presaAria.deltaCaren = deltaCaren;
 
 motore = ramjet;
 
