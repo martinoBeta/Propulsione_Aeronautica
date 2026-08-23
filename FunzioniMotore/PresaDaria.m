@@ -64,6 +64,7 @@ function [motore] = PresaDaria(motore)
 
         %% presaAria SUPERSONICA
 
+% SCRIPT per presa d'aria supersonica con 3 onde oblique
 ramjet = motore; 
 
 % COSTANTI E PARAMETRI INGRESSO
