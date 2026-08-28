@@ -1,4 +1,4 @@
-%% 
+    %% 
 clear 
 clc
 close all
@@ -39,7 +39,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 10;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -493,7 +493,7 @@ function [ineq, eq] = mycon(x, motoreBase)
         motore.turbina.A5 - 0.8
         motore.camera.ARef - 0.8
         motore.turbina.nStadi - 5
-        % motore.camera.LC - 1.8
+        motore.camera.LC - 1.001
         motore.performance.TSFC - 0.14
 
         

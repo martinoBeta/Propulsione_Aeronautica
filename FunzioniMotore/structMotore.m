@@ -170,7 +170,7 @@ motore.compressore.NStadi = NaN;
     motore.camera.rMedio             = NaN;  % raggio medio camera anulare   [m]
     motore.camera.perditaDinamica      = 20;    % fattore perdita dinamica ΔP/q [-]
     motore.camera.perditaPressione = 0.06;  % perdita pressione totale      [-]
-    motore.camera.I               = 100;   % intensità di combustione      [W/(m³·Pa)]
+    motore.camera.I               = 200;   % intensità di combustione      [W/(m³·Pa)]
     motore.camera.etaB           = 0.98;  % rendimento di combustione     [-]
 
     % Calcolati da Camera_di_combustione.m
