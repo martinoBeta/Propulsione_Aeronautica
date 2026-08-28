@@ -309,7 +309,8 @@ motore.compressore.NStadi = NaN;
 
 
     %% UGELLO
-    motore.ugello.etaN  = 0.95;              % Rendimento
+    motore.ugello.etaN  = 0.95;             % Rendimento
+    motore.ugello.piN   = 0.98;             % Perdita di pressione per postbruciatore
     motore.ugello.P06   = NaN;              % Pressione totale in uscita
     motore.ugello.T06   = NaN;              % Temperatura totale in uscita
     motore.ugello.mach6 = NaN;              % Numero di Mach

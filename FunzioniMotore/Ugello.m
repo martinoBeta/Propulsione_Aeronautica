@@ -10,20 +10,22 @@ gamma = motore.fluidi.gas.gamma;
 R     = motore.fluidi.gas.R;
 Cp    = motore.fluidi.gas.cp;
 T0I   = motore.turbina.T05;
-P0I   = motore.turbina.P05;
+P05   = motore.turbina.P05;
 mach  = motore.turbina.mach5;
 mdot  = motore.portate.mDotGas; % portata
 eta_n = motore.ugello.etaN;
+pi_n  = motore.ugello.piN;
 
 %% calcolo gradenzze
-TI = T0I/(1 + (gamma-1)/2 * mach^2);
+P0I = P05*pi_n;
+TI  = T0I/(1 + (gamma-1)/2 * mach^2);
 NPR = P0I/PU; %Nozzle Pressure Ratio
 
-TE_is = T0I*((NPR)^((1-gamma)/gamma)); % temperatura in uscita (ideale)
-TE    = T0I - eta_n*(T0I-TE_is); % temperatura in uscita
+TE_is = T0I*((NPR)^((1-gamma)/gamma));   % temperatura in uscita (ideale)
+TE    = T0I - eta_n*(T0I-TE_is);         % temperatura in uscita
 
-Ue  = sqrt(2*Cp*(T0I-TE)); % velocità di efflusso
-mach6 = Ue/sqrt(gamma*R*TE);    %mach di efflusso
+Ue    = sqrt(2*Cp*(T0I-TE));    % velocità di efflusso
+mach6 = Ue/sqrt(gamma*R*TE);    % mach di efflusso
 
 T0U = T0I; % temperatura totale di efflusso
 P0U = PU*(1+((gamma-1)/2)*mach6^2)^(gamma/(gamma-1)); % pressione totale di efflusso

@@ -18,7 +18,6 @@ piC   = ramjet.ugello.piC;
 
 %% calcolo gradenzze
 TI  = T0I/(1 + (gamma-1)/2 * mach4^2);
-P0I = P0I*0.96; % Pressione totale persa per afterburner (attivo)
 PE  = piC*PU; % Pressione in uscita
 NPR = P0I/PE; % Nozzle Pressure Ratio
 
