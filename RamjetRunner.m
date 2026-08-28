@@ -43,7 +43,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ───────────────────────────────────────────────────────────
-n_runs = 5;
+n_runs = 2;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -275,3 +275,195 @@ end
 
 save('ramjet.mat', 'ramjet');
 GraficoPresa
+
+
+%% DIAGRAMMA T-s DEL RAMJET
+
+
+% Proprietà
+cp_a    = ramjet.fluidi.aria.cp;
+R_a     = ramjet.fluidi.aria.R;
+gamma_a = ramjet.fluidi.aria.gamma;
+
+cp_g    = ramjet.fluidi.gas.cp;
+R_g     = ramjet.fluidi.gas.R;
+gamma_g = ramjet.fluidi.gas.gamma;
+
+%% ------------------------------------------------------------
+% STAZIONE 0
+% ------------------------------------------------------------
+
+M0  = ramjet.freestream.h25km.M0;
+T00 = ramjet.freestream.h25km.T00;
+P00 = ramjet.freestream.h25km.P00;
+
+T0 = T00/(1 + (gamma_a-1)/2*M0^2);
+P0 = P00/(1 + (gamma_a-1)/2*M0^2)^(gamma_a/(gamma_a-1));
+
+
+%% ------------------------------------------------------------
+% STAZIONE 2 - uscita presa
+% ------------------------------------------------------------
+
+M2  = ramjet.presaAria.M2;
+T02 = ramjet.presaAria.T02;
+P02 = ramjet.presaAria.P02;
+
+T2 = T02/(1 + (gamma_a-1)/2*M2^2);
+P2 = P02/(1 + (gamma_a-1)/2*M2^2)^(gamma_a/(gamma_a-1));
+
+
+%% ------------------------------------------------------------
+% STAZIONE 3 - uscita anulus
+% ------------------------------------------------------------
+
+M3  = ramjet.anulus.mach3;
+T03 = ramjet.anulus.T03;
+P03 = ramjet.anulus.P03;
+
+T3 = T03/(1 + (gamma_a-1)/2*M3^2);
+P3 = P03/(1 + (gamma_a-1)/2*M3^2)^(gamma_a/(gamma_a-1));
+
+
+%% ------------------------------------------------------------
+% STAZIONE 4 - uscita camera
+% ------------------------------------------------------------
+
+M4  = ramjet.camera.mach4;
+T04 = ramjet.camera.T04;
+P04 = ramjet.camera.P04;
+
+T4 = T04/(1 + (gamma_g-1)/2*M4^2);
+P4 = P04/(1 + (gamma_g-1)/2*M4^2)^(gamma_g/(gamma_g-1));
+
+
+%% ------------------------------------------------------------
+% STAZIONE 5 - uscita ugello
+% ------------------------------------------------------------
+
+M5 = ramjet.ugello.mach5;
+T5 = ramjet.ugello.T05/(1 + (gamma_g-1)/2*M5^2);
+P5 = ramjet.ugello.PE;
+
+
+
+% ENTROPIA RELATIVA
+s0 = 0;
+
+s2 = s0 + cp_a*log(T2/T0) ...
+        - R_a*log(P2/P0);
+
+s3 = s2 + cp_a*log(T3/T2) ...
+        - R_a*log(P3/P2);
+
+s4 = s3 + cp_g*log(T4/T3) ...
+        - R_g*log(P4/P3);
+
+s5 = s4 + cp_g*log(T5/T4) ...
+        - R_g*log(P5/P4);
+
+% J/(kg K) -> kJ/(kg K)
+s0 = s0/1000;
+s2 = s2/1000;
+s3 = s3/1000;
+s4 = s4/1000;
+s5 = s5/1000;
+
+
+% COSTRUZIONE DELLE CURVE
+N = 100;
+
+% 0 -> 2
+q = linspace(0,1,N);
+s02 = s0 + (s2-s0).*q;
+T02_curve = T0 + (T2-T0).*q;
+
+% 2 -> 3
+q = linspace(0,1,N);
+s23 = s2 + (s3-s2).*q;
+T23_curve = T2 + (T3-T2).*q;
+
+% 3 -> 4 : combustione
+q = linspace(0,1,N);
+s34 = s3 + (s4-s3).*q;
+T34_curve = T3 + (T4-T3).*q.^1.35;
+
+% 4 -> 5 : espansione
+q = linspace(0,1,N);
+s45 = s4 + (s5-s4).*q;
+T45_curve = T4 + (T5-T4).*q.^0.85;
+
+
+%% ============================================================
+% GRAFICO
+% ============================================================
+
+figure
+hold on
+box on
+grid on
+
+% 0 -> 2
+plot(s02,T02_curve, ...
+    'LineWidth',1.5)
+
+% 2 -> 3
+plot(s23,T23_curve, ...
+    'LineWidth',1.5)
+
+% 3 -> 4
+plot(s34,T34_curve, ...
+    'm','LineWidth',2)
+
+% 4 -> 5
+plot(s45,T45_curve, ...
+    'LineWidth',2)
+
+
+
+%% PUNTI
+
+plot(s0,T0,'o','MarkerSize',4,'LineWidth',1)
+plot(s2,T2,'o','MarkerSize',4,'LineWidth',1)
+plot(s3,T3,'o','MarkerSize',4,'LineWidth',1)
+plot(s4,T4,'o','MarkerSize',4,'LineWidth',1)
+plot(s5,T5,'o','MarkerSize',4,'LineWidth',1)
+
+% ============================================================
+% ETICHETTE
+% Posizionate manualmente per evitare sovrapposizioni
+
+text(s0+0.015,T0-30, ...
+    '$T_0$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s2+0.015,T2+35, ...
+    '$T_2$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s3+0.020,T3+65, ...
+    '$T_3$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s4+0.020,T4-20, ...
+    '$T_4$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s5+0.020,T5, ...
+    '$T_5$', ...
+    'Interpreter','latex','FontSize',10)
+
+
+
+% ASSI
+xlabel('$s-s_0\;[\mathrm{kJ/(kg\,K)}]$', ...
+    'Interpreter','latex')
+
+ylabel('$T\;[\mathrm{K}]$', ...
+    'Interpreter','latex')
+
+set(gca, ...
+    'FontSize',10, ...
+    'TickLabelInterpreter','latex')
+
+hold off
