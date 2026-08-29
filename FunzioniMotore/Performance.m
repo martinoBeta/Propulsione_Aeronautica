@@ -19,11 +19,13 @@ function [motore] = Performance(motore)
     
     if regime == "subsonico"
         F = mDotGas*uE - mDotAria*vVolo;
+        uEq = uE;
     elseif regime == "supersonico"
         AE = motore.ugello.AE;
         PU = motore.freestream.h25km.P0;
         PE = motore.ugello.PE;
         F = mDotGas*uE - mDotAria*vVolo + AE*(PE-PU);
+        uEq = uE + (AE*(PE-PU))/mDotGas;
     end
     
 
@@ -36,10 +38,10 @@ function [motore] = Performance(motore)
     etaGlobal = F*vVolo/(mDotComb*LHV);
     
     % Rendimento Termodinamico 
-    etaTh = (0.5*mDotGas*uE^2 - 0.5*mDotAria*vVolo^2)/(mDotComb*LHV);
+    etaTh = (0.5*mDotGas*uEq^2 - 0.5*mDotAria*vVolo^2)/(mDotComb*LHV);
 
     % Rendimento Propulsivo
-    etaProp = F*vVolo/(0.5*mDotGas*uE^2 - 0.5*mDotAria*vVolo^2);
+    etaProp = F*vVolo/(0.5*mDotGas*uEq^2 - 0.5*mDotAria*vVolo^2);
 
     % spinta specifica
     ISP = F/mDotAria;

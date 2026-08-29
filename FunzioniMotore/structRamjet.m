@@ -122,21 +122,22 @@ ramjet.anulus.AIn   = NaN;   % Area di ingresso dell'anulus
 ramjet.anulus.AOut  = NaN;   % Area di uscita
 ramjet.anulus.rIn   = NaN;   % Raggio esterno all'entrata del casing
 ramjet.anulus.rOut  = NaN;   % Raggio esterno all'uscita del casing
-ramjet.anulus.mach3 = 0.6;  % Numero di mach in uscita
+ramjet.anulus.mach3 = 0.6;   % Numero di mach in uscita
 ramjet.anulus.U     = NaN;   % Velocità in uscita
 
 
 %---------------------------------------------------------------------
 %% CAMERA DI COMBUSTIONE
 %---------------------------------------------------------------------
-ramjet.camera.Tmax  = 2100;        % Temperatura massima  [K]
-ramjet.camera.pi_ab = 0.96;        % Rendimento pneumatico
-ramjet.camera.r     = NaN;         % Raggio camera di combustione/postbruciatore
-ramjet.camera.LH    = 0.3;         % Rapporto lunghezza/diametro
-ramjet.camera.B     = 0.25;        % Bloccaggio
-ramjet.camera.etaC  = 0.98;        % Efficienza di combustione
+ramjet.camera.Tmax    = 2100;        % Temperatura massima  [K]
+ramjet.camera.pi_ab   = 0.96;        % Rendimento pneumatico
+ramjet.camera.r       = NaN;         % Raggio camera di combustione/postbruciatore
+ramjet.camera.LH      = 0.3;         % Rapporto lunghezza/diametro
+ramjet.camera.B       = 0.25;        % Bloccaggio
+ramjet.camera.etaC    = 0.98;        % Efficienza di combustione
+ramjet.camera.machIn  = 0.25;         % Numero di mach in ingresso
 
-ramjet.camera.mach4   = NaN;          % Numero di mach
+ramjet.camera.mach4   = NaN;          % Numero di mach in uscita
 ramjet.camera.T04     = NaN;          % Temperatura in uscita
 ramjet.camera.P04     = NaN;          % Pressione in uscita
 ramjet.camera.f       = NaN;
@@ -156,7 +157,7 @@ ramjet.ugello.AE    = NaN;              % area di efflusso
 ramjet.ugello.DE    = NaN;              % diametro di efflusso
 ramjet.ugello.PE    = NaN;              % Pressione di efflusso
 ramjet.ugello.P0E   = NaN;              % Pressione totale di efflusso
-ramjet.ugello.piC   = NaN;              % Fattore per compressione 
+ramjet.ugello.piC   = 2.5;
 
 
 %---------------------------------------------------------------------
@@ -169,6 +170,6 @@ ramjet.performance.ISP       = NaN;
 ramjet.performance.TSFC      = NaN;
 ramjet.performance.etaProp   = NaN;
 
-ramjet.turbina.rt5           = 0.4;%0.208;
+ramjet.turbina.rt5           = 0.4;
 
 end

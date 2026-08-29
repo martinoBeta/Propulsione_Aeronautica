@@ -1,10 +1,10 @@
-clc
-clear 
-close all
+% clc
+% clear 
+% close all
 addpath("FunzioniMotore")
 
 ramjetBase = structRamjet();
-load('turbogetto.mat')
+%load('turbogetto.mat')
 
 % DA COMPLETARE!! % 
 

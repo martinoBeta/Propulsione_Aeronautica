@@ -12,5 +12,5 @@ function [opt,motore] = runnerMotore(motore,parametri)
     % max_radius = max(motore.turbina.rt5,(motore.compressore.rM3+motore.compressore.h3/2));%1/motore.performance.etaGlobal;%motore.performance.TSFC;
     %opt = motore.performance.TSFC;% max_radius;
 
-    opt = 1/motore.performance.ISP;
+    opt = -motore.performance.ISP;
 end
