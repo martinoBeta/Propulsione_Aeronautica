@@ -110,10 +110,7 @@ function [motore] = CameraCombustione(motore)
     Lc = V / ARef;                % [m]
     
     % Verifica tempo di residenza:
-    tRes = Lc/ULiner;
-    % if tRes < 8e-3
-    %     warning('Tempo di residenza minore di quello necessario (0.008s)')
-    % end
+    tRes = Lc/URef;
 
     % 5. CONDIZIONI DI USCITA
     P04 = (1 - perditaPressione) * P03Primo;   % pressione totale uscita [Pa]
