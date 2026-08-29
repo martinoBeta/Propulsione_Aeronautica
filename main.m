@@ -1,1342 +1,964 @@
-clc
+%% =======================================================================
+%  NOME DELLO SCRIPT: main.m
+%  AUTORI: Luca Borghi, Martino Maria Colciago, Giovanni De Stefano, Adriano Pattacini
+%  DATA: 16/07/2026
+%  DESCRIZIONE: Script per il dimensionamento preliminare e l'ottimizzazione
+%               di un motore a ciclo variabile (Turbogetto / Ramjet).
+%% =======================================================================
+
+
+
+%% -----------------------------------------------------------------------
+%  1. OTTIMIZZAZIONE DEL TURBOGETTO
+%  -----------------------------------------------------------------------
+
 clear 
+clc
 close all
 
-addpath("FunzioniMotore")
-motore = structMotore();
-
-%impostazione per latex
-%% 
-set(groot, ...
-    'defaultTextInterpreter', 'latex', ...
-    'defaultAxesTickLabelInterpreter', 'latex', ...
-    'defaultLegendInterpreter', 'latex', ...
-    'defaultColorbarTickLabelInterpreter', 'latex', ...
-    'defaultAxesFontSize', 14, ...
-    'defaultTextFontSize', 14, ...
-    'defaultLegendFontSize', 14, ...
-    'defaultAxesFontName', 'Latin Modern Roman');
+addpath("/FunzioniMotore")
+motoreBase = structMotore();
 
 
-% %%
-% % calcolo portata necessaria per mach 0.85 e 25Kn di spinta
-% rho_12000 = 0.31;
-% mach = 0.85;
-% R = 8314/29;
-% gamma = 1.3;
-% T_12000   = -56.5+273.15;
-% v_exitstimata = 900;
-% v_volo = mach * sqrt(R*gamma*T_12000);
-% % Spinta = mdot(ve-v_volo)
-% spinta = 25000;
-% mdot = spinta/(v_exitstimata-v_volo);
-% motore.portate.mDotAir = mdot;
+% ── OTTIMIZZAZIONE ──────────────────────────────────────────────────────
+tic
 
-%% ------------------------------------------------------------------------
-%                               PRESA D'ARIA
-%--------------------------------------------------------------------------
-motore.presaAria.regime = "subsonico";
+[parametri, rangeP] = structParametri();
 
+nvars = length(parametri);
+M     = max(400, 20*nvars);
+lb    = rangeP(:,1)';
+ub    = rangeP(:,2)';
 
-%% ANALISI 1: vario M2
-M2_range = 0.25:0.01:0.55;
-n = length(M2_range);
+fun     = @(x) runnerMotore(motoreBase, x);
+nonlcon = @(x) myconTurbo(x, motoreBase);
 
-A2_vec = zeros(1,n);
-CPR_vec = zeros(1,n);
-P2_vec = zeros(1,n);
-V2_vec = zeros(1,n);
+% ── GA options ──────────────────────────────────────────────────────────
+hybrid_opts = optimoptions('fmincon', ...
+    'Display',           'none', ...
+    'Algorithm',         'sqp', ...
+    'StepTolerance',     1e-6, ...
+    'FunctionTolerance', 1e-6);
 
-for i = 1:n
+options_ga = optimoptions('ga', ...
+    'PopulationSize',      M, ...
+    'UseParallel',         false, ...
+    'MaxGenerations',      120, ...
+    'FunctionTolerance',   1e-4, ...
+    'MaxStallGenerations', 15, ...
+    'Display',             'iter', ...
+    'MaxTime',             60, ...
+    'EliteCount',          ceil(0.10*M), ...
+    'CrossoverFraction',   0.8, ...
+    'HybridFcn',           {@fmincon, hybrid_opts});
 
-    motore.presaAria.mach2 = M2_range(i);
+% ── Multi-start ─────────────────────────────────────────────────────────
+n_runs = 150;
+best_f = inf;
+best_x = [];
+fHistory = zeros(n_runs,1);
+xHistory = zeros(n_runs,nvars);
 
-    motore = PresaDaria(motore);
+for i = 1:n_runs
+    fprintf('Run %d/%d ...\n', i, n_runs);
 
-    A2_vec(i) = motore.presaAria.A2;
-    CPR_vec(i) = motore.presaAria.CPR;
-    P2_vec(i) = motore.presaAria.P2;
-    V2_vec(i) = motore.presaAria.V2;
+    init_pop = lb + lhs_sample(M, nvars) .* (ub - lb);
+    options_ga = optimoptions(options_ga, 'InitialPopulationMatrix', init_pop);
 
+    [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
+    fHistory(i) = fi;
+    xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
+    fprintf('  fval = %.4f\n', fi);
+    if fi < best_f && all(condDisEq <= 0) && all(condEq <= 0)
+       best_f = fi;
+       best_x = xi;
+    end
 end
 
+if isempty(best_x)
+    error('Nessuna soluzione fattibile trovata')
+end
+
+x1 = best_x;
+fprintf('Best fval across all runs: %.4f\n', best_f);
+
+% ── Post-process ────────────────────────────────────────────────────────
+[T, motore] = runnerMotore(motoreBase, best_x);
+[z, u]  = myconTurbo(best_x, motoreBase);
+
+% ── Diagramma T-s reale del ciclo turbogetto ────────────────────────────
+
+gammaA = motore.fluidi.aria.gamma;
+RA     = motore.fluidi.aria.R;
+cpA    = motore.fluidi.aria.cp;
+
+gammaG = motore.fluidi.gas.gamma;
+RG     = motore.fluidi.gas.R;
+cpG    = motore.fluidi.gas.cp;
+
+N = 200;
+
+% Stati statici reali
+% 0 - freestream
+T0 = motore.freestream.h12km.T0;
+P0 = motore.freestream.h12km.P0;
+
+% 2 - uscita presa / ingresso compressore
+T2 = motore.presaAria.T02;
+P2 = motore.presaAria.P02;
+
+% 3 - uscita compressore
+M3 = motore.compressore.mach3;
+T3 = motore.compressore.T03;
+P3 = motore.compressore.P03;
+
+% 3.5 - uscita diffusore / ingresso camera
+M35 = motore.diffusore.mach35;
+T35 = motore.diffusore.T035;
+P35 = motore.diffusore.P035;
+
+% 4 - uscita camera / ingresso turbina
+M4 = motore.turbina.mach4;
+T4 = motore.camera.T04;
+P4 = motore.camera.P04;
+
+% 5 - uscita turbina
+M5 = motore.turbina.mach5;
+T5 = motore.turbina.T05;
+P5 = motore.turbina.P05;
+
+% 6 - uscita ugello
+M6 = motore.ugello.mach6;
+T6 = motore.ugello.T06/(1 + (gammaG-1)/2*M6^2);
+P6 = motore.ugello.P06/(1 + (gammaG-1)/2*M6^2)^(gammaG/(gammaG-1));
+
+% Funzioni
+
+entropiaAria = @(T,P,Tref,Pref,sref) ...
+    sref + (cpA*log(T./Tref) - RA*log(P./Pref))/1000;
+
+entropiaGas = @(T,P,Tref,Pref,sref) ...
+    sref + (cpG*log(T./Tref) - RG*log(P./Pref))/1000;
+
+poly_curve = @(Ti,Pi,Tf,Pf,N) deal( ...
+    linspace(Pi,Pf,N), ...
+    Ti*(linspace(Pi,Pf,N)/Pi).^(log(Tf/Ti)/log(Pf/Pi)) ); % Non rappresenta la vera trasformazione termodinamica
+%                                                           ma una sua approssimazione usando una legge esponenziale
+
+% Entropie calcolate nei punti reali
+
+s0 = 0;
+s2  = entropiaAria(T2, P2, T0, P0, s0);
+s3  = entropiaAria(T3, P3, T2, P2, s2);
+s35 = entropiaAria(T35, P35, T3, P3, s3);
+
+s4  = entropiaGas(T4, P4, T35, P35, s35);
+s5  = entropiaGas(T5, P5, T4, P4, s4);
+s6  = entropiaGas(T6, P6, T5, P5, s5);
+
+% Curve reali
+
+% 0 -> 2 presa reale
+[P02_curve,T02_curve] = poly_curve(T0,P0,T2,P2,N);
+s02_curve = entropiaAria(T02_curve,P02_curve,T0,P0,s0);
+
+% 2 -> 3 compressione reale
+[P23_curve,T23_curve] = poly_curve(T2,P2,T3,P3,N);
+s23_curve = entropiaAria(T23_curve,P23_curve,T2,P2,s2);
+
+% 3 -> 3.5 diffusore reale
+[P335_curve,T335_curve] = poly_curve(T3,P3,T35,P35,N);
+s335_curve = entropiaAria(T335_curve,P335_curve,T3,P3,s3);
+
+% 3.5 -> 4 combustione reale con perdita di pressione
+T354_curve = linspace(T35,T4,N);
+P354_curve = linspace(P35,P4,N);
+s354_curve = entropiaGas(T354_curve,P354_curve,T35,P35,s35);
+
+% 4 -> 5 espansione turbina reale
+[P45_curve,T45_curve] = poly_curve(T4,P4,T5,P5,N);
+s45_curve = entropiaGas(T45_curve,P45_curve,T4,P4,s4);
+
+% 5 -> 6 espansione ugello reale
+[P56_curve,T56_curve] = poly_curve(T5,P5,T6,P6,N);
+s56_curve = entropiaGas(T56_curve,P56_curve,T5,P5,s5);
+
+% ── Plot ────────────────────────────────────────────────────────────────
+
+
+% Cilco Termodinamico Reale T-s
 figure
-
-subplot(2,1,1)
-plot(M2_range, A2_vec, 'LineWidth',1.5)
-grid on
-xlabel('M_2')
-ylabel('A_2 [m^2]')
-title('Area uscita presa / ingresso compressore')
-
-subplot(2,1,2)
-plot(M2_range, CPR_vec, 'LineWidth',1.5)
 hold on
-yline(0.6,'--r','Limite CPR = 0.6')
 grid on
-xlabel('M_2')
-ylabel('CPR')
-title('Pressure recovery statico')
+box on
 
-%% ANALISI 2: vario M0
-M0_range = 0.83:0.005:0.87;
-n = length(M0_range);
+plot(s02_curve,T02_curve,'LineWidth',1.6)
+plot(s23_curve,T23_curve,'LineWidth',1.8)
+plot(s335_curve,T335_curve,'LineWidth',1.6)
+plot(s354_curve,T354_curve,'LineWidth',1.8)
+plot(s45_curve,T45_curve,'LineWidth',1.8)
+plot(s56_curve,T56_curve,'LineWidth',1.6)
 
-A_cattura_vec = zeros(1,n);
-A2_vec = zeros(1,n);
-CPR_vec = zeros(1,n);
-A_ingresso_vec = zeros(1,n);
+s_points = [s0 s2 s3 s35 s4 s5 s6];
+T_points = [T0 T2 T3 T35 T4 T5 T6];
+labels = {'0','02','03','03.5','04','05','6'};
 
-for i = 1:n
+plot(s_points, T_points, 'ko', 'MarkerFaceColor', 'w', 'LineWidth', 0.1, 'MarkerSize', 3)
 
-    M0 = M0_range(i);
+text(s0  -0.008 , T0  -30 , 'T_{0}'  ,'FontSize',8)
+text(s2  -0.008, T2  +30 , 'T_{02}'  ,'FontSize',8)
 
-    motore.freestream.h12km.M0 = M0;
-    motore.freestream.h12km.V0 = M0 * motore.freestream.h12km.a0;
+text(s3  -0.008 , T3  +30 , 'T_{03}'  ,'FontSize',8)
+text(s35 +0.005 , T35 +30 , 'T_{03.5}','FontSize',8)
 
-    T0 = motore.freestream.h12km.T0;
-    P0 = motore.freestream.h12km.P0;
-    gamma = motore.fluidi.aria.gamma;
+text(s4  +0.006 , T4  +8  , 'T_{04}'  ,'FontSize',8)
+text(s5  +0.006 , T5  +8  , 'T_{05}'  ,'FontSize',8)
+text(s6  +0.006 , T6  +8  , 'T_{6}'  ,'FontSize',8)
 
-    motore.freestream.h12km.T00 = T0 * (1 + (gamma - 1)/2 * M0^2);
-    motore.freestream.h12km.P00 = P0 * (1 + (gamma - 1)/2 * M0^2)^(gamma/(gamma - 1));
+plot([s6 s0],[T6 T0], ...
+    '--', ...
+    'Color',[0.5 0.5 0.5], ...
+    'LineWidth',1);
 
-    motore = PresaDaria(motore);
+xlabel('$s-s_0$ [kJ/(kg K)]','Interpreter','latex')
+ylabel('$T$ [K]','Interpreter','latex')
+title('Diagramma $T-s$ reale del ciclo turbogetto','Interpreter','latex')
 
-    A_ingresso_vec(i) = motore.presaAria.A0;
-    A2_vec(i) = motore.presaAria.A2;
-    CPR_vec(i) = motore.presaAria.CPR;
+set(gca,'FontSize',11)
+hold off
+xlim([-0.05 1.5])
+ylim([-20 1650])
 
-end
+
+% ANDAMENTO TSFC MINIMO PER OGNI RUN
+figure
+plot(1:n_runs, fHistory, 'o-')
+xlabel('Run')
+ylabel('Minimo della funzione obiettivo')
+grid on
+
+% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
+% Il grafico mostra il minimo cumulativo della funzione obiettivo
+% ottenuto attraverso diverse run indipendenti del GA. Ogni run parte
+% da un seed casuale differente, mentre il grafico tiene traccia della
+% migliore soluzione trovata fino a quel momento.
+figure
+plot(1:n_runs, cummin(fHistory), 'o-')
+xlabel('Run')
+ylabel('Minimo cumulativo della funzione obiettivo')
+grid on
+
+
+% ── PLOT GRAFICI MOTORE ──────────────────────────────────────────────────
+
+% Pressioni totali lungo il motore
+
+Ptot = [
+    motore.freestream.h12km.P00
+    motore.presaAria.P02
+    motore.compressore.P03
+    motore.diffusore.P035
+    motore.camera.P04
+    motore.turbina.P05
+    motore.ugello.P06
+];
+
+stazioni = {'0','2','3','3.5','4','5','6'};
 
 figure
-
-subplot(3,1,1)
-plot(M0_range, A_ingresso_vec, 'LineWidth',1.5)
+plot(1:length(Ptot), Ptot/1000, '-o', 'LineWidth',1.5)
 grid on
-xlabel('M_0')
-ylabel('A_{ingresso} [m^2]')
-title('Area ingresso presa')
-
-subplot(3,1,2)
-plot(M0_range, A2_vec, 'LineWidth',1.5)
-grid on
-xlabel('M_0')
-ylabel('A_2 [m^2]')
-title('Area uscita presa')
-
-subplot(3,1,3)
-plot(M0_range, CPR_vec, 'LineWidth',1.5)
-hold on
-yline(0.6,'--r','Limite CPR = 0.6')
-grid on
-xlabel('M_0')
-ylabel('CPR')
-title('CPR al variare di M_0')
+xticks(1:length(Ptot))
+xticklabels(stazioni)
+xlabel('Stazione motore')
+ylabel('P_0 [kPa]')
+title('Pressione totale lungo il motore')
 
 
+% Temperature totali lungo il motore
 
-%% ANALISI PRESA 3: VARIO mDotAir
-
-
-mDotAir_range = 25:1:50;
-n = length(mDotAir_range);
-
-A_ingresso_vec = zeros(1,n);
-A2_vec = zeros(1,n);
-
-for i = 1:n
-
-    motore.portate.mDotAir = mDotAir_range(i);
-
-    motore = PresaDaria(motore);
-
-   
-    A_ingresso_vec(i) = motore.presaAria.A0;
-    A2_vec(i) = motore.presaAria.A2;
-
-end
+Ttot = [
+    motore.freestream.h12km.T00
+    motore.presaAria.T02
+    motore.compressore.T03
+    motore.diffusore.T035
+    motore.camera.T04
+    motore.turbina.T05
+    motore.ugello.T06
+];
 
 figure
-
-
-plot(mDotAir_range, A_ingresso_vec,  'LineWidth',1.5)
-hold on;
-plot(mDotAir_range, A2_vec, 'LineWidth',1.5)
+plot(1:length(Ttot), Ttot, '-o', 'LineWidth',1.5)
 grid on
-xlabel('\dot{m}_{air} [kg/s]')
+xticks(1:length(Ttot))
+xticklabels(stazioni)
+xlabel('Stazione motore')
+ylabel('T_0 [K]')
+title('Temperatura totale lungo il motore')
+
+
+% Aree principali lungo il motore
+
+Aree = [
+    motore.presaAria.A0
+    motore.presaAria.A2
+    motore.compressore.A3
+    motore.diffusore.A35
+    motore.turbina.A4
+    motore.turbina.A5
+    motore.ugello.AStar
+    motore.ugello.AE
+];
+
+nomiAree = {
+    'A ingresso presa'
+    'A_2 ingresso comp.'
+    'A uscita comp.'
+    'A uscita diffusore'
+    'A_4 turbina'
+    'A_5 turbina'
+    'A^* ugello'
+    'A_e ugello'};
+
+figure
+bar(Aree)
+grid on
+set(gca,'XTickLabel',nomiAree)
+xtickangle(35)
 ylabel('Area [m^2]')
-legend('A_{ingresso}','A_2')
-title('Aree presa al variare della portata aria')
+title('Aree principali del motore')
 
+% ── VINCOLI ─────────────────────────────────────────────────────────────
+valoriVincoli = [
 
-%% ------------------------------------------------------------------------
-%                                COMPRESSORE
-%--------------------------------------------------------------------------
-motore.compressore.piC = 12;
-motore.portate.mDot = 0.35;
-motore.presaAria.mach2 = 0.35;
+    % Compressore
+    motore.compressore.machRel
+    motore.compressore.CpStadio
+    motore.compressore.deHaller
+    motore.compressore.DRotore
+    motore.compressore.DStatore
 
+    % Camera
+    motore.camera.tRes
+    motore.camera.phi
 
-%% ANALISI 1: vario il rapporto di compressione
-piC_range = 8:0.05:11;
-n = length(piC_range);
+    
+];
 
-% Inizializzazione vettori
-T03_vec = zeros(1,n);
-P03_vec = zeros(1,n);
-etaC_vec = zeros(1,n);
-L_vec = zeros(1,n);
+limitiVincoli = [
 
-machRel_vec = zeros(1,n);
-Mach_abs_vec = zeros(1,n);
-Cp_vec = zeros(1,n);
-deHaller_vec = zeros(1,n);
+    % Compressore
+    1.0
+    0.5
+    0.72
+    0.6
+    0.6
 
-Aout_vec = zeros(1,n);
-NStadi_vec = zeros(1,n);
+    % Camera
+    0.008
+    1.1
 
-for i = 1:n
+];
 
-    motore.compressore.piC = piC_range(i);
+nomiVincoli = {
 
-    motore = Compressore(motore);
+    'Mach rel'
+    'Cp stadio'
+    'De Haller'
+    'D rotore'
+    'D statore'
 
-    T03_vec(i) = motore.compressore.T03;
-    P03_vec(i) = motore.compressore.P03;
-    etaC_vec(i) = motore.compressore.etaC;
-    L_vec(i) = motore.compressore.LC;
-
-    machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.MachAbs;
-    Cp_vec(i) = motore.compressore.CpStadio;
-    deHaller_vec(i) = motore.compressore.deHaller;
-
-    Aout_vec(i) = motore.compressore.A3;
-    NStadi_vec(i) = motore.compressore.NStadi;
-
-end
+    'tRes'
+    '\phi'};
 
 figure
-subplot(2,2,1)
-plot(piC_range, T03_vec, 'LineWidth',1.5)
+bar([valoriVincoli, limitiVincoli])
 grid on
-xlabel('\piC')
-ylabel('T_{03} [K]')
-title('Temperatura uscita compressore')
-
-subplot(2,2,2)
-plot(piC_range, L_vec/1e6, 'LineWidth',1.5)
-grid on
-xlabel('\piC')
-ylabel('L_c [MW]')
-title('Potenza compressore')
-
-subplot(2,2,3)
-plot(piC_range, etaC_vec, 'LineWidth',1.5)
-grid on
-xlabel('\piC')
-ylabel('\etaC')
-title('Rendimento compressore')
-
-subplot(2,2,4)
-plot(piC_range, NStadi_vec, 'LineWidth',1.5)
-grid on
-xlabel('\piC')
-ylabel('N_{stadi}')
-title('Numero di stadi calcolato')
-
-figure
-subplot(3,1,1)
-plot(piC_range, machRel_vec, 'LineWidth',1.5)
-hold on
-plot(piC_range, Mach_abs_vec, 'LineWidth',1.5)
-yline(1,'--r','Limite Mach relativo = 1')
-grid on
-xlabel('\piC')
-ylabel('Mach')
-legend('Mach relativo','Mach assoluto','Limite')
-title('Mach nello stadio')
-
-subplot(3,1,2)
-plot(piC_range, Cp_vec, 'LineWidth',1.5)
-hold on
-yline(0.5,'--r','Limite Cp_R = 0.5')
-grid on
-xlabel('\piC')
-ylabel('Cp_R')
-title('Coefficiente di pressione rotore')
-
-subplot(3,1,3)
-plot(piC_range, deHaller_vec, 'LineWidth',1.5)
-hold on
-yline(0.72,'--r','Limite De Haller')
-grid on
-xlabel('\piC')
-ylabel('W_2/W_1')
-title('Criterio di De Haller')
-
-figure
-plot(piC_range, Aout_vec, 'LineWidth',1.5)
-grid on
-xlabel('\piC')
-ylabel('A_{out,c} [m^2]')
-title('Sezione uscita compressore')
-
-%% ANALISI 2: VARIO U
-
-motore.presaAria.mach2 = 0.35;
-motore.compressore.piC = 9;
-
-Utip_range = 390:1:410;
-n = length(Utip_range);
-
-machRel_vec = zeros(1,n);
-Mach_abs_vec = zeros(1,n);
-
-beta1_vec = zeros(1,n);
-beta2_vec = zeros(1,n);
-
-Cp_vec = zeros(1,n);
-deHaller_vec = zeros(1,n);
-
-NStadi_vec = zeros(1,n);
-
-RStadio_vec = zeros(1,n);
-
-DRotore_vec = zeros(1,n);
-DStatore_vec = zeros(1,n);
-
-for i = 1:n
-
-    motore.compressore.Utip = Utip_range(i);
-
-    motore = Compressore(motore);
-
-    machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.MachAbs;
-
-    beta1_vec(i) = motore.compressore.beta1;
-    beta2_vec(i) = motore.compressore.beta2;
-
-    Cp_vec(i) = motore.compressore.CpStadio;
-    deHaller_vec(i) = motore.compressore.deHaller;
-
-    NStadi_vec(i) = motore.compressore.NStadi;
-
-    RStadio_vec(i) = motore.compressore.RStadio;
-
-    DRotore_vec(i) = motore.compressore.DRotore;
-    DStatore_vec(i) = motore.compressore.DStatore;
-
-end
-
-figure
-
-subplot(2,2,1)
-plot(Utip_range, machRel_vec, 'LineWidth',1.5)
-hold on
-yline(1,'--r','Limite Mach = 1')
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('Mach relativo')
-title('Mach relativo al variare di U_{tip}')
-
-subplot(2,2,2)
-plot(Utip_range, Cp_vec, 'LineWidth',1.5)
-hold on
-yline(0.5,'--r','Limite Cp_R = 0.5')
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('Cp_R')
-title('Cp rotore al variare di U_{tip}')
-
-subplot(2,2,3)
-plot(Utip_range, deHaller_vec, 'LineWidth',1.5)
-hold on
-yline(0.72,'--r','Limite De Haller')
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('W_2/W_1')
-title('De Haller al variare di U_{tip}')
-
-subplot(2,2,4)
-plot(Utip_range, NStadi_vec, 'LineWidth',1.5)
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('N_{stadi}')
-title('Numero di stadi al variare di U_{tip}')
-
-figure
-
-subplot(3,1,1)
-plot(Utip_range, RStadio_vec, 'LineWidth',1.5)
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('RStadio')
-title('Grado di reazione')
-
-subplot(3,1,2)
-plot(Utip_range, DRotore_vec, 'LineWidth',1.5)
-hold on
-yline(0.6,'--r','Limite D_{rotore}')
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('D_{rotore}')
-title('Diffusion factor rotore')
-
-subplot(3,1,3)
-plot(Utip_range, DStatore_vec, 'LineWidth',1.5)
-hold on
-yline(0.6,'--r','Limite D_{statore}')
-grid on
-xlabel('U_{tip} [m/s]')
-ylabel('D_{statore}')
-title('Diffusion factor statore')
-
-%% ANALISI 3: VARIO MACH INGRESSO COMPRESSORE
-
-motore.compressore.piC = 9;
-motore.compressore.Utip = 350;
-
-mach2_range = 0.20:0.01:0.60;
-n = length(mach2_range);
-
-A2_vec = zeros(1,n);
-
-machRel_vec = zeros(1,n);
-Mach_abs_vec = zeros(1,n);
-
-Cp_vec = zeros(1,n);
-deHaller_vec = zeros(1,n);
-
-NStadi_vec = zeros(1,n);
-
-RStadio_vec = zeros(1,n);
-
-DRotore_vec = zeros(1,n);
-DStatore_vec = zeros(1,n);
-
-for i = 1:n
-
-    motore.presaAria.mach2 = mach2_range(i);
-
-    motore = Compressore(motore);
-
-    % Area ingresso compressore = uscita presa
-    A2_vec(i) = motore.presaAria.A2;
-
-    machRel_vec(i) = motore.compressore.machRel;
-    Mach_abs_vec(i) = motore.compressore.MachAbs;
-
-    Cp_vec(i) = motore.compressore.CpStadio;
-
-    deHaller_vec(i) = motore.compressore.deHaller;
-
-    NStadi_vec(i) = motore.compressore.NStadi;
-
-    RStadio_vec(i) = motore.compressore.RStadio;
-
-    DRotore_vec(i) = motore.compressore.DRotore;
-    DStatore_vec(i) = motore.compressore.DStatore;
-
-end
-
-figure
-
-subplot(2,2,1)
-plot(mach2_range, A2_vec, 'LineWidth',1.5)
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('A_2 [m^2]')
-title('Area ingresso compressore')
-
-subplot(2,2,2)
-plot(mach2_range, machRel_vec, 'LineWidth',1.5)
-hold on
-yline(1,'--r','Limite Mach relativo = 1')
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('Mach relativo')
-title('Mach relativo al variare di M_2')
-
-subplot(2,2,3)
-plot(mach2_range, Cp_vec, 'LineWidth',1.5)
-hold on
-yline(0.5,'--r','Limite Cp_R = 0.5')
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('Cp_R')
-title('Cp rotore al variare di M_2')
-
-subplot(2,2,4)
-plot(mach2_range, NStadi_vec, 'LineWidth',1.5)
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('N_{stadi}')
-title('Numero di stadi al variare di M_2')
-
-figure
-
-subplot(3,1,1)
-plot(mach2_range, deHaller_vec, 'LineWidth',1.5)
-hold on
-yline(0.72,'--r','Limite De Haller')
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('W_2/W_1')
-title('Criterio di De Haller')
-
-subplot(3,1,2)
-plot(mach2_range, DRotore_vec, 'LineWidth',1.5)
-hold on
-yline(0.6,'--r','Limite D_{rotore}')
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('D_{rotore}')
-title('Diffusion factor rotore')
-
-subplot(3,1,3)
-plot(mach2_range, DStatore_vec, 'LineWidth',1.5)
-hold on
-yline(0.6,'--r','Limite D_{statore}')
-grid on
-xlabel('M_2 ingresso compressore')
-ylabel('D_{statore}')
-title('Diffusion factor statore')
-% 
-% %% Ricerca configurazione ammissibile più compatta
-% % questa ottimizzazione non va bene se vogliamo minimizzare il TSFC
-% 
-% FS = 0.99; % fattore di sicurezza
-% 
-% % Utip = 400;   troppo alto
-% Utip_range = 340:5:400;
-% 
-% mach2_range = 0.20:0.01:0.45;
-% piC_range   = 7:0.1:11;
-% 
-% best_NStadi = 100000;
-% best_Ain     = 100000;
-% 
-% for Utip = Utip_range
-% for mach2s = mach2_range
-%     for piC = piC_range
-% 
-%         [T0U, P0U, lComp, etaC, machRel, Mach_abs, CpStadio, ...
-%          deHaller, Va, beta1, beta2, Ain, rM2, h2, ...
-%          Aout, rM3, hOut, DRotore, DStatore, RStadio, ...
-%          c_m, N_R, NStadi] = ...
-%             compressore(T0I, P0I, mDot, piC, etaP, Utip, ...
-%                         mach2s, hubTip, propFluidi);
-% 
-%         if machRel < FS*1.0 && ...
-%            CpStadio < FS*0.5 && ...
-%            deHaller > 0.72/FS && ...
-%            DRotore < FS*0.6 && ...
-%            DStatore < FS*0.6
-% 
-%             nuovaSoluzione = false;
-% 
-%             if NStadi < best_NStadi
-%                 nuovaSoluzione = true;
-% 
-%             elseif NStadi == best_NStadi && Ain < best_Ain
-%                 nuovaSoluzione = true;
-%             end
-% 
-%             if nuovaSoluzione
-% 
-%                 best_NStadi = NStadi;
-%                 best_Ain = Ain;
-% 
-%                 best_mach2 = mach2s;
-%                 best_Utip = Utip;
-%                 best_piC = piC;
-% 
-%                 best_T0U = T0U;
-%                 best_P0U = P0U;
-%                 best_lComp = lComp;
-%                 best_etaC = etaC;
-% 
-%                 best_machRel = machRel;
-%                 best_Mach_abs = Mach_abs;
-% 
-%                 best_Cp = CpStadio;
-%                 best_deHaller = deHaller;
-% 
-%                 best_DRotore = DRotore;
-%                 best_DStatore = DStatore;
-%                 best_RStadio = RStadio;
-% 
-%                 best_Va = Va;
-%                 best_beta1 = beta1;
-%                 best_beta2 = beta2;
-% 
-%                 best_Aout = Aout;
-% 
-%                 best_rM2 = rM2;
-%                 best_h2 = h2;
-% 
-%                 best_rM3 = rM3;
-%                 best_hOut = hOut;
-% 
-%                 best_c_m = c_m;
-%                 best_N_R = N_R;
-% 
-%             end
-%         end
-%     end
-% end
-% end
-% 
-% if best_NStadi == 100000
-%     error('Nessuna configurazione valida trovata')
-% end
-% 
-% fprintf('\n=========== CONFIGURAZIONE COMPRESSORE COMPATTO ===========\n')
-% fprintf('mach2    = %.2f\n', best_mach2)
-% fprintf('Utip      = %.1f m/s\n', best_Utip)
-% fprintf('NStadi   = %d\n', best_NStadi)
-% fprintf('piC      = %.2f\n', best_piC)
-% 
-% fprintf('\n--- Vincoli ---\n')
-% fprintf('Mach relativo = %.3f\n', best_machRel)
-% fprintf('Cp stadio     = %.3f\n', best_Cp)
-% fprintf('De Haller     = %.3f\n', best_deHaller)
-% fprintf('D rotore      = %.3f\n', best_DRotore)
-% fprintf('D statore     = %.3f\n', best_DStatore)
-% fprintf('RStadio           = %.3f\n', best_RStadio)
-% 
-% fprintf('\n--- Prestazioni ---\n')
-% fprintf('T0U      = %.2f K\n', best_T0U)
-% fprintf('P0U      = %.2f Pa\n', best_P0U)
-% fprintf('lComp   = %.2f MW\n', best_lComp/1e6)
-% fprintf('etaC    = %.4f\n', best_etaC)
-% 
-% fprintf('\n--- Geometria ---\n')
-% fprintf('Ain      = %.4f m^2\n', best_Ain)
-% fprintf('Aout     = %.4f m^2\n', best_Aout)
-% fprintf('h2     = %.4f m\n', best_h2)
-% fprintf('hOut    = %.4f m\n', best_hOut)
-% 
-% fprintf('\n--- Primo stadio ---\n')
-% fprintf('Corda c_m        = %.4f m\n', best_c_m)
-% fprintf('Numero pale N_R  = %d\n', best_N_R)
-% fprintf('-------------------------------------------------\n')
-
-%% ------------------------------------------------------------------------
-%                          CAMERA DI COMBUSTIONE
-% -------------------------------------------------------------------------
-% Parametri da PDF Politecnico di Milano e specifiche JP-7
-propCombust.LHV = 44.1e6;       % JP-7 LHV [J/kg]
-propCamera.I = 8;               % Intensità [MW/(m^3*bar)] (Slide 8) 
-propCamera.RStadio = best_RStadio;      % Raggio medio dal compressore [cite: 138, 142]
-propCamera.DP_su_qref = 20;     % Valore tipico camera Anulare (Slide 6) [cite: 114]
-propCamera.DP_su_P3_target = 0.06; % Perdita 6% (Slide 6) [cite: 106, 114]
-
-% Sweep sulla pressione d'ingresso (P03)
-P03_vec = linspace(1e5, 10e5, 20); 
-Lc_vec = zeros(size(P03_vec));
-tres_vec = zeros(size(P03_vec));
-
-for j = 1:length(P03_vec)
-    % Nota: T03 deve essere best_T0U calcolato dal compressore
-    % [P04_res, T04_res, Q_dot_res, cam_out, propCombust] = ...
-    [P04, T04, Q_dot, propCamera, propCombust] = Camera_combustione( ...
-    Motore, modo)
-    Lc_vec(j) = cam_out.Lc;
-    tres_vec(j) = cam_out.t_res;
-end
-
-% Visualizzazione Risultati
-figure('Name', 'Analisi Camera di Combustione JP-7');
-subplot(2,1,1);
-plot(P03_vec/1e5, Lc_vec, 'LineWidth', 2);
-ylabel('Lunghezza L_c [m]'); grid on; % [cite: 134, 139]
-title('Dimensionamento Longitudinale');
-
-subplot(2,1,2);
-plot(P03_vec/1e5, tres_vec*1000, 'r', 'LineWidth', 2);
-hold on; 
-yline(8, '--k', 'Target JP-7 (8ms)'); % Limite stabilità JP-7
-ylabel('Tempo residenza \tau_{res} [ms]'); 
-xlabel('P_{03} [bar]'); grid on;
-
-
-%% ------------------------------------------------------------------------
-%                                 TURBINA
-%--------------------------------------------------------------------------
-addpath("FunzioniMotore")
-% -----
-% variazione della temperatura in ingresso
-T0I = 1100:1:1800;
-
-motoreBase = structMotore();
-
-% in caso solo di errore dei codici precendenti
-if (~exist('best_lComp', 'var'))
-    motoreBase.compressore.L_c = 7000000;
-    motoreBase.camera.P04 = 213000;
-    motoreBase.compressore.T03 = 410;
-    motoreBase.compressore.U_m = 400;
-
-    motoreBase.turbina.mach4 = 0.3;
-    motoreBase.turbina.rotore.wmachOut = 0.8;
-    best_mach2 = 0.3;
-    motoreBase.portate.mDot = 35;
-    motoreBase.compressore.U_m = 350;
-    motoreBase.compressore.rM3 = 0.4;
-    motoreBase.compressore.T04 = 420;
-    motoreBase.portate.mDotComb = 0.9;
-
-
-else 
-    motoreBase.compressore.L_c = best_lComp;
-    motoreBase.turbina.mach4 = best_mach2;
-    motoreBase.turbina.P04 = best_P0U;
-    motoreBase.turbina.TRaff = best_T0U;
-end
-
-
-N = length(T0I);
-
-% preallocazioni
-etan = zeros(1,N);
-coolPecentualeA = zeros(1,N);
-P0Is = zeros(1,N);
-P0Us = zeros(1,N);
-T0Us_in = zeros(1,N);
-T0Us = zeros(1,N);
-spinta = zeros(1,N);
-A4s = zeros(1,N);
-A5s = zeros(1,N);
-machOut = zeros(1,N);
-sot = zeros(1,N);
-
-for i = 1:N
-    motore = motoreBase;
-    motore.camera.T04 = T0I(i);
-    motore = StimaSpillaggio(motore);
-    motore = Turbina(motore);
-
-    % Slavataggio 
-    T = motore.turbina;
-    port = motore.portate;
-
-    etan(i) = T.etaN;
-    coolPecentualeA(i) = port.mDotRaff/port.mDot;
-
-    P0Us(i) = T.P05;
-    P0Is(i) = T.P04;
-    T0Us(i) = T.T05;
-    T0Us_in(i) = T.T05Iso;
-
-    A4s(i) = T.A4;
-    A5s(i) = T.A5;
-    machOut(i) = T.mach5;
-    sot(i) = 2/(1.33+1)*T.T04;
-
-    % [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
-    % 
-    % spinta(i) = motore.mdot * (Ue - v_volo);
-end
-%%
-%Rendimento isoentropico
-figure("name","rendimentoIsoentropicoTurbina");
-nexttile();
-title("rendimento isoentropico")
-plot(T0I,etan);
-title("Rendimento isoentropico")
-xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
-ylabel('$\eta_t$')
-hold on
-grid on
-%%
-figure('name','coolPercentagevsT04');
-plot(T0I, coolPecentualeA * 100, T0I, T.coolingStatore(sot)*100,T0I, T.coolingRotore(sot)*100  );
-hold on
-grid on
-ylabel("Aria spillata [%]")
-xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
-legend("Totale","Statore","Rotore");
-%%
-% Forza light mode solo per questa figura
-
-%Rendimento al variare della percentuale di aria utilizzata per rafreddamento turbina
-figure()
-title("rendimento vs rafreddamento")
-plot(coolPecentualeA*100,etos,"-");
-title("Rendimento isoentropico vs aria spillata per rafreddamento")
-xlabel("Temperatura gas in uscita camera di combustione $T_{04}$ [K]")
-ylabel("$\eta_{\text{turbina}$")
-grid on
-
-
-% Pressioni Totali e Temperature totali
-figure()
-title("Pressione e Temperature totali")
-
-yyaxis left
-p1 = plot(T0I, P0Is, 'b-'); hold on
-p2 = plot(T0I, P0Us, 'r-');
-ylabel("pressure [Pa]")
-ylim([min([P0Is,P0Us]) - 5000, max([P0Is,P0Us]) + 5000])
-
-yyaxis right
-t1 = plot(T0I, T0Us_in, 'g-'); hold on
-t2 = plot(T0I, T0Us, 'k-');
-ylabel("Temperature")
-ylim([min([T0Us_in, T0Us]) - 50; max([T0Us_in, T0Us]) + 50])
-
-grid on
-xlabel("T04 (camera di combustione) [K]")
-
-legend([p1 p2 t1 t2], ...
-    "P0I","P0U","T0U iso","T0U");
-
-%Area entrata e uscità
-figure("Name","In e Out motore")
-nexttile();
-title("in e out aree")
-plot(T0I,A4s)
-hold on
-plot(T0I,A5s)
-grid on
-xlabel("T04 (camera di combustione) [K]")
-ylabel("area [m^2]")
-legend("In","Out")
-
-%mach
-nexttile();
-title("in e out mach")
-plot(T0I,best_mach2*ones(size(T0I)))
-hold on
-plot(T0I,machOut)
-grid on
-xlabel("T04 (camera di combustione) [K]")
-ylabel("mach]")
-legend("In","Out")
-
-%Spinta generata al variare della temperatura in camera. 
-figure("name","spinta")
-plot(T0I,spinta)
-grid on
-xlabel("T04 (camera di combustione) [K]")
-ylabel("Spinta [N]")
-yline(25000,'--r','Spinta minima = 25000N')
-
-%% -----
-% variazione mahc in ingresso
-mach2s = 0.3:0.02:0.4;
-
-motoreBase.turbina.T0I = 1400;
-
-N = length(mach2s);
-etan = zeros(1,N);
-coolPecentualeA = zeros(1,N);
-Sota = zeros(1,N);
-etos = zeros(1,N);
-P0Is = zeros(1,N);
-P0Us = zeros(1,N);
-T0Us_in = zeros(1,N);
-T0Us = zeros(1,N);
-spinta = zeros(1,N);
-A4s = zeros(1,N);
-A5s = zeros(1,N);
-machOut = zeros(1,N);
-
-for i = 1:N
-    motore = motoreBase;
-    motore.turbina.mach2 = mach2s(i);
-
-    motore = turbina(propFluidi, motore);
-
-    % Slavataggio 
-    T = motore.turbina;
-
-    etan(i) = T.eta_n;
-    coolPecentualeA(i) = T.coolPecentuale;
-    Sota(i) = T.SOT;
-    etos(i) = T.eta_NC;
-
-    P0Us(i) = T.P0U;
-    P0Is(i) = T.P0I;
-    T0Us(i) = T.T0U;
-    T0Us_in(i) = T.T0U_iso;
-
-    A4s(i) = T.AIn;
-    A5s(i) = T.AOut;
-    machOut(i) = T.machOut;
-
-    [~, ~, ~, ~, ~, Ue, ~] = ugello(P0Us(i), T0Us(i), machOut(i), motore.mdot);
-
-    spinta(i) = motore.mdot * (Ue - v_volo);
-end
-
-
-
-
-%Spinta generata al variare della temperatura in camera. 
-figure("name","spinta")
-plot(mach2s,spinta)
-xlabel("mach2")
-ylabel("Spinta [N]")
-yline(25000,'--r','Spinta minima = 25000N')
-
-
-figure("name","Turbina");
-nexttile();
-title("rendimento isoentropico")
-plot(mach2s,etan);
-title("Rendimento isoentropico")
-xlabel("mach2")
-ylabel("\eta_n")
-hold on
-plot(mach2s,etos);
-legend("Isoentropico Raff","Isoentropico Non Raff")
-
-
-%Area entrata e uscità
-figure("Name","In e Out motore")
-nexttile();
-title("in e out aree")
-plot(mach2s,A4s)
-hold on
-plot(mach2s,A5s)
-xlabel("mach2")
-ylabel("area [m^2]")
-legend("In","Out")
-
-%mach
-nexttile();
-title("in e out mach")
-plot(mach2s,mach2s)
-hold on
-plot(mach2s,machOut)
-xlabel("mach2")
-ylabel("mach]")
-legend("In","Out")
-
-%% ------------------------------------------------------------------------
-%                                 UGELLO
-%--------------------------------------------------------------------------
-
-
+box on
+set(gca,'XTickLabel',nomiVincoli)
+ylabel('Valore')
+title('Confronto risultati ottimizzati vs vincoli')
+legend('Valore ottenuto','Limite')
+xtickangle(35)
+
+
+% ── STAMPA RISULTATI A VIDEO ────────────────────────────────────────────
+fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')
+
+fprintf('\n--- PERFORMANCE ---\n')
+fprintf('Spinta            = %.3f N\n', motore.performance.F)
+fprintf('TSFC              = %.9f kg/(N*h)\n', motore.performance.TSFC)
+fprintf('eta globale       = %.3f\n', motore.performance.etaGlobal)
+
+fprintf('\n--- PRESA D''ARIA ---\n')
+fprintf('T02                  = %.3f K\n', motore.presaAria.T02)
+fprintf('P02                  = %.3f Pa\n', motore.presaAria.P02)
+fprintf('Portata totale aria  = %.3f kg/s\n', motore.portate.mDot)
+fprintf('A ingresso           = %.4f m^2\n', motore.presaAria.A0)
+fprintf('A2                   = %.4f m^2\n', motore.presaAria.A2)
+fprintf('CPR                  = %.3f\n', motore.presaAria.CPR)
+
+fprintf('\n--- COMPRESSORE ---\n')
+fprintf('T03                        = %.3f K\n', motore.compressore.T03)
+fprintf('P03                        = %.3f Pa\n', motore.compressore.P03)
+fprintf('Rapporto compressione π_c  = %.3f\n', motore.compressore.piC)
+fprintf('L_c                        = %.3f MW\n', motore.compressore.LC/1e6)
+fprintf('etaC                       = %.3f\n', motore.compressore.etaC)
+fprintf('Utip compressore           = %.3f m/s\n', motore.compressore.Utip)
+fprintf('Mach ingresso compressore  = %.3f\n', motore.presaAria.mach2)
+fprintf('Mach relativo              = %.3f\n', motore.compressore.machRel)
+fprintf('Mach assoluto              = %.3f\n', motore.compressore.MachAbs)
+fprintf('Cp stadio                  = %.3f\n', motore.compressore.CpStadio)
+fprintf('De Haller                  = %.3f\n', motore.compressore.deHaller)
+fprintf('D rotore                   = %.3f\n', motore.compressore.DRotore)
+fprintf('D statore                  = %.3f\n', motore.compressore.DStatore)
+fprintf('N stadi                    = %d\n', motore.compressore.NStadi)
+fprintf('N pale rotore              = %d\n', motore.compressore.NPaleComp)
+fprintf('rM2                     = %.4f m\n', motore.compressore.rM2)
+fprintf('rM3                    = %.4f m\n', motore.compressore.rM3)
+fprintf('h2                        = %.4f m\n', motore.compressore.h2)
+fprintf('hOut                       = %.4f m\n', motore.compressore.h3)
+
+fprintf('\n--- DIFFUSORE ---\n')
+fprintf('T035      = %.3f K\n', motore.diffusore.T035)
+fprintf('P035      = %.3f Pa\n', motore.diffusore.P035)
+fprintf('v35       = %.3f m/2\n', motore.diffusore.vTargetCamera)
+fprintf('Mach35    = %.3f\n', motore.diffusore.mach35)
+fprintf('A3        = %.4f m^2\n', motore.diffusore.A3)
+fprintf('A35       = %.4f m^2\n', motore.diffusore.A35)
+fprintf('LD        = %.4f m\n', motore.diffusore.LD)
+
+fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
+fprintf('T04               = %.3f K\n', motore.camera.T04)
+fprintf('P04               = %.3f Pa\n', motore.camera.P04)
+fprintf('f                 = %.5f\n', motore.camera.f)
+fprintf('phi               = %.3f\n', motore.camera.phi)
+fprintf('tRes              = %.5f s\n', motore.camera.tRes)
+fprintf('ARef              = %.4f m^2\n', motore.camera.ARef)
+fprintf('V camera          = %.4f m^3\n', motore.camera.V)
+fprintf('LC                = %.4f m\n', motore.camera.LC)
+
+fprintf('\n--- TURBINA ---\n')
+fprintf('T05               = %.3f K\n', motore.turbina.T05)
+fprintf('P05               = %.3f Pa\n', motore.turbina.P05)
+fprintf('etaN              = %.3f\n', motore.turbina.etaN)
+fprintf('n stadi           = %d\n', motore.turbina.nStadi)
+fprintf('A4                = %.4f m^2\n', motore.turbina.A4)
+fprintf('A5                = %.4f m^2\n', motore.turbina.A5)
+
+fprintf('\n--- UGELLO ---\n')
+fprintf('Ue                = %.3f m/s\n', motore.ugello.Ue)
+fprintf('Mach uscita       = %.3f\n', motore.ugello.mach6)
+fprintf('A*                = %.5f m^2\n', motore.ugello.AStar)
+fprintf('Ae                = %.5f m^2\n', motore.ugello.AE)
+fprintf('De                = %.4f m\n', motore.ugello.DE)
+
+fprintf('\n--- PORTATE ---\n')
+fprintf('mDot totale       = %.4f kg/s\n', motore.portate.mDot)
+fprintf('mDot aria camera  = %.4f kg/s\n', motore.portate.mDotAir)
+fprintf('mDot raffredd.    = %.4f kg/s\n', motore.portate.mDotRaff)
+fprintf('mDot combustibile = %.4f kg/s\n', motore.portate.mDotComb)
+fprintf('mDot gas          = %.4f kg/s\n', motore.portate.mDotGas)
+
+
+
+fprintf('\n--- CONTROLLO VINCOLI ---\n')
+fprintf('Max c             = %.6e\n', max(z))
+fprintf('Norm ceq          = %.6e\n', norm(u))
+
+
+
+toc
+
+
+save('turbogetto.mat', 'motore');
+
+
+%% -----------------------------------------------------------------------
+%  3. OTTIMIZZAZIONE DEL RAMJET
+%  -----------------------------------------------------------------------
 clear
-clc
 
-%% Impostazioni Grafiche Avanzate (LaTeX & Font)
-set(groot, ...
-    'defaultTextInterpreter', 'latex', ...
-    'defaultAxesTickLabelInterpreter', 'latex', ...
-    'defaultLegendInterpreter', 'latex', ...
-    'defaultColorbarTickLabelInterpreter', 'latex', ...
-    'defaultAxesFontSize', 12, ...
-    'defaultTextFontSize', 12, ...
-    'defaultLegendFontSize', 10, ...
-    'defaultAxesFontName', 'Latin Modern Roman');
+ramjetBase = structRamjet();
+load('turbogetto.mat')
 
-% Caricamento strutture dati
-parametri = structParametri();
-motoreBase = structMotore();
+% ── OTTIMIZZAZIONE ──────────────────────────────────────────────────────
+tic
 
-% =========================================================================
-% 1. STUDIO DELLA VARIAZIONE DI T04 (Temperatura Uscita Camera)
-% =========================================================================
-T0I = 1100:10:1800;
-N_T = length(T0I);
+% [parametri, rangeP] = structParametri();
+rangeP = [5 400;2100 2100; 4 10];
+parametri = [5; 1600; 2];
 
-% Allocazione vettori
-rendG_T    = zeros(1, N_T);
-rendP_T    = zeros(1, N_T);
-rendTh_T   = zeros(1, N_T);
-rendSt_T   = zeros(1, N_T);
-spinta_T   = zeros(1, N_T);
-tsfc_T     = zeros(1, N_T);
-mfuel_T    = zeros(1, N_T);
-rpTurb_T   = zeros(1, N_T);
-ue_T       = zeros(1, N_T);
+nvars = length(parametri);
+M     = max(400, 20*nvars);
+lb    = rangeP(:,1)';
+ub    = rangeP(:,2)';
 
-parametri(2) = 30; % Rapporto di compressione fisso (beta = 30)
+fun     = @(x) runnerRamjet(ramjetBase, x, motore);
+nonlcon = @(x) myconRamjet(x, ramjetBase, motore);
 
-for i = 1:N_T
-    parametri(3) = T0I(i);
-    [~, motore]  = runnerMotore(motoreBase, parametri);
-    
-    rendG_T(i)   = motore.performance.etaGlobal;
-    rendP_T(i)   = motore.performance.etaProp;
-    rendTh_T(i)  = motore.performance.etaTh;
-    rendSt_T(i)  = motore.turbina.etaN;
-    spinta_T(i)  = motore.performance.F;
-    tsfc_T(i)    = motore.performance.TSFC;
-    mfuel_T(i)   = motore.portate.mDotComb;
-    rpTurb_T(i)  = motore.turbina.rp;
-    ue_T(i)      = motore.ugello.Ue;
+% ── GA options ──────────────────────────────────────────────────────────
+hybrid_opts = optimoptions('fmincon', ...
+    'Display',           'none', ...
+    'Algorithm',         'sqp', ...
+    'StepTolerance',     1e-6, ...
+    'FunctionTolerance', 1e-6);
+
+options_ga = optimoptions('ga', ...
+    'PopulationSize',      M, ...
+    'UseParallel',         false, ...
+    'MaxGenerations',      120, ...
+    'FunctionTolerance',   1e-4, ...
+    'MaxStallGenerations', 15, ...
+    'Display',             'iter', ...
+    'MaxTime',             60, ...
+    'EliteCount',          ceil(0.10*M), ...
+    'CrossoverFraction',   0.8, ...
+    'HybridFcn',           {@fmincon, hybrid_opts});
+
+% ── Multi-start ─────────────────────────────────────────────────────────
+n_runs = 150;
+best_f = inf;
+best_x = [];
+fHistory = zeros(n_runs,1);
+xHistory = zeros(n_runs,nvars);
+
+for i = 1:n_runs
+    fprintf('Run %d/%d ...\n', i, n_runs);
+
+    init_pop = lb + lhs_sample(M, nvars) .* (ub - lb);
+    options_ga = optimoptions(options_ga, 'InitialPopulationMatrix', init_pop);
+
+    [xi, fi] = ga(fun, nvars, [], [], [], [], lb, ub, nonlcon, options_ga);
+    fHistory(i) = fi;
+    xHistory(i,:) = xi;
+    [condDisEq, condEq] = nonlcon(xi);
+    fprintf('  fval = %.4f\n', fi);
+    if fi < best_f && all(condDisEq <= 0)
+        best_f = fi;
+        best_x = xi;
+    end
+end
+if isempty(best_x)
+    error('Nessuna soluzione fattibile trovata')
 end
 
-% GRAFICI: Effetto di T04
-figure('Name', 'Analisi_Prestazioni_vs_T04');
-tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+x1 = best_x;
+fprintf('Best fval across all runs: %.4f\n', best_f);
 
-% 1. Rendimenti Energetici (Doppio Asse)
-nexttile;
-yyaxis left
-plot(T0I, rendG_T, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
-ylabel('$\eta_g$ [-]');
-yyaxis right
-plot(T0I, rendP_T, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
-plot(T0I, rendTh_T, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
-ylabel('$\eta_p$, $\eta_{th}$ [-]');
-grid on; xlabel('$T_{04}$ [K]');
-title('Rendimenti di Propulsione');
-legend('Location', 'best');
-
-% 2. Rendimento Isoentropico Turbina
-nexttile;
-plot(T0I, rendSt_T, 'm', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('$\eta_t$ [-]');
-title('Rendimento Turbina');
-
-% 3. Espansione in Turbina (Nuovo)
-nexttile;
-plot(T0I, rpTurb_T, '-', 'Color', [0.4660, 0.6740, 0.1880], 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('$r_{p,t}$ ($P_{04}/P_{05}$) [-]');
-title('Rapporto di Espansione Turbina');
-
-% 4. Spinta Motore
-nexttile;
-plot(T0I, spinta_T, 'g', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('Spinta $F$ [N]');
-title('Spinta erogata');
-
-% 5. Velocità di Efflusso Ugello (Nuovo)
-nexttile;
-plot(T0I, ue_T, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('$U_e$ [m/s]');
-title('Velocità di Efflusso Ugello');
-
-% 6. Consumo Specifico (TSFC)
-nexttile;
-plot(T0I, tsfc_T, 'c', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('TSFC [kg/(N$\cdot$h)]');
-title('Consumo Specifico (TSFC)');
-
-% 7. Portata Combustibile
-nexttile;
-plot(T0I, mfuel_T, 'k', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('\dot{m}_f [kg/s]');
-title('Portata Combustibile');
+% ── Post-process ────────────────────────────────────────────────────────
+[T, ramjet] = runnerRamjet(ramjetBase, x1, motore);
+[z, u]       = myconRamjet(x1, ramjetBase, motore);
 
 
-%% =========================================================================
-%% 2. STUDIO DELLA VARIAZIONE DEL RAPPORTO DI COMPRESSIONE (rp)
-%% =========================================================================
-rp = 4:2:30;
-N_rp = length(rp);
 
-% Allocazione vettori
-rendG_rp   = zeros(1, N_rp);
-rendP_rp   = zeros(1, N_rp);
-rendTh_rp  = zeros(1, N_rp);
-rendSt_rp  = zeros(1, N_rp);
-spinta_rp  = zeros(1, N_rp);
-tsfc_rp    = zeros(1, N_rp);
-mfuel_rp   = zeros(1, N_rp);
-rpTurb_rp  = zeros(1, N_rp);
-ue_rp      = zeros(1, N_rp);
+% ANDAMENTO TSFC MINIMO PER OGNI RUN
+figure
+plot(1:n_runs, fHistory, 'o-')
+xlabel('Run')
+ylabel('Objective function')
+grid on
 
-parametri(3) = 1500; % Temperatura T04 fissa (1500 K)
+% MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
+% Il grafico mostra il minimo cumulativo della funzione obiettivo
+% ottenuto attraverso diverse run indipendenti del GA. Ogni run parte
+% da un seed casuale differente, mentre il grafico tiene traccia della
+% migliore soluzione trovata fino a quel momento.
+figure
+plot(1:n_runs, cummin(fHistory), 'o-')
+xlabel('Run')
+ylabel('Best objective so far')
+grid on
 
-for i = 1:N_rp
-    parametri(2) = rp(i);
-    [~, motore]  = runnerMotore(motoreBase, parametri);
-    
-    rendG_rp(i)  = motore.performance.etaGlobal;
-    rendP_rp(i)  = motore.performance.etaProp;
-    rendTh_rp(i) = motore.performance.etaTh;
-    rendSt_rp(i) = motore.turbina.etaN;
-    spinta_rp(i) = motore.performance.F;
-    tsfc_rp(i)   = motore.performance.TSFC;
-    mfuel_rp(i)  = motore.portate.mDotComb;
-    rpTurb_rp(i) = motore.turbina.rp;
-    ue_rp(i)     = motore.ugello.Ue;
-end
 
-% GRAFICI: Effetto di rp ($\beta$)
-figure('Name', 'Analisi_Prestazioni_vs_rp');
-tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+% ── PLOT GRAFICI ramjet ─────────────────────────────────────────────────
 
-% 1. Rendimenti Energetici (Doppio Asse)
-nexttile;
-yyaxis left
-plot(rp, rendG_rp, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
-ylabel('$\eta_g$ [-]');
-yyaxis right
-plot(rp, rendP_rp, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
-plot(rp, rendTh_rp, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
-ylabel('$\eta_p$, $\eta_{th}$ [-]');
-grid on; xlabel('Rapporto di compressione $\beta$');
-title('Rendimenti di Propulsione');
-legend('Location', 'best');
+% Pressioni totali lungo il ramjet
 
-% 2. Rendimento Isoentropico Turbina
-nexttile;
-plot(rp, rendSt_rp, 'm', 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$\eta_t$ [-]');
-title('Rendimento Turbina');
+Ptot = [
+    ramjet.freestream.h25km.P00
+    ramjet.presaAria.P02
+    ramjet.anulus.P03
+    ramjet.camera.P04
+    ramjet.ugello.P05
+];
 
-% 3. Espansione in Turbina (Nuovo)
-nexttile;
-plot(rp, rpTurb_rp, '-', 'Color', [0.4660, 0.6740, 0.1880], 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$r_{p,t}$ ($P_{04}/P_{05}$) [-]');
-title('Rapporto di Espansione Turbina');
+stazioni = {'0','2','3','4','5'};
 
-% 4. Spinta Motore
-nexttile;
-plot(rp, spinta_rp, 'g', 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('Spinta $F$ [N]');
-title('Spinta erogata');
+figure
+plot(1:length(Ptot), Ptot/1000, '-o', 'LineWidth',1.5)
+grid on
+xticks(1:length(Ptot))
+xticklabels(stazioni)
+xlabel('Stazione ramjet')
+ylabel('P_0 [kPa]')
+title('Pressione totale lungo il ramjet')
 
-% 5. Velocità di Efflusso Ugello (Nuovo)
-nexttile;
-plot(rp, ue_rp, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('$U_e$ [m/s]');
-title('Velocità di Efflusso Ugello');
 
-% 6. Consumo Specifico (TSFC)
-nexttile;
-plot(rp, tsfc_rp, 'c', 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('TSFC [kg/(N$\cdot$h)]');
-title('Consumo Specifico (TSFC)');
+% Temperature totali lungo il ramjet
 
-% 7. Portata Combustibile
-nexttile;
-plot(rp, mfuel_rp, 'k', 'LineWidth', 1.5);
-grid on; xlabel('Rapporto di compressione $\beta$'); ylabel('\dot{m}_f [kg/s]');
-title('Portata Combustibile');
+Ttot = [
+    ramjet.freestream.h25km.T00
+    ramjet.presaAria.T02
+    ramjet.anulus.T03
+    ramjet.camera.T04
+    ramjet.ugello.T05
+];
+
+figure
+plot(1:length(Ttot), Ttot, '-o', 'LineWidth',1.5)
+grid on
+xticks(1:length(Ttot))
+xticklabels(stazioni)
+xlabel('Stazione ramjet')
+ylabel('T_0 [K]')
+title('Temperatura totale lungo il ramjet')
+
+
+% Aree principali lungo il ramjet
+
+Aree = [
+    ramjet.presaAria.ACatt
+    ramjet.presaAria.A2
+    ramjet.anulus.AIn
+    ramjet.anulus.AOut
+    ramjet.camera.A
+    ramjet.ugello.AStar
+    ramjet.ugello.AE
+];
+
+nomiAree = {
+    'A ingresso presa'
+    'A_2 ingresso anulus/fine presa.'
+    'A_anulus area anulus ingresso'
+    'A_a area anulus uscita'
+    'A post Bruciatore'
+    'A^* ugello'
+    'A_e ugello'};
+
+figure
+bar(Aree)
+grid on
+set(gca,'XTickLabel',nomiAree)
+xtickangle(35)
+ylabel('Area [m^2]')
+title('Aree principali del ramjet')
+
+% diametri/ altezze principali ramjet
+RD = [
+    ramjet.presaAria.hCatt
+    ramjet.presaAria.hGola
+    2*ramjet.anulus.rIn
+    2*ramjet.anulus.rOut
+    2*sqrt(ramjet.camera.A/pi)
+    2*sqrt(ramjet.ugello.AStar/pi)
+    2*sqrt(ramjet.ugello.AE/pi)
+]
+
+nomiRD = {
+    'altezza di cattura' 
+    'alezza gola presadaria'
+    'anulus r2' 
+    'anulus r3' 
+    'post bruciatore' 
+    'gola ' 
+    'AE'};
+figure
+bar(RD)
+grid on
+set(gca,'XTickLabel',nomiRD)
+% xtickangle(35)
+ylabel('H/r [m]')
+title('H/raggi principali del ramjet')
+hold on
+bar([0,0,0,sqrt(motore.turbina.A5/pi)*2], 'FaceColor', [1,0,0])
+
+% ── STAMPA RISULTATI A VIDEO ────────────────────────────────────────────
+fprintf('\n          RISULTATI OTTIMIZZAZIONE            \n')
+
+fprintf('\n--- PERFORMANCE ---\n')
+fprintf('Spinta            = %.3f N\n', ramjet.performance.F)
+fprintf('TSFC              = %.9f kg/(N*h)\n', ramjet.performance.TSFC)
+fprintf('eta globale       = %.3f\n', ramjet.performance.etaGlobal)
+
+fprintf('\n--- PRESA D''ARIA ---\n')
+fprintf('T02                  = %.3f K\n', ramjet.presaAria.T02)
+fprintf('P02                  = %.3f Pa\n', ramjet.presaAria.P02)
+fprintf('Portata totale aria  = %.3f kg/s\n', ramjet.portate.mDot)
+fprintf('A cattura           = %.4f m^2\n', ramjet.presaAria.ACatt)
+fprintf('A2                   = %.4f m^2\n', ramjet.presaAria.A2)
+fprintf('CPR                  = %.3f\n', ramjet.presaAria.CPR)
+
+fprintf('\n--- ANULUS ---\n')
+fprintf('T03                  = %.3f K\n', ramjet.anulus.T03)
+fprintf('P03                  = %.3f Pa\n', ramjet.anulus.P03)
+fprintf('A_a_in                  = %.4f m^2\n', ramjet.anulus.AIn)
+fprintf('A_a_out                 = %.4f m^2\n', ramjet.anulus.AOut)
+
+fprintf('\n--- CAMERA DI COMBUSTIONE ---\n')
+fprintf('T04               = %.3f K\n', ramjet.camera.T04)
+fprintf('P04               = %.3f Pa\n', ramjet.camera.P04)
+fprintf('f                 = %.5f\n',   ramjet.camera.f)
+fprintf('d                 = %.4f m\n', ramjet.camera.d)
+fprintf('L                 = %.4f m\n', ramjet.camera.L)
+
+fprintf('\n--- UGELLO ---\n')
+fprintf('Ue                = %.3f m/s\n', ramjet.ugello.Ue)
+fprintf('Mach uscita       = %.3f\n', ramjet.ugello.mach5)
+fprintf('A*                = %.5f m^2\n', ramjet.ugello.AStar)
+fprintf('Ae                = %.5f m^2\n', ramjet.ugello.AE)
+fprintf('De                = %.4f m\n', ramjet.ugello.DE)
+
+fprintf('\n--- PORTATE ---\n')
+fprintf('mDot totale       = %.4f kg/s\n', ramjet.portate.mDot)
+fprintf('mDot aria camera  = %.4f kg/s\n', ramjet.portate.mDotAir)
+fprintf('mDot combustibile = %.4f kg/s\n', ramjet.portate.mDotComb)
+fprintf('mDot gas          = %.4f kg/s\n', ramjet.portate.mDotGas)
+
+
+fprintf('\n--- CONTROLLO VINCOLI ---\n')
+fprintf('Max c             = %.6e\n', max(z))
+fprintf('Norm ceq          = %.6e\n', norm(u))
+
+
+
+
+
+toc
+
+
+save('ramjet.mat', 'ramjet');
+
+
+% ── DIAGRAMMA T-s DEL RAMJET ────────────────────────────────────────────
+
+
+% Proprietà
+cp_a    = ramjet.fluidi.aria.cp;
+R_a     = ramjet.fluidi.aria.R;
+gamma_a = ramjet.fluidi.aria.gamma;
+
+cp_g    = ramjet.fluidi.gas.cp;
+R_g     = ramjet.fluidi.gas.R;
+gamma_g = ramjet.fluidi.gas.gamma;
+
+% STAZIONE 0
+
+M0  = ramjet.freestream.h25km.M0;
+T00 = ramjet.freestream.h25km.T00;
+P00 = ramjet.freestream.h25km.P00;
+
+T0 = T00/(1 + (gamma_a-1)/2*M0^2);
+P0 = P00/(1 + (gamma_a-1)/2*M0^2)^(gamma_a/(gamma_a-1));
+
+
+% STAZIONE 2 - uscita presa
+
+M2  = ramjet.presaAria.M2;
+T02 = ramjet.presaAria.T02;
+P02 = ramjet.presaAria.P02;
+
+T2 = T02/(1 + (gamma_a-1)/2*M2^2);
+P2 = P02/(1 + (gamma_a-1)/2*M2^2)^(gamma_a/(gamma_a-1));
+
+
+% STAZIONE 3 - uscita anulus
+
+M3  = ramjet.anulus.mach3;
+T03 = ramjet.anulus.T03;
+P03 = ramjet.anulus.P03;
+
+T3 = T03/(1 + (gamma_a-1)/2*M3^2);
+P3 = P03/(1 + (gamma_a-1)/2*M3^2)^(gamma_a/(gamma_a-1));
+
+
+% STAZIONE 4 - uscita camera
+
+M4  = ramjet.camera.mach4;
+T04 = ramjet.camera.T04;
+P04 = ramjet.camera.P04;
+
+T4 = T04/(1 + (gamma_g-1)/2*M4^2);
+P4 = P04/(1 + (gamma_g-1)/2*M4^2)^(gamma_g/(gamma_g-1));
+
+
+% STAZIONE 5 - uscita ugello
+
+M5 = ramjet.ugello.mach5;
+T5 = ramjet.ugello.T05/(1 + (gamma_g-1)/2*M5^2);
+P5 = ramjet.ugello.PE;
+
+
+
+% ENTROPIA RELATIVA
+s0 = 0;
+
+s2 = s0 + cp_a*log(T2/T0) ...
+        - R_a*log(P2/P0);
+
+s3 = s2 + cp_a*log(T3/T2) ...
+        - R_a*log(P3/P2);
+
+s4 = s3 + cp_g*log(T4/T3) ...
+        - R_g*log(P4/P3);
+
+s5 = s4 + cp_g*log(T5/T4) ...
+        - R_g*log(P5/P4);
+
+% J/(kg K) -> kJ/(kg K)
+s0 = s0/1000;
+s2 = s2/1000;
+s3 = s3/1000;
+s4 = s4/1000;
+s5 = s5/1000;
+
+
+% COSTRUZIONE DELLE CURVE
+N = 100;
+
+% 0 -> 2
+q = linspace(0,1,N);
+s02 = s0 + (s2-s0).*q;
+T02_curve = T0 + (T2-T0).*q;
+
+% 2 -> 3
+q = linspace(0,1,N);
+s23 = s2 + (s3-s2).*q;
+T23_curve = T2 + (T3-T2).*q;
+
+% 3 -> 4 : combustione
+q = linspace(0,1,N);
+s34 = s3 + (s4-s3).*q;
+T34_curve = T3 + (T4-T3).*q.^1.35;
+
+% 4 -> 5 : espansione
+q = linspace(0,1,N);
+s45 = s4 + (s5-s4).*q;
+T45_curve = T4 + (T5-T4).*q.^0.85;
+
+% Grafico
+
+figure
+hold on
+box on
+grid on
+
+% 0 -> 2
+plot(s02,T02_curve, ...
+    'LineWidth',1.5)
+
+% 2 -> 3
+plot(s23,T23_curve, ...
+    'LineWidth',1.5)
+
+% 3 -> 4
+plot(s34,T34_curve, ...
+    'm','LineWidth',2)
+
+% 4 -> 5
+plot(s45,T45_curve, ...
+    'LineWidth',2)
+
+
+
+% PUNTI
+
+plot(s0,T0,'o','MarkerSize',4,'LineWidth',1)
+plot(s2,T2,'o','MarkerSize',4,'LineWidth',1)
+plot(s3,T3,'o','MarkerSize',4,'LineWidth',1)
+plot(s4,T4,'o','MarkerSize',4,'LineWidth',1)
+plot(s5,T5,'o','MarkerSize',4,'LineWidth',1)
+
+% ETICHETTE
+
+text(s0+0.015,T0-30, ...
+    '$T_0$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s2+0.015,T2+35, ...
+    '$T_2$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s3+0.020,T3+65, ...
+    '$T_3$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s4+0.020,T4-20, ...
+    '$T_4$', ...
+    'Interpreter','latex','FontSize',10)
+
+text(s5+0.020,T5, ...
+    '$T_5$', ...
+    'Interpreter','latex','FontSize',10)
+
+
+
+% ASSI
+xlabel('$s-s_0\;[\mathrm{kJ/(kg\,K)}]$', ...
+    'Interpreter','latex')
+
+ylabel('$T\;[\mathrm{K}]$', ...
+    'Interpreter','latex')
+
+set(gca, ...
+    'FontSize',10, ...
+    'TickLabelInterpreter','latex')
+
+hold off
 
 %%
-% comp = 0.08m a stadio
-% turb = 0.147m a stadio
-
-
-%% Studio parametrici della Turbina: Effetto dei numeri di Mach
-
-% --- CONFIGURAZIONE E INPUT ---
-machRotoreAlto  = 0.80:0.01:0.9;
-mach2gressoTurbina = 0.40:0.01:0.5;
-%motoreBase = structMotore();
-numSimulazioni = length(machRotoreAlto); 
-
-% Preallocazione vettori per i risultati
-etaStadio_alto   = zeros(1, numSimulazioni);
-lavoroStadio_alto = zeros(1, numSimulazioni);
-etaStadio_basso   = zeros(1, numSimulazioni);
-lavoroStadio_basso = zeros(1, numSimulazioni);
-gradoReazione_alto = zeros(1, numSimulazioni);
-gradoReazione_basso = zeros(1, numSimulazioni);
-
-%parametri = structParametri();
-
-%motore = motoreBase; % Inizializzazione dal modello di partenza
-motore.turbina.mach4 = 0.5; % Fisso il mach4 a un valore costante
-
-for i = 1:numSimulazioni
-    % Aggiorna il Mach di uscita del rotore per il punto i-esimo
-    motore.turbina.rotore.wmachOut = machRotoreAlto(i);
-    
-    % Esecuzione del solutore del motore
-    [~, motore] = runnerMotore(motore, parametri);
-    
-    % Estrazione e salvataggio dei risultati dello stadio
-    etaStadio_alto(i)   = motore.turbina.etaStadio;
-    lavoroStadio_alto(i) = motore.turbina.lStadio;
-    gradoReazione_alto(i) = motore.turbina.R;
-end
-
-% --- SIMULAZIONE 2: Variazione Mach Ingresso Turbina (mach4) ---
-% Reset del motore allo stato base per garantire l'indipendenza delle simulazioni
-%motore = motoreBase; 
-% NOTA: Qui motore.turbina.rotore.wmachOut utilizzerà il valore di default di motoreBase
-motore.turbina.rotore.wmachOut = 0.9;
-
-for i = 1:numSimulazioni
-    % Aggiorna il Mach di ingresso alla turbina per il punto i-esimo
-    motore.turbina.mach4 = mach2gressoTurbina(i);
-    
-    % Esecuzione del solutore del motore
-    [~, motore] = runnerMotore(motore, parametri);
-    
-    % Estrazione e salvataggio dei risultati dello stadio
-    etaStadio_basso(i)   = motore.turbina.etaStadio;
-    lavoroStadio_basso(i) = motore.turbina.lStadio;
-    gradoReazione_basso(i) = motore.turbina.R;
-    
-end
-
-% --- GENERAZIONE GRAFICI ---
-figure("Name", "Analisi Parametrica Turbina: Effetto Mach");
-
-% Creazione di un layout a griglia (1 riga, 2 colonne)
-% --- Grafico 1: Effetto del Mach di Ingresso ---
-tiledlayout(1, 2); 
-nexttile();
-yyaxis left
-plot(mach2gressoTurbina, etaStadio_basso, '-', 'LineWidth', 1.5);
-ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
-grid on;
-hold on;
-
-yyaxis right 
-plot(mach2gressoTurbina, lavoroStadio_basso / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
-ylabel('Lavoro $[MW]$', 'Interpreter', 'latex')
-xlabel("Mach Ingresso Turbina ($Mach_4$)", 'Interpreter', 'latex')
-
-% --- Grafico 2: Effetto del Mach del Rotore ---
-nexttile();
-yyaxis left
-plot(machRotoreAlto, etaStadio_alto, '-', 'LineWidth', 1.5);
-ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
-grid on;
-hold on;
-
-yyaxis right 
-plot(machRotoreAlto, lavoroStadio_alto / 1e6, '-', 'LineWidth', 1.5); % Lavoro convertito in MW
-ylabel('Lavoro $[MW]$', 'Interpreter', 'latex')
-xlabel("Mach Relativo Uscita Rotore ($w_{machOut}$)", 'Interpreter', 'latex')
-
-% --- Grafico 3: Grado di reazione 
-figure()
-tiledlayout(1, 2); 
-nexttile();
-yyaxis left
-plot(mach2gressoTurbina, gradoReazione_alto, '-', 'LineWidth', 1.5);
-ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
-grid on;
-hold on;
-
-% --- Grafico 2: Effetto del Mach del Rotore ---
-nexttile();
-yyaxis left
-plot(machRotoreAlto, gradoReazione_basso, '-', 'LineWidth', 1.5);
-ylabel('$\eta_{stadio}$', 'Interpreter', 'latex')
-grid on;
-hold on;
-
-%% traingolozzi
-T = motore.turbina;
-s = T.statore;
-r = T.rotore;
-
-figure('name', 'Statore/Rotore - vettori velocità')
-nexttile
-title('Statore')
-quiver(0, 0, s.vz, s.vt, 0)        % v assoluta
-hold on
-quiver(0, 0, s.wz, s.wt, 0)        % w relativa
-axis equal; grid on
-
-quiver(0, 0, r.vz, r.vt, 0,'g')        % v assoluta
-quiver(0, 0, r.wz, r.wt, 0)        % w relativa
-
-quiver(r.wz, r.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
-quiver(s.wz, s.wt, 0, T.U, 0,'b')      % U tangenziale puro: punta w → punta v
-legend("v2","w2","v3","w3","U")
-xlabel("velocità assiale [m/s]")
-ylabel("velocità radiale [m/s]")
-
-
-
-
-
-% =========================================================================
-% 1. RAMHET
-% =========================================================================
 clear
-clc
-
-%% Impostazioni Grafiche Avanzate (LaTeX & Font)
-set(groot, ...
-    'defaultTextInterpreter', 'latex', ...
-    'defaultAxesTickLabelInterpreter', 'latex', ...
-    'defaultLegendInterpreter', 'latex', ...
-    'defaultColorbarTickLabelInterpreter', 'latex', ...
-    'defaultAxesFontSize', 12, ...
-    'defaultTextFontSize', 12, ...
-    'defaultLegendFontSize', 10, ...
-    'defaultAxesFontName', 'Latin Modern Roman');
-
-% Caricamento strutture dati
-parametri = [113, 1000];
-motoreBase = structRamjet();
-
-T0I = 1100:10:1800;
-N_T = length(T0I);
-
-% Allocazione vettori
-rendG_T    = zeros(1, N_T);
-rendP_T    = zeros(1, N_T);
-rendTh_T   = zeros(1, N_T);
-rendSt_T   = zeros(1, N_T);
-spinta_T   = zeros(1, N_T);
-tsfc_T     = zeros(1, N_T);
-mfuel_T    = zeros(1, N_T);
-rpTurb_T   = zeros(1, N_T);
-ue_T       = zeros(1, N_T);
+load('turbogetto.mat');
+load('ramjet.mat');
 
 
-for i = 1:N_T
-    parametri(2) = T0I(i);
-    [~, motore]  = runnerRamjet(motoreBase, parametri);
-    
-    rendG_T(i)   = motore.performance.etaGlobal;
-    rendP_T(i)   = motore.performance.etaProp;
-    rendTh_T(i)  = motore.performance.etaTh;
-    spinta_T(i)  = motore.performance.F;
-    tsfc_T(i)    = motore.performance.TSFC;
-    mfuel_T(i)   = motore.portate.mDotComb;
-    ue_T(i)      = motore.ugello.Ue;
+%% -----------------------------------------------------------------------
+%  3. FUNZIONI AUSILIARIE
+%  -----------------------------------------------------------------------
+
+function X = lhs_sample(n, d)
+    X = zeros(n, d);
+    for j = 1:d
+        X(:,j) = (randperm(n)' - rand(n,1)) / n;
+    end
 end
 
-% GRAFICI: Effetto di T04
-figure('Name', 'Analisi_Prestazioni_vs_T04');
-tiledlayout(3, 3, 'TileSpacing', 'Compact', 'Padding', 'Compact');
+function [ineq, eq] = myconTurbo(x, motoreBase)
+    % Funzione di vincolo non lineare per l'ottimizzazione del motore turbogetto.
+    % Restituisce i vincoli di disuguaglianza (ineq) e uguaglianza (eq) basati sui parametri del motore e sulle condizioni di progetto.
+    
+    FS = 0.98;
+    [~, motore] = runnerMotore(motoreBase, x); 
+    ineq = [ ... 
+        motore.compressore.machRel   - 1 * FS;
+        0.72 - motore.compressore.deHaller;
+        motore.compressore.CpStadio  - 0.5;
+        motore.compressore.DRotore   - 0.6 * FS;
+        motore.compressore.DStatore  - 0.6 * FS;
+        0.008 - motore.camera.tRes;
+        motore.camera.phi            - 1.1;
+        0.7   - motore.camera.phi;
+        (0.1 - motore.turbina.rh5) / 0.1; 
+        - motore.compressore.h3 + 0.03;
+        motore.presaAria.CPR - 0.78;
+        motore.compressore.NStadi - 15;
+        motore.diffusore.A35 - 0.8 
+        motore.turbina.A5 - 0.8
+        motore.camera.ARef - 0.8
+        motore.turbina.nStadi - 5
+        motore.performance.TSFC - 0.14
 
-% 1. Rendimenti Energetici (Doppio Asse)
-nexttile;
-yyaxis left
-plot(T0I, rendG_T, 'k-', 'LineWidth', 1.8, 'DisplayName', '$\eta_g$ (Globale)'); hold on;
-ylabel('$\eta_g$ [-]');
-yyaxis right
-plot(T0I, rendP_T, 'b-.', 'LineWidth', 1.5, 'DisplayName', '$\eta_p$ (Propulsivo)');
-plot(T0I, rendTh_T, 'r--', 'LineWidth', 1.5, 'DisplayName', '$\eta_{th}$ (Termico)');
-ylabel('$\eta_p$, $\eta_{th}$ [-]');
-grid on; xlabel('$T_{04}$ [K]');
-title('Rendimenti di Propulsione');
-legend('Location', 'best');
+        
+    ];
+    eq = [ motore.performance.F - 25000 ];
+end
 
-
-% 4. Spinta Motore
-nexttile;
-plot(T0I, spinta_T, 'g', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('Spinta $F$ [N]');
-title('Spinta erogata');
-
-% 5. Velocità di Efflusso Ugello (Nuovo)
-nexttile;
-plot(T0I, ue_T, 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('$U_e$ [m/s]');
-title('Velocità di Efflusso Ugello');
-
-% 6. Consumo Specifico (TSFC)
-nexttile;
-plot(T0I, tsfc_T, 'c', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('TSFC [kg/(N$\cdot$h)]');
-title('Consumo Specifico (TSFC)');
-
-% 7. Portata Combustibile
-nexttile;
-plot(T0I, mfuel_T, 'k', 'LineWidth', 1.5);
-grid on; xlabel('$T_{04}$ [K]'); ylabel('\dot{m}_f [kg/s]');
-title('Portata Combustibile');
+function [ineq, eq] = myconRamjet(x, motoreBase, motore)
+    [~, motore] = runnerRamjet(motoreBase, x, motore); % <
+    ineq = [ ... 
+        motore.performance.TSFC - 0.278;
+        motore.ugello.DE - 2.4;
+    ];
+    eq = [ motore.performance.F - 65000 ];
+end
