@@ -53,7 +53,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ─────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 5;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -518,7 +518,7 @@ options_ga = optimoptions('ga', ...
     'HybridFcn',           {@fmincon, hybrid_opts});
 
 % ── Multi-start ─────────────────────────────────────────────────────────
-n_runs = 150;
+n_runs = 5;
 best_f = inf;
 best_x = [];
 fHistory = zeros(n_runs,1);
@@ -557,7 +557,7 @@ fprintf('Best fval across all runs: %.4f\n', best_f);
 figure
 plot(1:n_runs, fHistory, 'o-')
 xlabel('Run')
-ylabel('Objective function')
+ylabel('Funzione obiettivo')
 grid on
 
 % MIGLIOR VALORE PROGRESSIVO ( TSFC minore)
@@ -568,7 +568,7 @@ grid on
 figure
 plot(1:n_runs, cummin(fHistory), 'o-')
 xlabel('Run')
-ylabel('Best objective so far')
+ylabel('Minimo cumulativo della funzione obiettivo')
 grid on
 
 
