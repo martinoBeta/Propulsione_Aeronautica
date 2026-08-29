@@ -1,5 +1,8 @@
 function [ramjet] = Anulus(ramjet,motore)
-% funzione che permette di dimensionare l'anulus del ramjet
+% ANULUS Calcola la geometria dell'anulus del ramjet e le grandezze termodinamiche in uscita.
+%
+%   [ramjet] = Anulus(ramjet,motore) 
+
 
 %% Estrazione Variabili
 T0I           = ramjet.presaAria.T02;     % Temperatura totale in ingresso
@@ -15,7 +18,7 @@ R             = ramjet.fluidi.aria.R;
 
 %% Calcolo Grandezze
 AreaIn = mdot/(rho*VIn);
-rIn    = sqrt(AreaIn/pi + rRam^2); % Raggio dell'anulus all'entrata
+rIn    = sqrt(AreaIn/pi + rRam^2); 
 
 AreaOut = AreaIn * (machIn/machOut) * ((1 + (gamma-1)/2 * machOut^2) ...
           / (1 + (gamma-1)/2 * machIn^2)) ^ ((gamma+1)/(2*(gamma-1)));
@@ -32,7 +35,7 @@ ramjet.anulus.rOut = rOut;
 ramjet.anulus.AIn  = AreaIn;
 ramjet.anulus.AOut = AreaOut;
 ramjet.anulus.T03  = T0I;
-ramjet.anulus.P03  = P0I;   % suppongo l'intero sistema ideale
+ramjet.anulus.P03  = P0I;   
 ramjet.anulus.T3   = TU;
 ramjet.anulus.P3   = PU;
 ramjet.anulus.U    = U;

@@ -1,8 +1,10 @@
 function [motore] = Diffusore(motore)
-% DIFFUSORE
-% Svolge il calcolo del rallentamento del flusso tra compressore e camera.
-% Calcola il recupero di pressione e le dimensioni geometriche del condotto.
-    % 
+% DIFFUSORE Svolge il calcolo del rallentamento del flusso 
+% tra compressore e camera. Calcola il recupero di pressione 
+% e le dimensioni geometriche del condotto.
+%
+%   [motore] = Diffusore(motore)
+    
     propDiffusore = motore.diffusore;
 
     propDiffusore.mach3 = motore.compressore.mach3;

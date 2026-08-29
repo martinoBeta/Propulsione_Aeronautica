@@ -1,23 +1,9 @@
 function [motore] = CameraCombustione(motore)
-% CAMERA_DI_COMBUSTIONE
-% Funzione che svolge il ciclo termodinamico reale della camera di combustione,
-% restituendo le condizioni termodinamiche in uscita e le caratteristiche
-% geometriche per il dimensionamento della camera.
+% CAMERACOMBUSTIONE Funzione che svolge il ciclo termodinamico reale della 
+% camera di combustione, restituendo le condizioni termodinamiche in uscita 
+% e le caratteristiche geometriche per il dimensionamento della camera.
 %
-% INPUT:
-%   P03Primo  : pressione totale in ingresso (dal dump diffuser) [Pa]
-%   T03Primo  : temperatura totale in ingresso (dal dump diffuser) [K]
-%   motore.camera : struct con parametri geometrici noti della camera
-%   propFluidi : struct con proprietà termodinamiche dei fluidi
-%   motore : struct con parametri globali del motore        <<< AGGIUNTO
-%   motore.fluidi.combustibile: struct con proprietà del combustibile
-%
-% OUTPUT:
-%   P04        : pressione totale in uscita dalla camera [Pa]
-%   T04        : temperatura totale in uscita dalla camera [K]
-%   QDot      : calore liberato durante la combustione [W]
-%   motore.camera 
-%   motore.fluidi.combustibile
+%   [motore] = CameraCombustione(motore) 
 
   
     % 1. ESTRAZIONE VARIABILI DALLE STRUCT

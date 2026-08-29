@@ -1,6 +1,8 @@
 function [motore] = StimaSpillaggio(motore)
-%STIMASPILLAGGIO stima lo spillagio dell'aria dal compressore per potere
-%poi raffreddare la turbina
+% STIMASPILLAGGIO stima lo spillagio dell'aria dal 
+% compressore per potere poi raffreddare la turbina
+% 
+%   [motore] = StimaSpillaggio(motore)
     
     TMax  = motore.camera.T04;
     gammaGas = motore.fluidi.gas.gamma;
@@ -8,7 +10,7 @@ function [motore] = StimaSpillaggio(motore)
     mDot = motore.portate.mDot;
 
 
-    % SOT (non temperatura a fine turbina) [K]
+    %SOT (non temperatura a fine turbina) [K]
     Sot = 2/(gammaGas+1)*TMax;   
 
     %Eps = mc/mtot.  percentuale di aria raffredata .

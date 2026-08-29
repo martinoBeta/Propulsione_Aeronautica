@@ -1,4 +1,10 @@
 function [ramjet] = CameraCombustioneRamjet(ramjet, motore)
+% CAMERACOMBUSTIONERAMJET Funzione che svolge il ciclo termodinamico 
+% reale della  camera di combustione per il ramjet, restituendo le 
+% condizioni termodinamiche in uscita e le caratteristiche geometriche
+% per il dimensionamento della camera.
+%
+%   [ramjet] = CameraCombustioneRamjet(ramjet, motore)
 
 %% Estrazione variabili
 T0I      = ramjet.anulus.T03;

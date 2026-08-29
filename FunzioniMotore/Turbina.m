@@ -1,22 +1,8 @@
 function [motore] = Turbina(motore)
-    %funzione che calcola prestazione della turbina
-    %% --------------------------------------------------------------------
-    %  LIMITI / VINCOLI DI PROGETTO TURBINA
- 
-    %   Vincoli aerodinamici:
-    %       T_max           1100 - 1700
-    %       machIn          0.3 - 0.4
-    %       rotore.wmachOut 0.8 - 0.9
-
-    %   Vincoli Geometrici
-    %   
-    %   
-
-    %   FATTORI LIMITANTI 
-    %       Temperatura uscita del compressore comporta a un cambiamento di
-    %       prestazioni dato che viene usata per rafreddare la turbina
-    %% --------------------------------------------------------------------
-
+    % TURBINA Funzione che calcola le prestazioni della 
+    % turbina del turbogetto
+    % 
+    %  [motore] = Turbina(motore)
 
     % ---------------------------------------------------------------------
     % INIZIALIZZAZIONE DELLE VARIABILI
@@ -73,14 +59,6 @@ function [motore] = Turbina(motore)
     % temperatura isoentropica
     T05Iso = T04*betaP^((gammaGas-1)/gammaGas);
 
-
-
-    % Lavoro isoentropico rafreddato
-    %lIsoRaff = mDotGas*((1-raffPecentuale)*cpGas*(T04-T05Iso) +(raffPecentuale)*cpAir*(TRaff-T05Iso));
- 
-    % rendimento adiabatico
-   
-    %etaNS = lTurbina/lIsoRaff;                                      % Rendimento piu correntto però diverso dalle slide
     etaN = (1 - (T05/T04))/(1-(P05/P04)^((gammaGas-1)/gammaGas));
     
     % INLET TURBINE

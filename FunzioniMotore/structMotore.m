@@ -1,14 +1,16 @@
 function [motore] = structMotore()
-
-%%
+% STRUCTMOTORE Funzione che inizializza la struct del turbogetto
+%
+%   [motore] = structMotore()
+%
+% Legenda dei campi della struct motore:
 % 0  --> flusso indisturbato
 % 2  --> uscita presa d'aria
 % 3  --> uscita compressore
 % 35 --> uscita diffusore
 % 4  --> uscita combustore
 % 5  --> uscita turbina
-% 6  --> uscita postbruciatore
-% 7  --> uscita ugello
+% 6  --> uscita ugello
 
 
 %% Costanti universali

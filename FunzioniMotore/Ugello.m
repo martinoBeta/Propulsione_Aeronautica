@@ -1,6 +1,8 @@
 function [motore] = Ugello(motore)
-% Calcolo parametri per ugello (subsonico), viene assunta espansione ottima
-
+% UGELLO Funzione che calcola le condizioni di uscita del 
+% flusso dal ugello subsonico
+% 
+%  [motore] = Ugello(motore)
 
 
 %% estrazione variabili
@@ -16,7 +18,7 @@ mdot  = motore.portate.mDotGas; % portata
 eta_n = motore.ugello.etaN;
 pi_n  = motore.ugello.piN;
 
-%% calcolo gradenzze
+% calcolo gradenzze
 P0I = P05*pi_n;
 TI  = T0I/(1 + (gamma-1)/2 * mach^2);
 NPR = P0I/PU; %Nozzle Pressure Ratio

@@ -1,6 +1,7 @@
 function [ramjet] = structRamjet()
-%FUNZIONE NON COMPLETATA DATI NON ATTENDIBILI!!!!
-%%
+% STRUCTRAMJET Funzione che inizializza la struct del ramjet
+%
+%  [ramjet] = structRamjet()
 % 0  --> flusso indisturbato
 % 2  --> uscita presa d'aria
 % 3  --> uscita anulus

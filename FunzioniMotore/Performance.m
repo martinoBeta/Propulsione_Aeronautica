@@ -1,6 +1,10 @@
 function [motore] = Performance(motore)
-    % Calcolo Delle Performance Del Motore
-    %% 
+% PERFORMANCE Calcola le performance del motore, tra 
+% cui spinta, TSFC e rendimenti.   
+% 
+%   [motore] = Performance(motore)  
+ 
+    % Estrazione variabili del freestream
     regime = motore.presaAria.regime;
     if regime == "subsonico"
         vVolo = motore.freestream.h12km.V0;
@@ -12,7 +16,7 @@ function [motore] = Performance(motore)
     uE = motore.ugello.Ue;
     mDotComb = motore.portate.mDotComb;
 
-    % SPINTA
+    % spinta
     mDotGas = motore.portate.mDotGas;
     mDotAria = motore.portate.mDot;
     f = motore.camera.f;
@@ -32,8 +36,7 @@ function [motore] = Performance(motore)
     % TSFC
     TSFC = mDotComb/F*3600; %kg/(hN)
 
-    % RENDIMENTO TOTALE
-    %F_is = CicloIdeale(motore,vVolo,mDotGas);
+    % rendimento totale
     LHV = motore.fluidi.combustibile.LHV;
     etaGlobal = F*vVolo/(mDotComb*LHV);
     
@@ -52,8 +55,5 @@ function [motore] = Performance(motore)
     motore.performance.etaProp  = etaProp;
     motore.performance.etaTh    = etaTh;
     motore.performance.ISP      = ISP;
-
-
-
-
+    
 end

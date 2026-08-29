@@ -1,20 +1,9 @@
 function [motore] = Parametri(motore,parametri)
-%PARAMETRI Summary of this function goes here
-%   Detailed explanation goes here
-% parametri = [ ...
-%     35;     % mDot     -> Portata massica in ingresso
-%     0.35;   % mach2    -> Mach ingresso compressore (mach2)
-%     7;      % pi_c     -> Rapporto di compressione compressore
-%     350;    % Utip     -> Velocità periferica tip compressore
-%     5;      % theta    -> Angolo apertura diffusore
-%     25;     % vtargetcamera -> Velocità target verso camera di combustione
-%     1500;   % T04      -> Temperatura totale uscita camera / ingresso turbina
-%     2300;   % TComb    -> Temperatura di combustione
-%     80;     % I        -> Intensità di combustione
-%     0.3;    % mach4    -> Mach ingresso turbina
-%     0.9;    % wmachOut -> Mach relativo uscita rotore turbina
-% ]; 
-    
+%PARAMETRI Funzione che assegna i parametri di 
+%progetto del motore in base al regime di volo.
+%
+%   [motore] = Parametri(motore,parametri)
+
     regime = motore.presaAria.regime;
     
         if regime == "subsonico"

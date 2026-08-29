@@ -1,5 +1,8 @@
 function [ramjet] = UgelloRamjet(ramjet)
-% Calcolo parametri per ugello (supersonico), viene assunta espansione ottima
+% UGELLORAMJET Funzione che calcola le condizioni di uscita 
+% del flusso dal ugello del ramjet (supersonico)
+% 
+% [ramjet] = UgelloRamjet(ramjet)
 
 
 

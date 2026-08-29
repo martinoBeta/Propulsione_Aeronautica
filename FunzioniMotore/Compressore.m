@@ -1,32 +1,9 @@
 function [motore] = Compressore(motore)
-
-%% --------------------------------------------------------------------
-%  LIMITI / VINCOLI DI PROGETTO COMPRESSORE
-
-% Vincoli aerodinamici:
-%   machRel    < 1
-%   deHaller    > 0.72
-%   CpStadio   < 0.5
-%   DRotore    < 0.6
-%   DStatore   < 0.6
-
-
-% Vincoli geometrici indicativi larghi da imporre nell'ottimizzazione:
-%   A2 / Ain_c      < 2.0 m^2      area ingresso compressore max
-%   A3          < 1.5 m^2      area uscita compressore max
-%   rM2          < 1.2 m        raggio medio ingresso max
-%   rM3         < 1.2 m        raggio medio uscita max
-%   h2            < 0.60 m       altezza pala ingresso max
-%   h3           < 0.45 m       altezza pala uscita max
-%   h2, h3     > 0.02 m       altezza pala minima
-%   NStadi         < 20           numero stadi massimo
-%   NPaleComp             < 180          numero pale rotoriche massimo
+% COMPRESSORE funzione che calcola le grandezze termodinamiche 
+% e geometriche del compressore, restituendo le condizioni in uscita 
+% e le caratteristiche geometriche per il dimensionamento del compressore.
 %
-% Questi limiti non sono vincoli stringenti: servono solo
-% a scartare configurazioni geometricamente non plausibili.
-%% ------------------------------------------------------------------------
-
-
+%   [motore] = Compressore(motore)
 
 
     % Inizializzazione

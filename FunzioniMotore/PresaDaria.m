@@ -1,4 +1,11 @@
 function [motore] = PresaDaria(motore)
+% PRESADARIA Funzione che calcola le grandezze 
+% termodinamiche e geometriche della presa d'aria,
+% restituendo le condizioni in uscita e le caratteristiche 
+% geometriche per il dimensionamento della presa. Funziona sia
+% in regimi subsonici che supersonici.
+%
+%   [motore] = PresaDaria(motore)
 
     regime = motore.presaAria.regime;
 
