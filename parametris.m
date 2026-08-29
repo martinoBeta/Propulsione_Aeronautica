@@ -1,0 +1,1 @@
+parametri = [motore.portate.mDot, motore.compressore.piC, motore.compressore.Utip, motore.camera.T04];

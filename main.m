@@ -1125,8 +1125,8 @@ title('Portata Combustibile');
 
 % --- CONFIGURAZIONE E INPUT ---
 machRotoreAlto  = 0.80:0.01:0.9;
-mach2gressoTurbina = 0.30:0.01:0.4;
-motoreBase = structMotore();
+mach2gressoTurbina = 0.40:0.01:0.5;
+%motoreBase = structMotore();
 numSimulazioni = length(machRotoreAlto); 
 
 % Preallocazione vettori per i risultati
@@ -1137,10 +1137,10 @@ lavoroStadio_basso = zeros(1, numSimulazioni);
 gradoReazione_alto = zeros(1, numSimulazioni);
 gradoReazione_basso = zeros(1, numSimulazioni);
 
-parametri = structParametri();
+%parametri = structParametri();
 
-motore = motoreBase; % Inizializzazione dal modello di partenza
-motore.turbina.mach4 = 0.3; % Fisso il mach4 a un valore costante
+%motore = motoreBase; % Inizializzazione dal modello di partenza
+motore.turbina.mach4 = 0.5; % Fisso il mach4 a un valore costante
 
 for i = 1:numSimulazioni
     % Aggiorna il Mach di uscita del rotore per il punto i-esimo
@@ -1157,8 +1157,9 @@ end
 
 % --- SIMULAZIONE 2: Variazione Mach Ingresso Turbina (mach4) ---
 % Reset del motore allo stato base per garantire l'indipendenza delle simulazioni
-motore = motoreBase; 
+%motore = motoreBase; 
 % NOTA: Qui motore.turbina.rotore.wmachOut utilizzerà il valore di default di motoreBase
+motore.turbina.rotore.wmachOut = 0.9;
 
 for i = 1:numSimulazioni
     % Aggiorna il Mach di ingresso alla turbina per il punto i-esimo
