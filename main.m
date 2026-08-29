@@ -946,6 +946,7 @@ function [ineq, eq] = myconTurbo(x, motoreBase)
         motore.diffusore.A35 - 0.8 
         motore.turbina.A5 - 0.8
         motore.camera.ARef - 0.8
+        motore.camera.LC - 1.8 
         motore.turbina.nStadi - 5
         motore.performance.TSFC - 0.14
 
