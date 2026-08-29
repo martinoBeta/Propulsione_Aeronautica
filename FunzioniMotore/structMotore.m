@@ -32,9 +32,9 @@ function [motore] = structMotore()
     gas.cp = (gas.gamma * gas.R) / (gas.gamma - 1);
 
     % Proprietà combustibile (JP-7)
-    combustibile.Mm = 321.4964;
-    combustibile.cp = 1800;
-    combustibile.LHV = 44.1e6;
+    combustibile.Mm = 170;
+    combustibile.cp = 2100;
+    combustibile.LHV = 43.5e6;
 
     % salvataggio
     motore.fluidi.aria     = aria;

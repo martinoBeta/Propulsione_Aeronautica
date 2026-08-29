@@ -41,7 +41,7 @@ function [motore] = CameraCombustione(motore)
     cpG  = motore.fluidi.gas.cp;        % cp gas combusti in uscita [J/(kg·K)]
     Rg   = motore.fluidi.gas.R;         % costante del gas [J/(kg·K)]
     gammaG = motore.fluidi.gas.gamma;   % rapporto calori specifici gas combusti [-]
-    cpF     = motore.fluidi.combustibile.cp; % cp combustibile combusti in uscita [J/(kg·K)]
+    cpF     = motore.fluidi.combustibile.cp; % cp combustibile liquido [J/(kg·K)]
     % Ricavo pressione e temperatura statica per calcoli futuri:
     T3Statica = T03Primo / (1 + (gammaA-1)/2 * M03Primo^2);
     P3Statica = P03Primo / (1 + (gammaA-1)/2 * M03Primo^2)^(gammaA/(gammaA-1));

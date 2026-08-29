@@ -28,9 +28,9 @@ gas.cp    = (gas.gamma * gas.R) / (gas.gamma - 1);
 
 
 % Proprietà combustibile (JP-7)
-combustibile.Mm  = 321.4964;
-combustibile.LHV = 43e6;
-combustibile.cp  = 1800;    % [J/(kg·K)]
+combustibile.Mm  = 170;
+combustibile.LHV = 43.5e6;
+combustibile.cp  = 2100;    % [J/(kg·K)]
 
 % salvataggio
 ramjet.fluidi.aria         = aria;
