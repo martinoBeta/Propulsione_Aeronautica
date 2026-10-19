@@ -1,0 +1,116 @@
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.58\textwidth}
+\begin{tikzpicture}[
+    scale=0.8,
+    thick,
+    >=Stealth,
+    font=\sffamily
+]
+
+    % --- Asse di rotazione e Linea Media ---
+    % Asse di rotazione
+    \draw[dash dot, thin] (1,0) -- (9,0);
+    
+    % Linea media di flusso (r_m1)
+    \draw[dashed, thin] (1,2.7) -- (8.0,2.7);
+
+    % --- Albero / Rotore (Shaft) ---
+    \draw[thick] (3.2,0) ellipse (0.35cm and 0.5cm);
+    \draw[thick] (3.2,-0.5) -- (7.2,-0.5);
+    \draw[thick] (3.2,0.5) -- (4.1,0.5);
+    \draw[thick] (7.2,-0.5) arc (-90:90:0.35cm and 0.5cm);
+    \draw[thick] (4.7,0.5) -- (5.9,0.5);
+    \draw[thick] (6.5,0.5) -- (7.2,0.5);
+
+    
+
+    % --- Palettature (N1, R1, N2, R2) ---
+
+    % N1 (Statore 1)
+    \draw[thick] (3.2,3.5) -- (3.2,1.84) -- (3.8,1.72) -- (3.8,3.7) -- cycle;
+    \node at (3.5, 2.7) {N1};
+
+    % R1 (Rotore 1)
+    \draw[thick]  (4.1,0.5) -- (4.1,3.7) -- (4.7,3.9) -- (4.7,0.5);
+    \draw[thick]  (4.1,1.66) -- (4.7,1.54);
+    \node at (4.4, 2.7) {R1};
+
+    % N2 (Statore 2)
+    \draw[thick] (5.0,4.1) -- (5.0,1.48) -- (5.6,1.36) -- (5.6,4.3) -- cycle;
+    \node at (5.3, 2.7) {N2};
+
+    % R2 (Rotore 2)
+    \draw[thick] (5.9,0.5) -- (5.9,4.3) -- (6.5,4.5) -- (6.5,0.5);
+    \draw[thick]  (5.9,1.26) -- (6.5,1.12);
+    \node at (6.2, 2.7) {R2};
+
+    % --- Inviluppo Superiore (Cassa / Tip) ---
+    \draw[ultra thick] (3.1,3.47) -- (6.6,4.63);
+
+    % --- Cerchi Stazioni (4, 2, 5) ---
+    % Stazione 4 (Ingresso)
+    \node[draw, circle, inner sep=1pt, minimum size=5mm] at (3.2, 4) {\small 4};
+    
+    % Stazione 2 (Tra N1 e R1)
+    %\node[draw, circle, inner sep=1pt, minimum size=5mm] at (3.95, 4.25) {\small 2};
+    
+    % Stazione 5 (Uscita R2)
+    \node[draw, circle, inner sep=1pt, minimum size=5mm] at (6.5, 5.05) {\small 5};
+
+    % --- Quote a Sinistra (Sezione d'Ingresso / Stazione 2) ---
+    % Linee di riferimento orizzontali
+    \draw[thin] (1, 3.7) -- (4.1, 3.7);
+    \draw[thin] (2.3, 1.66) -- (4.1, 1.66);
+
+    % Frecce verticali
+    \draw[<->] (1.1, 0) -- (1.1, 3.7) node[midway, fill=white] {$r_{t1.5}$};
+    \draw[<->] (1.7, 0) -- (1.7, 2.7) node[midway, fill=white] {$r_{m}$};
+    \draw[<->] (2.3, 0) -- (2.3, 1.66) node[midway, fill=white] {$r_{h1.5}$};
+    \draw[<->] (2.5, 1.66) -- (2.5, 3.7) node[midway, fill=white] {$h_{1.5}$};
+
+    % --- Quote a Destra (Sezione d'Uscita / Stazione 5) ---
+    % Linee di riferimento orizzontali
+    \draw[thin] (6.5, 4.5) -- (9, 4.5);
+    \draw[thin] (6.5, 1.12) -- (8.7, 1.12);
+
+    % Frecce verticali
+    \draw[<->] (7.3, 1.12) -- (7.3, 4.5) node[midway, fill=white] {$h_5$};
+    \draw[<->] (8.1, 0) -- (8.1, 1.12) node[midway, fill=white] {$r_{h5}$};
+    \draw[<->] (8.9, 0) -- (8.9, 4.5) node[midway, fill=white] {$r_{t5}$};
+
+    % --- Equazione in basso centrata ---
+
+\end{tikzpicture}
+\end{minipage}%
+\hfill
+  % --- MINIPAGE DI DESTRA: Tabella ---
+\begin{minipage}[c]{0.38\textwidth}
+    \raggedleft
+    
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \setlength{\tabcolsep}{3.5pt}
+
+    \begin{tabular}{cc}
+        \toprule
+        \textbf{Dimensione} & \textbf{Valore [mm]} \\
+        \midrule
+
+        $r_{t2}$ & 513  \\
+        $r_{h2}$ & 457  \\
+        $h_2$    & 56.3 \\
+
+        \addlinespace
+
+        $r_{t5}$ & 539 \\
+        $r_{h5}$ & 431 \\
+        $h_5$    & 108 \\
+
+        \bottomrule
+    \end{tabular}
+
+    \label{tab:dati_turbina}
+\end{minipage}
+  \caption{Raggi di mozzo e di punta del rotore del primo stadio e dell'uscita della turbina, con indicazione dei valori e della relativa rappresentazione grafica.}
+\end{figure}

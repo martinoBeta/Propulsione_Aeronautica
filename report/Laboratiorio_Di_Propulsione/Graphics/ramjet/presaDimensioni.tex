@@ -1,0 +1,747 @@
+% ============================================================
+% PRESA D'ARIA TBCC - VERSIONE BIANCO E NERO
+% ============================================================
+
+
+% ============================================================
+% 1. PARAMETRI PRINCIPALI
+% ============================================================
+
+% Dati reali MATLAB
+\def\hCatt{1.1005}
+\def\LSuper{2.2532}
+
+\def\LRampaOneTwo{1.4907}
+\def\LRampaTwoThree{0.7145}
+\def\LRampaThreeFour{0.4435}
+
+% Delta s
+\def\DeltaS{0.2253}
+
+% Angoli MATLAB originali
+% Servono SOLO per costruire la geometria.
+% Non vengono visualizzati.
+\def\deltaOneRaw{0.2057}
+\def\deltaTwoRaw{0.2521}
+\def\deltaThreeRaw{0.3093}
+
+% Mach
+\def\Mzero{3.5}
+
+% Aree
+\def\AtwoRam{0.5273}
+
+% Sostituire con motore.presaAria.A2 se hai il valore preciso
+\def\AtwoTurbo{0.5273}
+
+% Scala globale
+\def\UnitScale{2.45}
+
+
+
+% ============================================================
+% 2. POSIZIONI MODIFICABILI DELLE SCRITTE
+% ============================================================
+%
+% DX positivo = destra
+% DX negativo = sinistra
+%
+% DY positivo = alto
+% DY negativo = basso
+% ============================================================
+
+% Shock point
+\def\ShockTextDX{-0.20}
+\def\ShockTextDY{-0.08}
+
+% Mach
+\def\MachTextDX{-0.10}
+\def\MachTextDY{0.00}
+
+% Compressore
+\def\CompressorTextDX{-0.15}
+\def\CompressorTextDY{0.00}
+
+% Post combustore
+\def\PostTextDX{0.00}
+\def\PostTextDY{0.00}
+
+% B
+\def\BTextDX{-0.04}
+\def\BTextDY{0.06}
+
+% C
+\def\CTextDX{0.00}
+\def\CTextDY{0.07}
+
+% D
+\def\DTextDX{0.00}
+\def\DTextDY{0.07}
+
+% E
+\def\ETextDX{0.00}
+\def\ETextDY{0.07}
+
+% A = Shock point
+\def\ATextDX{-0.08}
+\def\ATextDY{0.04}
+
+% A' = punto dopo Delta_s
+\def\AprimeTextDX{0.05}
+\def\AprimeTextDY{0.04}
+
+
+
+% ============================================================
+% 3. CONVERSIONE ANGOLI
+% ============================================================
+
+% I valori MATLAB vengono usati con sin/cos,
+% quindi li convertiamo internamente per TikZ.
+
+\pgfmathsetmacro{\deltaOne}{deg(\deltaOneRaw)}
+\pgfmathsetmacro{\deltaTwo}{deg(\deltaTwoRaw)}
+\pgfmathsetmacro{\deltaThree}{deg(\deltaThreeRaw)}
+
+\pgfmathsetmacro{\thetaFlow}{
+    \deltaOne+\deltaTwo+\deltaThree
+}
+
+
+
+% ============================================================
+% 4. ALTEZZA COMPRESSORE
+% ============================================================
+
+\pgfmathsetmacro{\hComp}{
+    2*sqrt(\AtwoTurbo/pi)
+}
+
+
+
+% ============================================================
+% 5. COORDINATE RAMPE
+% ============================================================
+
+% B
+\pgfmathsetmacro{\xB}{0}
+\pgfmathsetmacro{\yB}{\hCatt}
+
+% C
+\pgfmathsetmacro{\xC}{
+    \xB+\LRampaOneTwo*cos(\deltaOne)
+}
+
+\pgfmathsetmacro{\yC}{
+    \yB-\LRampaOneTwo*sin(\deltaOne)
+}
+
+% D
+\pgfmathsetmacro{\xD}{
+    \xC+\LRampaTwoThree*cos(\deltaOne+\deltaTwo)
+}
+
+\pgfmathsetmacro{\yD}{
+    \yC-\LRampaTwoThree*sin(\deltaOne+\deltaTwo)
+}
+
+% E
+\pgfmathsetmacro{\xE}{
+    \xD+\LRampaThreeFour*cos(\thetaFlow)
+}
+
+\pgfmathsetmacro{\yE}{
+    \yD-\LRampaThreeFour*sin(\thetaFlow)
+}
+
+
+
+% ============================================================
+% 6. SHOCK POINT = A
+% ============================================================
+
+\pgfmathsetmacro{\xShock}{\LSuper}
+\pgfmathsetmacro{\yShock}{0}
+
+
+
+% ============================================================
+% 7. PUNTO A' DOPO DELTA S
+% ============================================================
+
+% Delta_s è interpretato come distanza orizzontale,
+% come nella figura di riferimento.
+
+\pgfmathsetmacro{\xLip}{
+    \xShock+\DeltaS
+}
+
+% Il punto continua nella direzione della terza rampa
+\pgfmathsetmacro{\yLip}{
+    \yShock-\DeltaS*tan(\thetaFlow)
+}
+
+
+
+% ============================================================
+% 8. GEOMETRIA INTERNA
+% ============================================================
+
+\pgfmathsetmacro{\xHinge}{
+    \xE+0.80*\LSuper
+}
+
+\pgfmathsetmacro{\xMax}{
+    \xHinge+0.25*\LSuper
+}
+
+\pgfmathsetmacro{\yFloor}{
+    -0.45*\hCatt
+}
+
+\pgfmathsetmacro{\yHinge}{
+    \yFloor+sqrt(\AtwoRam/pi)
+}
+
+\pgfmathsetmacro{\yRoof}{
+    \yHinge+\hComp
+}
+
+
+
+% ============================================================
+% 9. BEZIER - TETTO
+% ============================================================
+
+\pgfmathsetmacro{\RoofPoneX}{
+    \xE+0.5*(\xHinge-\xE)
+}
+
+\pgfmathsetmacro{\RoofPoneY}{
+    \yE
+}
+
+\pgfmathsetmacro{\RoofPtwoX}{
+    \xHinge-0.2*(\xHinge-\xE)
+}
+
+\pgfmathsetmacro{\RoofPtwoY}{
+    \yRoof
+}
+
+
+
+% ============================================================
+% 10. BEZIER - PARATIA
+% ============================================================
+
+\pgfmathsetmacro{\dxFlap}{
+    \xHinge-\xE
+}
+
+\pgfmathsetmacro{\FlapPoneX}{
+    \xE+0.35*\dxFlap
+}
+
+\pgfmathsetmacro{\FlapPoneY}{
+    \yE-0.25*\dxFlap*tan(\thetaFlow)
+}
+
+\pgfmathsetmacro{\FlapPtwoX}{
+    \xHinge-0.35*\dxFlap
+}
+
+\pgfmathsetmacro{\FlapPtwoY}{
+    \yHinge
+}
+
+
+
+% ============================================================
+% 11. BEZIER - PAVIMENTO
+% ============================================================
+
+\pgfmathsetmacro{\dxFloor}{
+    \xHinge-\xLip
+}
+
+\pgfmathsetmacro{\FloorPoneX}{
+    \xLip+0.35*\dxFloor
+}
+
+\pgfmathsetmacro{\FloorPoneY}{
+    \yLip-0.25*\dxFloor*tan(\thetaFlow)
+}
+
+\pgfmathsetmacro{\FloorPtwoX}{
+    \xHinge-0.35*\dxFloor
+}
+
+\pgfmathsetmacro{\FloorPtwoY}{
+    \yFloor
+}
+
+
+
+% ============================================================
+% 12. FIGURA
+% ============================================================
+
+
+\centering
+
+\begin{tikzpicture}[
+    x=\UnitScale cm,
+    y=\UnitScale cm,
+    line cap=round,
+    line join=round,
+    font=\scriptsize,
+    >={Stealth[length=2.5mm,width=1.8mm]}
+]
+
+\clip
+  ({-0.42*\LSuper},{\yFloor-0.45})
+  rectangle
+  ({\xHinge-0.65*\LSuper},{\hCatt+0.15});
+
+% ============================================================
+% FUSOLIERA SUPERIORE / REFERENCE AXIS
+% ============================================================
+
+\draw[
+    black,
+    line width=0.9pt
+]
+({-0.15*\LSuper},\hCatt)
+--
+(\xMax,\hCatt);
+
+
+
+
+
+% ============================================================
+% RAMPE B-C-D-E
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xB,\yB)
+--
+(\xC,\yC)
+--
+(\xD,\yD)
+--
+(\xE,\yE);
+
+
+
+% ============================================================
+% ONDE D'URTO - TUTTE NERE
+% ============================================================
+
+\draw[
+    black,
+    line width=1.1pt
+]
+(\xB,\yB)
+--
+(\xShock,\yShock);
+
+
+\draw[
+    black,
+    line width=1.1pt
+]
+(\xC,\yC)
+--
+(\xShock,\yShock);
+
+
+\draw[
+    black,
+    line width=1.1pt
+]
+(\xD,\yD)
+--
+(\xShock,\yShock);
+
+
+\draw[
+    black,
+    line width=1.1pt
+]
+(\xE,\yE)
+--
+(\xShock,\yShock);
+
+
+
+% ============================================================
+% SHOCK POINT
+% ============================================================
+
+
+
+
+% ============================================================
+% TRATTO A -> A'
+% ============================================================
+
+\draw[
+    black,
+    dashed,
+    line width=1pt
+]
+(\xShock,\yShock)
+--
+(\xLip,\yLip);
+
+
+
+% ============================================================
+% ETICHETTE A E A'
+% ============================================================
+
+\node
+at
+(
+    {\xShock+\ATextDX},
+    {\yShock+\ATextDY-0.1}
+)
+{
+    $A$
+};
+
+
+\node
+at
+(
+    {\xLip+\AprimeTextDX},
+    {\yLip+\AprimeTextDY}
+)
+{
+    $A'$
+};
+
+
+
+% ============================================================
+% TETTO
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xE,\yE)
+..
+controls
+    (\RoofPoneX,\RoofPoneY)
+and
+    (\RoofPtwoX,\RoofPtwoY)
+..
+(\xHinge,\yRoof)
+--
+(\xMax,\yRoof);
+
+
+
+% ============================================================
+% PARATIA MOBILE
+% ============================================================
+
+\draw[
+    black,
+    line width=1.6pt
+]
+(\xE,\yE)
+..
+controls
+    (\FlapPoneX,\FlapPoneY)
+and
+    (\FlapPtwoX,\FlapPtwoY)
+..
+(\xHinge,\yHinge);
+
+
+\fill[
+    black
+]
+(\xHinge,\yHinge)
+circle[radius=1.8pt];
+
+
+
+% ============================================================
+% PAVIMENTO
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xLip,\yLip)
+..
+controls
+    (\FloorPoneX,\FloorPoneY)
+and
+    (\FloorPtwoX,\FloorPtwoY)
+..
+(\xHinge,\yFloor)
+--
+(\xMax,\yFloor);
+
+
+
+% ============================================================
+% LINEA DIVISORIA
+% ============================================================
+
+\draw[
+    black,
+    line width=1.2pt
+]
+(\xHinge,\yHinge)
+--
+(\xMax,\yHinge);
+
+
+
+% ============================================================
+% FACCIA COMPRESSORE
+% ============================================================
+
+\draw[
+    black,
+    line width=2.3pt
+]
+(\xMax,\yHinge)
+--
+(\xMax,\yRoof);
+
+
+
+
+
+
+
+
+% ============================================================
+% ETICHETTE B C D E
+% ============================================================
+
+\node
+at
+(
+    {\xB+\BTextDX},
+    {\yB+\BTextDY}
+)
+{
+    $B$
+};
+
+
+\node
+at
+(
+    {\xC+\CTextDX},
+    {\yC+\CTextDY}
+)
+{
+    $C$
+};
+
+
+\node
+at
+(
+    {\xD+\DTextDX},
+    {\yD+\DTextDY}
+)
+{
+    $D$
+};
+
+
+\node
+at
+(
+    {\xE+\ETextDX},
+    {\yE+\ETextDY}
+)
+{
+    $E$
+};
+
+
+
+% ============================================================
+% QUOTA VERTICALE h
+% ============================================================
+
+% Posizione della quota
+\pgfmathsetmacro{\xHeightDim}{
+    -0.38*\LSuper
+}
+
+% Linee di estensione
+\draw[
+    black,
+    thin
+]
+(\xHeightDim,\hCatt)
+--
+(\xB,\hCatt);
+
+
+\draw[
+    black,
+    thin
+]
+(\xHeightDim,\yShock)
+--
+(\xShock,\yShock);
+
+
+% Freccia verticale
+\draw[
+    <->,
+    black,
+    line width=0.9pt
+]
+(\xHeightDim,\yShock)
+--
+(\xHeightDim,\hCatt);
+
+
+% Etichetta h
+\node[
+    rotate=90,
+    fill=white,
+    inner sep=2pt
+]
+at
+(
+    \xHeightDim,
+    {(\hCatt+\yShock)/2}
+)
+{
+    $h$
+};
+
+
+
+% ============================================================
+% QUOTA L_SUPER
+% ============================================================
+
+\pgfmathsetmacro{\yLsuperDim}{
+    \yFloor-0.28
+}
+
+% Estensioni verticali
+\draw[
+    black,
+    thin
+]
+(\xB,\yShock)
+--
+(\xB,\yLsuperDim);
+
+
+\draw[
+    black,
+    thin
+]
+(\xShock,\yShock)
+--
+(\xShock,\yLsuperDim);
+
+
+% Quota
+\draw[
+    <->,
+    black,
+    line width=0.9pt
+]
+(\xB,\yLsuperDim)
+--
+(\xShock,\yLsuperDim);
+
+
+\node[
+    fill=white,
+    inner sep=2pt
+]
+at
+(
+    {(\xB+\xShock)/2},
+    \yLsuperDim
+)
+{
+    $L_{\mathrm{SUPER}}$
+};
+
+
+
+% ============================================================
+% QUOTA DELTA_S
+% ============================================================
+
+\pgfmathsetmacro{\yDeltaDim}{
+    \yLsuperDim+0.16
+}
+
+% Estensione shock point
+\draw[
+    black,
+    thin
+]
+(\xShock,\yShock)
+--
+(\xShock,\yDeltaDim);
+
+
+% Estensione A'
+\draw[
+    black,
+    thin
+]
+(\xLip,\yLip)
+--
+(\xLip,\yDeltaDim);
+
+
+% Quota Delta_s
+\draw[
+    <->,
+    black,
+    line width=0.9pt
+]
+(\xShock,\yDeltaDim)
+--
+(\xLip,\yDeltaDim);
+
+
+\node[
+    fill=white,
+    inner sep=1pt
+]
+at
+(
+    {(\xShock+\xLip)/2},
+    \yDeltaDim
+)
+{
+    $\Delta_s$
+};
+
+
+\end{tikzpicture}
+
+
+\caption{
+Schema geometrico della presa d'aria TBCC.}

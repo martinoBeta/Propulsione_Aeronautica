@@ -1,0 +1,1118 @@
+
+
+% ============================================================
+% PRESA D'ARIA TBCC - MACH 3.5
+% ============================================================
+
+
+% ============================================================
+% 1. PARAMETRI PRINCIPALI
+% ============================================================
+
+% Dati ramjet.presaAria
+\def\hCatt{1.1005}
+\def\LSuper{2.2532}
+
+\def\LRampaOneTwo{1.4907}
+\def\LRampaTwoThree{0.7145}
+\def\LRampaThreeFour{0.4435}
+
+\def\wCatt{2.2011}
+
+% Valori MATLAB
+\def\deltaOneRaw{0.2057}
+\def\deltaTwoRaw{0.2521}
+\def\deltaThreeRaw{0.3093}
+
+\def\thetaOneRaw{0.4544}
+\def\thetaTwoRaw{0.5811}
+\def\thetaThreeRaw{0.8046}
+
+% Mach
+\def\Mzero{3.5}
+
+% Aree
+\def\AtwoRam{0.5273}
+
+% ATTENZIONE:
+% sostituire col vero valore di motore.presaAria.A2
+\def\AtwoTurbo{0.5273}
+
+% Scala globale
+\def\UnitScale{2.45}
+
+
+
+% ============================================================
+% 2. POSIZIONI MODIFICABILI DELLE SCRITTE
+% ============================================================
+%
+% DX > 0  -> destra
+% DX < 0  -> sinistra
+%
+% DY > 0  -> alto
+% DY < 0  -> basso
+% ============================================================
+
+% theta 1
+\def\ThetaOneDX{0.09}
+\def\ThetaOneDY{0.18}
+
+% delta 1
+\def\DeltaOneDX{-0.03}
+\def\DeltaOneDY{0.13}
+
+% theta 2
+\def\ThetaTwoDX{0.1}
+\def\ThetaTwoDY{0.05}
+
+% delta 2
+\def\DeltaTwoDX{-0.02}
+\def\DeltaTwoDY{0.14}
+
+% theta 3
+\def\ThetaThreeDX{0.1}
+\def\ThetaThreeDY{0.1}
+
+% delta 3
+\def\DeltaThreeDX{-0.02}
+\def\DeltaThreeDY{0.19}
+
+% Shock point
+\def\ShockTextDX{-0.5}
+\def\ShockTextDY{0}
+
+% Offset
+\def\OffsetTextDX{-0.2}
+\def\OffsetTextDY{-0.08}
+
+% Ingresso compressore
+\def\CompressorTextDX{-0.71}
+\def\CompressorTextDY{-0.1}
+
+% Mach
+\def\MachTextDX{-0.10}
+\def\MachTextDY{0.00}
+
+% Post combustore
+\def\PostTextDX{-0.2}
+\def\PostTextDY{0.00}
+
+% Etichette B C D E
+\def\BTextDX{-0.05}
+\def\BTextDY{0.05}
+
+\def\CTextDX{0.00}
+\def\CTextDY{0.06}
+
+\def\DTextDX{0.00}
+\def\DTextDY{0.06}
+
+\def\ETextDX{0.00}
+\def\ETextDY{0.06}
+
+
+
+% ============================================================
+% 3. CONVERSIONE ANGOLI
+% ============================================================
+
+\pgfmathsetmacro{\deltaOne}{deg(\deltaOneRaw)}
+\pgfmathsetmacro{\deltaTwo}{deg(\deltaTwoRaw)}
+\pgfmathsetmacro{\deltaThree}{deg(\deltaThreeRaw)}
+
+\pgfmathsetmacro{\thetaOne}{deg(\thetaOneRaw)}
+\pgfmathsetmacro{\thetaTwo}{deg(\thetaTwoRaw)}
+\pgfmathsetmacro{\thetaThree}{deg(\thetaThreeRaw)}
+
+\pgfmathsetmacro{\thetaFlow}{
+    \deltaOne+\deltaTwo+\deltaThree
+}
+
+
+
+% ============================================================
+% 4. AREE E ALTEZZE
+% ============================================================
+
+\pgfmathsetmacro{\hComp}{
+    2*sqrt(\AtwoTurbo/pi)
+}
+
+
+
+% ============================================================
+% 5. COORDINATE RAMPE
+% ============================================================
+
+\pgfmathsetmacro{\xB}{0}
+\pgfmathsetmacro{\yB}{\hCatt}
+
+\pgfmathsetmacro{\xC}{
+    \xB+\LRampaOneTwo*cos(\deltaOne)
+}
+
+\pgfmathsetmacro{\yC}{
+    \yB-\LRampaOneTwo*sin(\deltaOne)
+}
+
+\pgfmathsetmacro{\xD}{
+    \xC+\LRampaTwoThree*cos(\deltaOne+\deltaTwo)
+}
+
+\pgfmathsetmacro{\yD}{
+    \yC-\LRampaTwoThree*sin(\deltaOne+\deltaTwo)
+}
+
+\pgfmathsetmacro{\xE}{
+    \xD+\LRampaThreeFour*cos(\thetaFlow)
+}
+
+\pgfmathsetmacro{\yE}{
+    \yD-\LRampaThreeFour*sin(\thetaFlow)
+}
+
+
+
+% ============================================================
+% 6. SHOCK POINT
+% ============================================================
+
+\pgfmathsetmacro{\xShock}{\LSuper}
+\pgfmathsetmacro{\yShock}{0}
+
+
+
+% ============================================================
+% 7. OFFSET LABBRO
+% ============================================================
+
+\pgfmathsetmacro{\offsetLabbro}{
+    0.05*\LSuper
+}
+
+\pgfmathsetmacro{\xLip}{
+    \xShock+\offsetLabbro*cos(\thetaFlow)
+}
+
+\pgfmathsetmacro{\yLip}{
+    \yShock-\offsetLabbro*sin(\thetaFlow)
+}
+
+
+
+% ============================================================
+% 8. GEOMETRIA INTERNA
+% ============================================================
+
+\pgfmathsetmacro{\xHinge}{
+    \xE+0.80*\LSuper
+}
+
+\pgfmathsetmacro{\xMax}{
+    \xHinge+0.25*\LSuper
+}
+
+\pgfmathsetmacro{\yFloor}{
+    -0.45*\hCatt
+}
+
+\pgfmathsetmacro{\yHinge}{
+    \yFloor+sqrt(\AtwoRam/pi)
+}
+
+\pgfmathsetmacro{\yRoof}{
+    \yHinge+\hComp
+}
+
+
+
+% ============================================================
+% 9. PUNTI BEZIER - TETTO
+% ============================================================
+
+\pgfmathsetmacro{\RoofPoneX}{
+    \xE+0.5*(\xHinge-\xE)
+}
+
+\pgfmathsetmacro{\RoofPoneY}{
+    \yE
+}
+
+\pgfmathsetmacro{\RoofPtwoX}{
+    \xHinge-0.2*(\xHinge-\xE)
+}
+
+\pgfmathsetmacro{\RoofPtwoY}{
+    \yRoof
+}
+
+
+
+% ============================================================
+% 10. PUNTI BEZIER - PARATIA MOBILE
+% ============================================================
+
+\pgfmathsetmacro{\dxFlap}{
+    \xHinge-\xE
+}
+
+\pgfmathsetmacro{\FlapPoneX}{
+    \xE+0.35*\dxFlap
+}
+
+\pgfmathsetmacro{\FlapPoneY}{
+    \yE-0.25*\dxFlap*tan(\thetaFlow)
+}
+
+\pgfmathsetmacro{\FlapPtwoX}{
+    \xHinge-0.35*\dxFlap
+}
+
+\pgfmathsetmacro{\FlapPtwoY}{
+    \yHinge
+}
+
+
+
+% ============================================================
+% 11. PUNTI BEZIER - PAVIMENTO RAMJET
+% ============================================================
+
+\pgfmathsetmacro{\dxFloor}{
+    \xHinge-\xLip
+}
+
+\pgfmathsetmacro{\FloorPoneX}{
+    \xLip+0.35*\dxFloor
+}
+
+\pgfmathsetmacro{\FloorPoneY}{
+    \yLip-0.25*\dxFloor*tan(\thetaFlow)
+}
+
+\pgfmathsetmacro{\FloorPtwoX}{
+    \xHinge-0.35*\dxFloor
+}
+
+\pgfmathsetmacro{\FloorPtwoY}{
+    \yFloor
+}
+
+
+
+% ============================================================
+% 12. ANGOLI ONDE D'URTO
+% ============================================================
+
+\pgfmathsetmacro{\aShockOne}{
+    atan2(\yShock-\yB,\xShock-\xB)
+}
+
+\pgfmathsetmacro{\aShockTwo}{
+    atan2(\yShock-\yC,\xShock-\xC)
+}
+
+\pgfmathsetmacro{\aShockThree}{
+    atan2(\yShock-\yD,\xShock-\xD)
+}
+
+
+
+% ============================================================
+% 13. DIREZIONE RAMPE
+% ============================================================
+
+\pgfmathsetmacro{\aRampOne}{
+    -\deltaOne
+}
+
+\pgfmathsetmacro{\aRampTwo}{
+    -(\deltaOne+\deltaTwo)
+}
+
+\pgfmathsetmacro{\aRampThree}{
+    -(\deltaOne+\deltaTwo+\deltaThree)
+}
+
+
+
+% ============================================================
+% 14. PARAMETRI ARCHI E FRECCE
+% ============================================================
+
+\pgfmathsetmacro{\rTheta}{
+    0.16*\LSuper
+}
+
+\pgfmathsetmacro{\rDelta}{
+    0.08*\LSuper
+}
+
+\pgfmathsetmacro{\Ldash}{
+    0.20*\LSuper
+}
+
+\pgfmathsetmacro{\Larr}{
+    0.08*\LSuper
+}
+
+
+
+% ============================================================
+% 15. POSIZIONI FRECCE FLUSSO
+% ============================================================
+
+% Rampa 1
+\pgfmathsetmacro{\mXOne}{
+    (\xB+\xC)/2
+}
+
+\pgfmathsetmacro{\yShockOne}{
+    \yB+
+    (\yShock-\yB)/(\xShock-\xB)*
+    (\mXOne-\xB)
+}
+
+\pgfmathsetmacro{\mYOne}{
+    ((\yB+\yC)/2+\yShockOne)/2
+}
+
+
+% Rampa 2
+\pgfmathsetmacro{\mXTwo}{
+    (\xC+\xD)/2
+}
+
+\pgfmathsetmacro{\yShockTwo}{
+    \yC+
+    (\yShock-\yC)/(\xShock-\xC)*
+    (\mXTwo-\xC)
+}
+
+\pgfmathsetmacro{\mYTwo}{
+    ((\yC+\yD)/2+\yShockTwo)/2
+}
+
+
+% Rampa 3
+\pgfmathsetmacro{\mXThree}{
+    (\xD+\xE)/2
+}
+
+\pgfmathsetmacro{\yShockThree}{
+    \yD+
+    (\yShock-\yD)/(\xShock-\xD)*
+    (\mXThree-\xD)
+}
+
+\pgfmathsetmacro{\mYThree}{
+    ((\yD+\yE)/2+\yShockThree)/2
+}
+
+
+% Flusso interno
+\pgfmathsetmacro{\mXFour}{
+    (\xE+\xLip)/2+
+    0.04*\LSuper*cos(\aRampThree)
+}
+
+\pgfmathsetmacro{\mYFour}{
+    (\yE+\yLip)/2+
+    0.04*\LSuper*sin(\aRampThree)
+}
+
+
+
+% ============================================================
+% 16. FIGURA
+% ============================================================
+
+\begin{figure}[htbp]
+
+\centering
+
+\begin{tikzpicture}[
+    scale = 0.8,
+     transform shape,
+    x=\UnitScale cm,
+    y=\UnitScale cm,
+    line cap=round,
+    line join=round,
+    font=\scriptsize,
+    >={Stealth[length=2.6mm,width=2mm]}
+]
+
+
+% ============================================================
+% FUSOLIERA SUPERIORE
+% ============================================================
+
+\draw[
+    black,
+    line width=0.8pt
+]
+({-0.15*\LSuper},\hCatt)
+--
+(\xMax,\hCatt);
+
+
+
+% ============================================================
+% RAMPE
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xB,\yB)
+--
+(\xC,\yC)
+--
+(\xD,\yD)
+--
+(\xE,\yE);
+
+
+
+% ============================================================
+% ONDE D'URTO
+% ============================================================
+
+\draw[
+    red,
+    line width=1.3pt
+]
+(\xB,\yB)
+--
+(\xShock,\yShock);
+
+\draw[
+    red,
+    line width=1.3pt
+]
+(\xC,\yC)
+--
+(\xShock,\yShock);
+
+\draw[
+    red,
+    line width=1.3pt
+]
+(\xD,\yD)
+--
+(\xShock,\yShock);
+
+\draw[
+    red,
+    line width=1.3pt
+]
+(\xE,\yE)
+--
+(\xShock,\yShock);
+
+
+
+% ============================================================
+% SHOCK POINT
+% ============================================================
+
+\fill[
+    red
+]
+(\xShock,\yShock)
+circle[radius=2pt];
+
+
+\node[
+    red,
+    font=\bfseries\scriptsize
+]
+at
+(
+    {\xShock+\ShockTextDX},
+    {\yShock+\ShockTextDY}
+)
+{
+    Shock point
+};
+
+
+
+% ============================================================
+% OFFSET LABBRO
+% ============================================================
+
+\draw[
+    green!60!black,
+    line width=3pt
+]
+(\xShock,\yShock)
+--
+(\xLip,\yLip);
+
+
+\node[
+    green!55!black,
+    font=\bfseries\scriptsize
+]
+at
+(
+    {\xLip+\OffsetTextDX},
+    {\yLip+\OffsetTextDY}
+)
+{
+    Offset
+};
+
+
+
+% ============================================================
+% TETTO TURBOGETTO
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xE,\yE)
+..
+controls
+    (\RoofPoneX,\RoofPoneY)
+and
+    (\RoofPtwoX,\RoofPtwoY)
+..
+(\xHinge,\yRoof)
+--
+(\xMax,\yRoof);
+
+
+
+% ============================================================
+% PARATIA MOBILE
+% ============================================================
+
+\draw[
+    orange!85!black,
+    line width=2.2pt
+]
+(\xE,\yE)
+..
+controls
+    (\FlapPoneX,\FlapPoneY)
+and
+    (\FlapPtwoX,\FlapPtwoY)
+..
+(\xHinge,\yHinge);
+
+
+\filldraw[
+    fill=orange!85!black,
+    draw=black,
+    line width=0.5pt
+]
+(\xHinge,\yHinge)
+circle[radius=2pt];
+
+
+
+% ============================================================
+% PAVIMENTO RAMJET
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xLip,\yLip)
+..
+controls
+    (\FloorPoneX,\FloorPoneY)
+and
+    (\FloorPtwoX,\FloorPtwoY)
+..
+(\xHinge,\yFloor)
+--
+(\xMax,\yFloor);
+
+
+
+% ============================================================
+% LINEA DIVISORIA
+% ============================================================
+
+\draw[
+    black,
+    line width=1.3pt
+]
+(\xHinge,\yHinge)
+--
+(\xMax,\yHinge);
+
+
+
+% ============================================================
+% INGRESSO COMPRESSORE
+% ============================================================
+
+\draw[
+    magenta,
+    line width=3pt
+]
+(\xMax,\yHinge)
+--
+(\xMax,\yRoof);
+
+
+\node[
+    magenta,
+    font=\bfseries\scriptsize
+]
+at
+(
+    {\xMax+\CompressorTextDX},
+    {(\yHinge+\yRoof)/2+\CompressorTextDY}
+)
+{
+    Ingresso compressore
+};
+
+
+
+% ============================================================
+% FRECCIA MACH
+% ============================================================
+
+\draw[
+    ->,
+    black,
+    line width=1.5pt
+]
+({-0.1*\LSuper},{0.5*\hCatt})
+--
+({0.05*\LSuper},{0.5*\hCatt});
+
+
+\node[
+    font=\bfseries
+]
+at
+(
+    {-0.28*\LSuper+\MachTextDX},
+    {0.5*\hCatt+\MachTextDY}
+)
+{
+    $M_0=\Mzero$
+};
+
+
+
+% ============================================================
+% POST COMBUSTORE
+% ============================================================
+
+\node[
+    gray,
+    font=\itshape\scriptsize
+]
+at
+(
+    {
+      \xHinge
+      +0.5*(\xMax-\xHinge)
+      +\PostTextDX
+    },
+    {
+      \yFloor
+      +0.5*(\yHinge-\yFloor)
+      +\PostTextDY
+    }
+)
+{
+    Post combustore $\rightarrow$
+};
+
+
+
+% ============================================================
+% RAMPA 1
+% ============================================================
+
+\draw[
+    dashed,
+    cyan!70!blue,
+    line width=0.8pt
+]
+(\xB,\yB)
+--
+++(\Ldash,0);
+
+
+\draw[
+    cyan!70!blue,
+    line width=1pt
+]
+(\xB,\yB)
+++(0:\rTheta)
+arc[
+    start angle=0,
+    end angle=\aShockOne,
+    radius=\rTheta
+];
+
+
+\draw[
+    red,
+    line width=1pt
+]
+(\xB,\yB)
+++(0:\rDelta)
+arc[
+    start angle=0,
+    end angle=\aRampOne,
+    radius=\rDelta
+];
+
+
+\node[
+    cyan!70!blue,
+    font=\bfseries
+]
+at
+(
+    {
+      \xB
+      +1.12*\rTheta*cos(\aShockOne/2)
+      +\ThetaOneDX
+    },
+    {
+      \yB
+      +1.12*\rTheta*sin(\aShockOne/2)
+      +\ThetaOneDY
+    }
+)
+{
+    $\theta_1$
+};
+
+
+\node[
+    red,
+    font=\bfseries
+]
+at
+(
+    {
+      \xB
+      +1.30*\rDelta*cos(\aRampOne/2)
+      +\DeltaOneDX
+    },
+    {
+      \yB
+      +1.30*\rDelta*sin(\aRampOne/2)
+      +\DeltaOneDY
+    }
+)
+{
+    $\delta_1$
+};
+
+
+\draw[
+    ->,
+    black,
+    line width=1.5pt
+]
+(
+    {\mXOne-\Larr*cos(\aRampOne)/2+0.7},
+    {\mYOne-\Larr*sin(\aRampOne)/2-0.35}
+)
+--
+(
+    {\mXOne+\Larr*cos(\aRampOne)/2+0.7},
+    {\mYOne+\Larr*sin(\aRampOne)/2-0.35}
+);
+
+
+
+% ============================================================
+% RAMPA 2
+% ============================================================
+
+\draw[
+    dashed,
+    cyan!70!blue,
+    line width=0.8pt
+]
+(\xC,\yC)
+--
+++(\Ldash,0);
+
+
+\draw[
+    cyan!70!blue,
+    line width=1pt
+]
+(\xC,\yC)
+++(0:\rTheta)
+arc[
+    start angle=0,
+    end angle=\aShockTwo,
+    radius=\rTheta
+];
+
+
+\draw[
+    red,
+    line width=1pt
+]
+(\xC,\yC)
+++(0:\rDelta)
+arc[
+    start angle=0,
+    end angle=\aRampTwo,
+    radius=\rDelta
+];
+
+
+\node[
+    cyan!70!blue,
+    font=\bfseries
+]
+at
+(
+    {
+      \xC
+      +1.12*\rTheta*cos(\aShockTwo/2)
+      +\ThetaTwoDX
+    },
+    {
+      \yC
+      +1.12*\rTheta*sin(\aShockTwo/2)
+      +\ThetaTwoDY
+    }
+)
+{
+    $\theta_2$
+};
+
+
+\node[
+    red,
+    font=\bfseries
+]
+at
+(
+    {
+      \xC
+      +1.30*\rDelta*cos(\aRampTwo/2)
+      +\DeltaTwoDX
+    },
+    {
+      \yC
+      +1.30*\rDelta*sin(\aRampTwo/2)
+      +\DeltaTwoDY
+    }
+)
+{
+    $\delta_2$
+};
+
+
+\draw[
+    ->,
+    black,
+    line width=1.5pt
+]
+(
+    {\mXTwo-\Larr*cos(\aRampTwo)/2+0.2},
+    {\mYTwo-\Larr*sin(\aRampTwo)/2-0.2}
+)
+--
+(
+    {\mXTwo+\Larr*cos(\aRampTwo)/2+0.2},
+    {\mYTwo+\Larr*sin(\aRampTwo)/2-0.2}
+);
+
+
+
+% ============================================================
+% RAMPA 3
+% ============================================================
+
+\draw[
+    dashed,
+    cyan!70!blue,
+    line width=0.8pt
+]
+(\xD,\yD)
+--
+++(\Ldash,0);
+
+
+\draw[
+    cyan!70!blue,
+    line width=1pt
+]
+(\xD,\yD)
+++(0:\rTheta)
+arc[
+    start angle=0,
+    end angle=\aShockThree,
+    radius=\rTheta
+];
+
+
+\draw[
+    red,
+    line width=1pt
+]
+(\xD,\yD)
+++(0:\rDelta)
+arc[
+    start angle=0,
+    end angle=\aRampThree,
+    radius=\rDelta
+];
+
+
+\node[
+    cyan!70!blue,
+    font=\bfseries
+]
+at
+(
+    {
+      \xD
+      +1.12*\rTheta*cos(\aShockThree/2)
+      +\ThetaThreeDX
+    },
+    {
+      \yD
+      +1.12*\rTheta*sin(\aShockThree/2)
+      +\ThetaThreeDY
+    }
+)
+{
+    $\theta_3$
+};
+
+
+\node[
+    red,
+    font=\bfseries
+]
+at
+(
+    {
+      \xD
+      +1.30*\rDelta*cos(\aRampThree/2)
+      +\DeltaThreeDX
+    },
+    {
+      \yD
+      +1.30*\rDelta*sin(\aRampThree/2)
+      +\DeltaThreeDY
+    }
+)
+{
+    $\delta_3$
+};
+
+
+\draw[
+    ->,
+    black,
+    line width=1.5pt
+]
+(
+    {\mXThree-\Larr*cos(\aRampThree)/2},
+    {\mYThree-\Larr*sin(\aRampThree)/2}
+)
+--
+(
+    {\mXThree+\Larr*cos(\aRampThree)/2},
+    {\mYThree+\Larr*sin(\aRampThree)/2}
+);
+
+
+
+% ============================================================
+% FRECCIA FLUSSO INTERNO
+% ============================================================
+
+\draw[
+    ->,
+    black,
+    line width=1.5pt
+]
+(
+    {\mXFour-\Larr*cos(\aRampThree)/2},
+    {\mYFour-\Larr*sin(\aRampThree)/2}
+)
+--
+(
+    {\mXFour+\Larr*cos(\aRampThree)/2},
+    {\mYFour+\Larr*sin(\aRampThree)/2}
+);
+
+
+
+% ============================================================
+% ETICHETTE B C D E
+% ============================================================
+
+\node
+at
+(
+    {\xB+\BTextDX},
+    {\yB+\BTextDY}
+)
+{
+    $B$
+};
+
+
+\node
+at
+(
+    {\xC+\CTextDX},
+    {\yC+\CTextDY}
+)
+{
+    $C$
+};
+
+
+\node
+at
+(
+    {\xD+\DTextDX},
+    {\yD+\DTextDY}
+)
+{
+    $D$
+};
+
+
+\node
+at
+(
+    {\xE+\ETextDX},
+    {\yE+\ETextDY}
+)
+{
+    $E$
+};
+
+%%% lunghezaa
+
+
+\end{tikzpicture}
+
+\caption{
+Presa d'aria TBCC a $M_0=\Mzero$.
+}
+
+\end{figure}

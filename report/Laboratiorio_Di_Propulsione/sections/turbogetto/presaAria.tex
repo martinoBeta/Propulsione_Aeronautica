@@ -1,0 +1,177 @@
+\label{sec:presaAria}
+\section{Diffusore subsonico}
+Il diffusore subsonico è stato modellato come un componente adiabatico,
+assumendo condizioni uniformi nelle sezioni caratteristiche e imponendo
+$M_2=0.5$ all'ingresso del compressore. Il recupero di pressione totale è stato determinato mediante il rendimento isentropico del diffusore, ricavando il corrispondente coefficiente $\pi_D$. L'area di cattura è stata assunta coincidente con quella geometrica di ingresso ($A_0=A_1$).
+
+Il flusso destinato al turbogetto è stato separato da quello del ramjet mediante un setto mobile interno, mantenendo una presa geometrica comune. Note le aree di ingresso e uscita ottenute dall'ottimizzazione, il diffusore è stato rappresentato mediante una geometria conica a sezione circolare. È stato assunto il rapporto minimo $L/D_1=1.5$ al fine di contenere la lunghezza del componente; la geometria risultante è stata successivamente verificata rispetto ai limiti di separazione del flusso. Il dimensionamento e la relativa verifica sono riportati in Appendice~\ref{app:presa_aria_subsonica}.
+
+
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta,angles,quotes,calc}
+% \usepackage{booktabs}
+
+\begin{figure}[H]
+\centering
+
+%========================================================
+% DIFFUSORE A SINISTRA
+%========================================================
+\begin{minipage}[c]{0.72\textwidth}
+\centering
+
+\begin{tikzpicture}[
+    x=5.2cm,
+    y=5.2cm,
+    >=Latex,
+    line cap=round,
+    line join=round
+]
+
+%------------------------------------------------
+% DATI GEOMETRICI
+%------------------------------------------------
+\def\L{1.105}
+\def\Dzero{0.737}
+\def\Dtwo{0.866}
+
+\pgfmathsetmacro{\Rzero}{\Dzero/2}
+\pgfmathsetmacro{\Rtwo}{\Dtwo/2}
+
+%------------------------------------------------
+% COORDINATE PRINCIPALI
+%------------------------------------------------
+\coordinate (A) at (0,\Rzero);
+\coordinate (B) at (0,-\Rzero);
+
+\coordinate (C) at (\L,\Rtwo);
+\coordinate (D) at (\L,-\Rtwo);
+
+%------------------------------------------------
+% PROFILO DEL DIFFUSORE
+%------------------------------------------------
+\draw[line width=1.1pt] (A) -- (C);
+\draw[line width=1.1pt] (B) -- (D);
+
+\draw[line width=1.1pt] (A) -- (B);
+\draw[line width=1.1pt] (C) -- (D);
+
+% Asse centrale
+\draw[dash dot, line width=0.6pt]
+(-0.05,0) -- (\L+0.05,0);
+
+% Linee di sezione
+\draw[dash dot, line width=0.6pt]
+(0,-0.52) -- (0,0.58);
+
+\draw[dash dot, line width=0.6pt]
+(\L,-0.52) -- (\L,0.58);
+
+%------------------------------------------------
+% ETICHETTE SEZIONI
+%------------------------------------------------
+\node[align=center] at (0,0.62)
+{Sezione 0\\(ingresso)};
+
+\node[align=center] at (\L,0.62)
+{Sezione 2\\(uscita)};
+
+%------------------------------------------------
+% FRECCIA DEL FLUSSO
+%------------------------------------------------
+\draw[->, line width=0.9pt]
+(0.25,0.54) -- (0.45,0.54);
+
+\node at (0.35,0.59) {Flusso};
+
+%------------------------------------------------
+% QUOTA D0
+%------------------------------------------------
+\draw[line width=0.5pt]
+(-0.08,\Rzero) -- (-0.01,\Rzero);
+
+\draw[line width=0.5pt]
+(-0.08,-\Rzero) -- (-0.01,-\Rzero);
+
+\draw[<->, line width=0.6pt]
+(-0.07,-\Rzero) -- (-0.07,\Rzero);
+
+\node[left] at (-0.07,0)
+{$D_0=0.737\,\mathrm{m}$};
+
+%------------------------------------------------
+% QUOTA D2
+%------------------------------------------------
+\draw[line width=0.5pt]
+(\L+0.01,\Rtwo) -- (\L+0.08,\Rtwo);
+
+\draw[line width=0.5pt]
+(\L+0.01,-\Rtwo) -- (\L+0.08,-\Rtwo);
+
+\draw[<->, line width=0.6pt]
+(\L+0.07,-\Rtwo) -- (\L+0.07,\Rtwo);
+
+\node[right] at (\L+0.07,0)
+{$D_2=0.866\,\mathrm{m}$};
+
+%------------------------------------------------
+% QUOTA L
+%------------------------------------------------
+\draw[line width=0.5pt]
+(0,-0.49) -- (0,-0.43);
+
+\draw[line width=0.5pt]
+(\L,-0.49) -- (\L,-0.43);
+
+\draw[<->, line width=0.6pt]
+(0,-0.47) -- (\L,-0.47);
+
+\node[fill=white, inner sep=2pt]
+at (\L/2,-0.47)
+{$L=1.105\,\mathrm{m}$};
+
+%------------------------------------------------
+% ANGOLO PHI
+%------------------------------------------------
+\draw[dashed, line width=0.5pt]
+(0.05,\Rzero) -- (0.32,\Rzero);
+
+\draw[->, line width=0.6pt]
+(0.23,\Rzero+0.005)
+arc[start angle=0,end angle=3.35,radius=0.18];
+
+\node at (0.33,\Rzero+0.055)
+{$\phi=3.35^\circ$};
+
+\end{tikzpicture}
+
+\end{minipage}
+\hfill
+%========================================================
+% TABELLA A DESTRA
+%========================================================
+\begin{minipage}[c]{0.25\textwidth}
+\centering
+
+\footnotesize
+\renewcommand{\arraystretch}{0.90}
+\setlength{\tabcolsep}{3pt}
+
+\begin{tabular}{lcc}
+\toprule
+\textbf{Parametro} & \textbf{Valore} & \textbf{Unità} \\
+\midrule
+
+$\pi_D$ & 0.989  & -- \\
+$A_0$   & 0.4262 & $\mathrm{m^2}$ \\
+$A_2$   & 0.5889 & $\mathrm{m^2}$ \\
+
+\bottomrule
+\end{tabular}
+
+\end{minipage}
+
+\caption{Geometria e principali parametri del diffusore subsonico nel punto di progetto.}
+\label{fig:geometriaDiffusore}
+
+\end{figure}

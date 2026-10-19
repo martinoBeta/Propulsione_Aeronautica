@@ -1,0 +1,251 @@
+\begin{figure}[H]
+\centering
+
+\begin{tikzpicture}[
+    scale=0.72,
+    absolute/.style={
+        ultra thick,
+        cyan!80!blue,
+        -{Stealth[length=3mm,width=2.2mm]}
+    },
+    relative/.style={
+        ultra thick,
+        orange,
+        -{Stealth[length=3mm,width=2.2mm]}
+    },
+    peripheral/.style={
+        ultra thick,
+        green!70!black,
+        -{Stealth[length=3mm,width=2.2mm]}
+    },
+    reference/.style={
+        dashed,
+        gray!60,
+        thin
+    },
+    velocitylabel/.style={
+        font=\small,
+        text=black,
+        fill=white,
+        inner sep=2pt
+    },
+    angletext/.style={
+        font=\footnotesize,
+        text=black,
+        fill=white,
+        inner sep=1pt
+    }
+]
+
+% ============================================================
+% TRIANGOLO DI INGRESSO
+% ============================================================
+
+\coordinate (O1) at (-0.3,0.4);
+\coordinate (V1) at (-0.3,-1.8);
+\coordinate (W1) at (-3.84,-1.8);
+
+% riferimento assiale
+\draw[reference] (O1) -- (-0.3,-2.15);
+
+% V1
+\draw[absolute]
+(O1) -- (V1);
+
+% W1
+\draw[relative]
+(O1) -- (W1);
+
+% U
+\draw[peripheral]
+(W1) -- (V1);
+
+% Etichette velocità
+\node[velocitylabel]
+at (0.95,-0.70)
+{$v_1=154.0\,\mathrm{m/s}$};
+
+\node[velocitylabel]
+at (-3.25,-0.65)
+{$w_1=291.5\,\mathrm{m/s}$};
+
+\node[velocitylabel]
+at (-2.05,-2.15)
+{$U=247.5\,\mathrm{m/s}$};
+
+% alpha_1
+\node[angletext]
+at (0.45,0.10)
+{$\alpha_1=0^\circ$};
+
+% beta_1: arco manuale
+\draw[thick]
+(-0.3,-0.35)
+arc[start angle=-90,end angle=-148.1,radius=0.75];
+
+\node[angletext]
+at (-1.10,-0.15)
+{$\beta_1=58.1^\circ$};
+
+
+% ============================================================
+% PALE DEL ROTORE
+% ============================================================
+
+\foreach \x in {0,2,4,6,8}{
+    \begin{scope}[
+        shift={(\x,-3.25)},
+        rotate=-105,
+        xscale=2.2,
+        yscale=2.2
+    ]
+
+    \draw[
+        thick,
+        fill=gray!10,
+        line join=round
+    ]
+    plot[smooth] coordinates {
+        (0.000,0.000)
+        (0.050,0.120)
+        (0.150,0.220)
+        (0.300,0.280)
+        (0.450,0.270)
+        (0.600,0.220)
+        (0.750,0.140)
+        (0.900,0.060)
+        (1.000,0.000)
+    }
+    --
+    plot[smooth] coordinates {
+        (1.000,0.000)
+        (0.850,0.040)
+        (0.700,0.080)
+        (0.550,0.120)
+        (0.400,0.140)
+        (0.250,0.130)
+        (0.120,0.080)
+        (0.050,0.030)
+        (0.000,0.000)
+    }
+    -- cycle;
+
+    \end{scope}
+}
+
+
+% ============================================================
+% FRECCIA ROTAZIONE
+% ============================================================
+
+\node[
+single arrow,
+draw=green!70!black,
+fill=white,
+thick,
+minimum height=1cm,
+minimum width=0.5cm,
+single arrow head extend=0.1cm,
+anchor=east,
+shape border rotate=0
+]
+(rotor) at (-0.5,-4.25) {};
+
+\node[
+left=4pt,
+align=center,
+font=\sffamily\scriptsize
+]
+at (rotor.west)
+{\textbf{Rotazione}\\\textbf{del rotore}};
+
+
+% ============================================================
+% PIANO DI USCITA
+% ============================================================
+
+\draw[gray!65,thin]
+(-1.2,-5.35) -- (10.8,-5.35);
+
+\node[
+below,
+text=gray!65,
+font=\scriptsize
+]
+at (4.4,-5.35)
+{piano di uscita del rotore};
+
+
+% ============================================================
+% TRIANGOLO DI USCITA
+% ============================================================
+
+\coordinate (O2) at (9.0,-6.0);
+\coordinate (V2) at (10.46,-8.2);
+\coordinate (W2) at (6.93,-8.2);
+
+% riferimento assiale
+\draw[reference] (O2) -- (9.0,-8.65);
+
+% V2
+\draw[absolute]
+(O2) -- (V2);
+
+% W2
+\draw[relative]
+(O2) -- (W2);
+
+% U
+\draw[peripheral]
+(W2) -- (V2);
+
+% Etichette
+\node[velocitylabel]
+at (10.85,-7.20)
+{$v_2=184.8\,\mathrm{m/s}$};
+
+\node[velocitylabel]
+at (6.55,-7.20)
+{$w_2=211.8\,\mathrm{m/s}$};
+
+\node[velocitylabel]
+at (8.65,-8.55)
+{$U=247.5\,\mathrm{m/s}$};
+
+% alpha_2: arco manuale
+\draw[thick]
+(9.0,-6.75)
+arc[start angle=-90,end angle=-56.4,radius=0.75];
+
+\node[angletext]
+at (9.75,-6.55)
+{$\alpha_2=33.6^\circ$};
+
+% beta_2: arco manuale
+\draw[thick]
+(9.0,-7.05)
+arc[start angle=-90,end angle=-133.3,radius=1.05];
+
+\node[angletext]
+at (8.05,-6.55)
+{$\beta_2=43.3^\circ$};
+
+
+% ============================================================
+% SISTEMA DI RIFERIMENTO
+% ============================================================
+
+\draw[->,thick]
+(9.2,0.2) -- (10.7,0.2)
+node[right] {$\theta$};
+
+\draw[->,thick]
+(9.2,0.2) -- (9.2,-1.3)
+node[below] {$z$};
+
+\end{tikzpicture}
+
+\caption{Triangoli di velocità all'ingresso e all'uscita del rotore del primo stadio del compressore.}
+\label{fig:compressore:triangoli}
+
+\end{figure}

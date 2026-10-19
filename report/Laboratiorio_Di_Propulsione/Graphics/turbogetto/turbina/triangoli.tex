@@ -1,0 +1,242 @@
+% Pala con profilo NACA 2412 approssimato.
+% Uso: \DrawBlade{x}{y}{angolo}
+
+
+% ============================================================
+% PARAMETRI MODIFICABILI
+% ============================================================
+\def\Denoms{150}
+
+% Triangolo di ingresso
+\def\OoneX{0}
+\def\OoneY{0}
+
+% Estremo di V1
+% VoneX diverso da OoneX rende V1 inclinato.
+\def\VoneX{618/\Denoms}
+\def\VoneY{-385/\Denoms}
+
+% Estremo di W1
+\def\WoneX{298/\Denoms}
+\def\WoneY{-385/\Denoms}
+
+% Valori visualizzati
+\def\VoneValue{728}
+\def\WoneValue{386}
+\def\UoneValue{320}
+
+% Angoli visualizzati
+\pgfmathsetmacro{\AlphaOneValue}{round(10*atan2(abs(\VoneX),abs(\VoneY)))/10}
+\def\BetaOneValue{58.1}
+
+% Triangolo di uscita
+\def\OtwoX{9}
+\def\OtwoY{-5.7}
+
+% Estremo di V2
+\def\VtwoX{-124/\Denoms+\OtwoX}
+\def\VtwoY{-385/\Denoms+\OtwoY}
+
+% Estremo di W2
+\def\WtwoX{-444/\Denoms+\OtwoX}
+\def\WtwoY{-385/\Denoms+\OtwoY}
+
+% Valori visualizzati
+\def\VtwoValue{404}
+\def\WtwoValue{587}
+\def\UtwoValue{320}
+
+% Angoli visualizzati
+
+%\pgfmathsetmacro{\AlphaTwoValue}{round(10*atan2(abs(\VtwoX-\OtwoX),abs(\VtwoY-\OtwoY)))/10}
+
+\def\AlphaTwoValue{17.9}
+
+\def\BetaTwoValue{40}
+
+% Pale
+\def\BladeAngle{-105}
+\def\BladeY{-3.3}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  scale=0.8,
+  font=\fontsize{7}{8}\selectfont,
+  absolute/.style={ultra thick,cyan!80!blue,-{Stealth[length=3mm,width=2.2mm]}},
+  relative/.style={ultra thick,orange,-{Stealth[length=3mm,width=2.2mm]}},
+  peripheral/.style={ultra thick,green!70!black,-{Stealth[length=3mm,width=2.2mm]}},
+  reference/.style={dashed,gray!60,thin},
+  velocitylabel/.style={text=black,fill=white,inner sep=2pt},
+  angletext/.style={text=black,fill=white,inner sep=1pt}
+]
+
+% ============================================================
+% TRIANGOLO DI INGRESSO
+% ============================================================
+
+\coordinate (O1) at (\OoneX,\OoneY);
+\coordinate (V1) at (\VoneX,\VoneY);
+\coordinate (W1) at (\WoneX,\WoneY);
+\coordinate (VerticalOne) at (\OoneX,-3.1);
+
+% Linea verticale di riferimento
+\draw[reference] (O1) -- (VerticalOne);
+
+% Vettore V1
+\draw[absolute]
+  (O1) -- (V1)
+  node[velocitylabel,midway,right=10pt]
+  {$v_{1.5}=\VoneValue\,\mathrm{m/s}$};
+
+% Vettore W1
+\draw[relative]
+  (O1) -- (W1)
+  node[velocitylabel,midway,below left=1pt]
+  {$w_{1.5}=\WoneValue\,\mathrm{m/s}$};
+
+% Vettore U1
+\draw[peripheral]
+  (W1) -- (V1)
+  node[velocitylabel,midway,below=5pt]
+  {$U=\UoneValue\,\mathrm{m/s}$};
+
+% Arco beta 1
+%\pic[
+%  draw,
+%  angle radius=1.25cm
+%]
+%  {angle=VerticalOne--O1--W1};
+%
+%\node[angletext]
+%  at (0.70,-1.15)
+%  {$\beta_1=\BetaOneValue^\circ$};
+
+% Arco alpha 1
+% Diventa visibile quando V1 viene inclinato.
+\pic[
+  draw,
+  angle radius=0.72cm
+]
+  {angle=VerticalOne--O1--V1};
+
+\node[angletext]
+  at (1.6,0)
+  {$\alpha_{1.5} = \pgfmathprintnumber[fixed, precision=1]{\AlphaOneValue}^\circ$}
+
+
+% ============================================================
+% PALE NACA
+% ============================================================
+
+\DrawBlade{0}{\BladeY}{\BladeAngle}
+\DrawBlade{2}{\BladeY}{\BladeAngle}
+\DrawBlade{4}{\BladeY}{\BladeAngle}
+\DrawBlade{6}{\BladeY}{\BladeAngle}
+\DrawBlade{8}{\BladeY}{\BladeAngle}
+
+
+
+
+% ============================================================
+% FRECCIA DI ROTAZIONE
+% ============================================================
+
+\node[
+  single arrow,
+  draw=green!70!black,
+  fill=white,
+  thick,
+  minimum height=1cm,
+  minimum width=0.5cm,
+  single arrow head extend=0.1cm,
+  anchor=east,
+  shape border rotate=0
+]
+  (rotor) at (-0.5,-4.3) {};
+
+\node[
+  left=4pt,
+  align=center,
+  font=\sffamily\scriptsize
+]
+  at (rotor.west)
+  {\textbf{Rotazione}\\\textbf{del rotore}};
+
+
+% ============================================================
+% PIANO DI USCITA
+% ============================================================
+
+\draw[gray!65,thin]
+  (-1,-5.45) -- (9,-5.45);
+
+\node[below,text=gray!65,font=\scriptsize]
+  at (3.2,-5.45)
+  {piano di uscita del rotore};
+
+
+% ============================================================
+% TRIANGOLO DI USCITA
+% ============================================================
+
+\coordinate (O2) at (\OtwoX,\OtwoY);
+\coordinate (V2) at (\VtwoX,\VtwoY);
+\coordinate (W2) at (\WtwoX,\WtwoY);
+\coordinate (VerticalTwo) at (\OtwoX,-8.3);
+
+% Linea verticale di riferimento
+\draw[reference] (O2) -- (VerticalTwo);
+
+% Vettore V2
+\draw[absolute]
+  (O2) -- (V2)
+  node[velocitylabel, midway, below right=8pt, xshift=-4pt]
+  {$v_2=\VtwoValue\,\mathrm{m/s}$};
+
+% Vettore W2
+\draw[relative]
+  (O2) -- (W2)
+  node[velocitylabel,midway,left=10pt]
+  {$w_2=\WtwoValue\,\mathrm{m/s}$};
+
+% Vettore U2
+\draw[peripheral]
+  (W2) -- (V2)
+  node[velocitylabel,midway,below=8pt]
+  {$U=\UtwoValue\,\mathrm{m/s}$};
+
+% Arco alpha 2
+\pic[
+  draw,
+  angle radius=0.5cm
+]
+  {angle=V2--O2--VerticalTwo};
+
+\node[angletext]
+  at (10.1,-6.3)
+  {$\alpha_2=\AlphaTwoValue^\circ$};
+
+% Arco beta 2
+%\pic[
+%  draw,
+%  angle radius=1.55cm
+%]
+%  {angle=VerticalTwo--O2--W2};
+%
+%\node[angletext]
+%  at (9.80,-6.65)
+%  {$\beta_2=\BetaTwoValue^\circ$};
+\draw[->, thick] (9,0) -- (10.5, 0) node[right] {$\theta$};
+% Asse theta (verticale)
+\draw[->, thick] (9,0) -- (9, -1.5) node[below] {$z$};
+% Origine
+\fill (0,0) circle (1.5pt);
+
+  
+\end{tikzpicture}
+    \caption{Diagramma dei triangoli di velocità all'ingresso (1.5) e all'uscita (2) del rotore.}
+    \label{fig:turb:triangoli}
+\end{figure}
+
+

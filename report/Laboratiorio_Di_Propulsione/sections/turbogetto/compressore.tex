@@ -1,0 +1,190 @@
+\label{sec:compressore}
+\section{Compressore}
+
+Il compressore è stato modellato come una turbomacchina assiale adiabatica finalizzata ad incrementare la pressione totale del fluido prima dell'ingresso nella camera di combustione.
+
+La trasformazione è stata descritta mediante un rendimento politropico costante ($\eta_{p,c}=0.90$), dal quale è stato ricavato il corrispondente rendimento isoentropico. Le prestazioni termodinamiche, il dimensionamento geometrico e le verifiche aerodinamiche sono riportati in Appendice~\ref{app:compressore}.
+
+\subsection{Primo stadio del compressore}
+
+
+%La velocità periferica di punta $U_{tip}$ è ottenuta dall'ottimizzazione. In una prima stima viene imposto un fattore di De Haller pari a $0.72$, dal quale si ricava il lavoro specifico teorico per stadio e quindi il numero di stadi richiesto. Poiché tale numero deve essere intero, viene arrotondato per eccesso e il triangolo di velocità viene successivamente ricalcolato distribuendo il lavoro complessivo sul numero effettivo di stadi. Il fattore di De Haller finale risulta quindi leggermente superiore al valore imposto inizialmente. Nel punto di progetto si ottiene infatti $DeHaller=0.7296$.
+
+%----------------------
+
+Il dimensionamento è stato effettuato al raggio medio assumendo
+$V_a=\mathrm{cost}$ e ingresso
+assiale nel primo rotore ($V_{\theta,1}=0$). La geometria anulare di
+ingresso è stata definita imponendo un rapporto mozzo-punta
+$r_{h,2}/r_{t,2}=0.5$, mentre lungo il compressore è stato mantenuto
+costante il raggio di punta.
+
+Il numero di stadi è stato stimato mediante l'approssimazione a stadi
+ripetuti. Lo statore è considerato privo di lavoro meccanico e riporta
+il flusso alle condizioni richieste all'ingresso dello stadio successivo.
+La velocità periferica di punta $U_{tip}$ è ottenuta dall'ottimizzazione.
+In una prima stima viene imposto un fattore di De Haller pari a $0.72$,
+dal quale si ricava il lavoro specifico teorico per stadio. Il numero di
+stadi viene quindi arrotondato per eccesso e il triangolo di velocità
+ricalcolato distribuendo il lavoro complessivo sul numero intero di
+stadi ottenuto. Nel punto di progetto risulta $DeHaller=0.730$.
+
+Per le verifiche aerodinamiche sono state assunte solidità
+$\sigma_r=1.0$ per il rotore e $\sigma_s=1.25$ per lo statore.
+La corda e il numero di pale rotoriche sono stati determinati imponendo
+$Re_c\geq3\times10^5$.
+
+%--------------------------------
+%\begin{figure}[H]
+%    \centering
+%    \includegraphics[width=0.75\textwidth]
+%    {Graphics/turbogetto/compressore/triangoli_compressore_immagine3.png}
+%    
+%    \caption{Triangoli di velocità all'ingresso e all'uscita del rotore del primo stadio del compressore.}
+%    \label{fig:compressore:triangoli}
+%\end{figure}
+
+\input{Graphics/turbogetto/compressore/triangoliC}
+
+
+%------------------------
+
+\begin{figure}[H]
+    \centering
+
+    %---------------------------------------------------------
+    % MINIPAGE SINISTRA: rappresentazione grafica
+    %---------------------------------------------------------
+    \begin{minipage}[c]{0.50\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]
+        {Graphics/turbogetto/compressore/schema_compressore.png}
+    \end{minipage}%
+    \hfill
+    %---------------------------------------------------------
+    % MINIPAGE DESTRA: tabella
+    %---------------------------------------------------------
+\begin{minipage}[c]{0.34\textwidth}
+    \centering
+
+    \footnotesize
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \setlength{\tabcolsep}{3pt}
+
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Dimensione} & \textbf{Valore [mm]} \\
+        \midrule
+
+        $r_{t,2}$ & 500 \\
+        $r_{h,2}$ & 250 \\
+        $r_{m,2}$ & 375 \\
+        $h_2$     & 250 \\
+
+        \addlinespace
+
+        $r_{t,3}$ & 500 \\
+        $r_{h,3}$ & 470 \\
+        $r_{m,3}$ & 485 \\
+        $h_3$     & 30.0 \\
+
+        \bottomrule
+    \end{tabular}
+\end{minipage}
+
+    \caption{Geometria del canale anulare del compressore e principali
+    dimensioni nelle sezioni di ingresso e di uscita.}
+    \label{fig:geometria_compressore}
+\end{figure}
+
+%---------------------------------
+\begin{table}[H]
+    \centering
+    \caption{Principali parametri del compressore.}
+    \label{tab:compressore_risultati}
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Grandezza} &
+        \textbf{Simbolo} &
+        \textbf{Valore} &
+        \textbf{Limite} &
+        \textbf{Unità} \\
+        \midrule
+
+        Rapporto di compressione
+        & $\pi_c$ & 13.8 & -- & -- \\
+
+        Rendimento politropico
+        & $\eta_{p,c}$ & 0.900 & -- & -- \\
+
+        Rendimento isoentropico
+        & $\eta_c$ & 0.859 & -- & -- \\
+
+        Potenza assorbita
+        & $\dot{L}_c$ & 10.8 & -- & MW \\
+
+        Velocità periferica di punta
+        & $U_{tip}$ & 330 & -- & m/s \\
+
+        Numero di stadi
+        & $N_{\mathrm{stadi}}$ & 13 & $<15$ & -- \\
+
+        Numero di pale rotoriche
+        & $N_{\mathrm{pale,r}}$ & 50 & -- & -- \\
+
+        \midrule
+
+        Mach relativo massimo
+        & $M_{\mathrm{rel}}$ & 0.946 & $<1$ & -- \\
+
+        Fattore di De Haller
+        & $DeHaller$ & 0.730 & $>0.72$ & -- \\
+
+        Coefficiente di carico
+        & $C_p$ & 0.468 & $<0.5$ & -- \\
+
+        Coefficiente di diffusione rotore
+        & $D_r$ & 0.443 & $<0.6$ & -- \\
+
+        Coefficiente di diffusione statore
+        & $D_s$ & 0.383 & $<0.6$ & -- \\
+
+        Grado di reazione
+        & $R$ & 0.796 & -- & -- \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+%----------------
+I risultati ottenuti rispettano i vincoli aerodinamici e geometrici
+introdotti nell'ottimizzazione, in modo particolare il compressore presenta un rapporto di compressione
+$\pi_c=13.8$ e richiede 13 stadi.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

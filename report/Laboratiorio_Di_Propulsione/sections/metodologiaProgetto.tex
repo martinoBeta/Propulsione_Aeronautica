@@ -1,0 +1,276 @@
+\titlespacing*{\chapter}
+{0pt}
+{-40pt}
+{20pt}
+
+
+\label{ch:chapter_one}%
+\newpage
+\chapter{Metodologia di progetto}
+
+\section{Strategia di ottimizzazione}
+
+L’ottimizzazione è stata implementata in MATLAB utilizzando l’algoritmo genetico (\texttt{ga}) per individuare una configurazione iniziale soddisfacente e successivamente è stato usato il solutore \texttt{fmincon} per il raffinamento locale della soluzione. Il codice completo è riportato in Appendice~\ref{app:codici}.
+
+Dal momento che l’algoritmo genetico è un metodo di ottimizzazione stocastico, il risultato ottenuto dipende dalla popolazione iniziale e dalle operazioni casuali di selezione e mutazione. Per ridurre tale dipendenza ciascun problema di ottimizzazione è stato risolto mediante un numero elevato di esecuzioni indipendenti dell’algoritmo (150 esecuzioni). Al termine delle simulazioni è stata scelta la configurazione che ha fornito il valore della funzione obiettivo minore. La verifica della robustezza della soluzione mediante l’andamento del minimo cumulativo è riportata in Appendice~\ref{app:convergenza_turbojet}.
+
+Il turbogetto e il ramjet sono stati ottimizzati mediante due procedure indipendenti. In una prima fase è stato eseguito il dimensionamento del turbogetto nelle condizioni di crociera subsonica, ottenendo le principali caratteristiche geometriche del motore. Successivamente è stato sviluppato il modello del ramjet.
+
+L'unico collegamento tra i due sistemi propulsivi è rappresentato dal raggio esterno della turbina del turbogetto, utilizzato come vincolo geometrico per il dimensionamento del condotto anulare. 
+
+
+%-----------------------------------------------------
+\section{Dimensionamento e ottimizzazione del turbogetto}
+\label{sec:ottimizzazione_turbojet}
+
+L'ottimizzazione del turbogetto è stata orientata al contenimento degli
+ingombri. La sola minimizzazione del TSFC avrebbe infatti favorito
+configurazioni caratterizzate da elevate portate d'aria e maggiori
+dimensioni; è stata pertanto massimizzata la spinta specifica, imponendo
+il TSFC come vincolo progettuale.
+
+Le variabili di progetto e i relativi intervalli di variazione sono
+riportati in Tabella~\ref{tab:var_turbojet}.
+
+\begin{table}[H]
+\centering
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\caption{Variabili di progetto considerate durante l'ottimizzazione del turbogetto.}
+\label{tab:var_turbojet}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parametro} & \textbf{Simbolo} & \textbf{Intervallo} & \textbf{Unità} \\
+\midrule
+
+Portata massica aria
+& $\dot{m}$
+& $20-60$
+& kg/s \\
+
+Rapporto di compressione compressore
+& $\pi_c$
+& $3-30$
+& -- \\
+
+Velocità periferica al tip del compressore
+& $U_{tip}$
+& $330-410$
+& m/s \\
+
+Temperatura in camera di combustione
+& $T_{04}$
+& $1200-1700$
+& K \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+Gli intervalli sono stati affinati mediante analisi preliminari. La portata
+$\dot{m}=20{-}60\ \mathrm{kg/s}$ comprende le configurazioni di interesse
+e consente di soddisfare il requisito di spinta, influenzando principalmente
+il dimensionamento delle sezioni di passaggio. 
+
+
+
+Per \(\pi_c\) è stato imposto un limite superiore pari a 30, oltre il quale l'incremento delle prestazioni risulta limitato rispetto all'aumento del numero di stadi e della complessità del compressore.
+
+La temperatura totale in camera di combustione \(T_{04}\) è stata limitata all'intervallo \(1200{-}1700\ \mathrm{K}\). Il limite inferiore garantisce un'adeguata spinta specifica, mentre quello superiore è imposto dai limiti termici della turbina, considerando l'impiego di superleghe monocristalline e sistemi di raffreddamento.
+
+
+$U_{tip}=330{-}410\ \mathrm{m/s}$ è stato scelto per
+consentire il rispetto dei principali vincoli aerodinamici del compressore.
+
+I principali vincoli adottati durante l'ottimizzazione sono riportati in
+Tabella~\ref{tab:vincoli_turbojet}.
+
+\begin{table}[H]
+\centering
+\caption{Principali vincoli adottati durante l'ottimizzazione del turbogetto.}
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\label{tab:vincoli_turbojet}
+\begin{tabular}{lll}
+\toprule
+\textbf{Categoria} & \textbf{Parametro} & \textbf{Limite} \\
+\midrule
+
+Prestazioni
+& TSFC
+& $<0.140\ \mathrm{kg/(N\,h)}$ \\
+
+Prestazioni
+& Spinta
+& $=25.0\ \mathrm{kN}$ \\
+
+Aerodinamica
+& $M_{rel}$
+& $<1$ \\
+
+Aerodinamica
+& De Haller
+& $>0.720$ \\
+
+Aerodinamica
+& $C_p$
+& $<0.5$ \\
+
+Aerodinamica
+& $D_{rotore}$
+& $<0.6$ \\
+
+Aerodinamica
+& $D_{statore}$
+& $<0.6$ \\
+
+Combustione
+& $t_{res}$
+& $>8\ \mathrm{ms}$ \\
+
+Combustione
+& $\phi$
+& $0.7<\phi<1.1$ \\
+
+Geometria
+& $N_{stadi,c}$
+& $<15$ \\
+
+Geometria
+& $N_{stadi,t}$
+& $<5$ \\
+
+Geometria
+& $A_{35},A_{5},A_{ref}$
+& $<0.8\ \mathrm{m^2}$ \\
+
+Geometria
+& $h_3$
+& $> 0.03 $ m \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+I vincoli aerodinamici sono stati introdotti per garantire il corretto funzionamento del compressore e della camera di combustione. Inoltre è stata data maggiore importanza ai vincoli geometrici, al fine di contenere gli ingombri complessivi del motore.
+
+I range di Tabella~1.2 sono stati progressivamente ridotti durante l'ottimizzazione, imponendo vincoli più stringenti sull'ingombro del propulsore. È stata privilegiata la dimensione radiale, per il suo impatto sull'integrazione e sulla resistenza aerodinamica delle gondole.
+
+Inoltre i limiti imposti al numero di stadi delle turbomacchine e alle principali aree caratteristiche del flusso sono stati definiti in modo da contenere indirettamente l'ingombro assiale del propulsore senza penalizzare le prestazioni ottenibili.
+
+Il TSFC del turbogetto è stato vincolato a \(0.14\ \mathrm{kg/(N\,h)}\), valore scelto durante l'ottimizzazione come compromesso tra consumo e ingombro. Soglie superiori aumentavano il consumo, mentre soglie inferiori non determinavano una significativa riduzione delle dimensioni del motore.
+
+
+
+%-----------------------------------------------------
+\section{Dimensionamento e ottimizzazione del ramjet}
+L'ottimizzazione del ramjet ha seguito uno sviluppo simile a quella del turbogetto. La missione impone due vincoli: la spinta pari a 65 kN, e il consumo di carburante in volo supersonico che deve rispettare i limiti riportati nella Tabella  \ref{tab:vincoli_ramjet}, il tutto a una quota di $25000$ m.
+
+\begin{table}[H]
+\centering
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\caption{Vincoli di missione}
+\label{tab:vincoli_ramjet}
+\begin{tabular}{lll}
+\toprule
+\textbf{Categoria} & \textbf{Valore} \\
+\midrule
+
+Range
+& 5000km \\
+
+Consumo configurazione 2 motori ramjet
+& 48000kg \\
+
+Mach di volo
+& 3.5\\
+
+Spinta
+& $65\ \mathrm{kN}$ \\
+
+Quota
+& $25000\ \mathrm{m}$\\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tali condizioni possono essere ridefinite come vincolo sul TSFC del ramjet. Come calcolato in appendice \ref{ap:appendixA} il ramjet deve presentare un TSFC inferiore a 0.277 durante il volo supersonico per garantire il successo della missione. Date tali condizioni, la spinta specifica è stata scelta come funzione obiettivo al fine di minimizzare le dimensioni del motore, rispettando i vincoli sul TSFC. In particolare si sono imposti i seguenti vincoli:
+
+\begin{table}[H]
+\centering
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\caption{Vincoli adottati durante l'ottimizzazione del ramjet.}
+\label{tab:vincoli_ramjet2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Categoria} & \textbf{Parametro} & \textbf{Limite} \\
+\midrule
+
+Prestazioni
+& TSFC
+& $<0.277\ \mathrm{kg/(N\,h)}$ \\
+
+Prestazioni
+& Spinta
+& $ = 65\ \mathrm{kN}$ \\
+
+
+Geometria
+& $D_{Eflusso}$
+& $<1.6\ \mathrm{m}$ \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+Il vincolo geometrico sul diametro di efflusso è stato imposto poiché, ad alte quote un ugello adattato comporta un notevole salto di pressione il quale rende l'area di efflusso molto grande. È stato quindi deciso di introdurre un vincolo geometrico e di far sotto espandere il flusso così da garantire aree più piccole.
+
+I parametri di progetto per l'ottimizzazione sono i 
+seguenti:
+\begin{table}[H]
+\centering
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\caption{Variabili di progetto utilizzati per l'ottimizzazione del ramjet.}
+\label{tab:var_turbojet}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parametro} & \textbf{Simbolo} & \textbf{Intervallo} & \textbf{Unità} \\
+\midrule
+
+Portata massica aria &
+$\dot{m}$ &
+$5 - 400$ &
+kg/s \\
+
+Temperatura di combustione &
+$T_{04}$ &
+$1500 - 2100$ &
+K \\
+
+Fattore di espansione motore &
+$\pi_{esp}$ &
+$4 - 10$ & 
+-- \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+La portata massica è stata scelta come parametro da ottimizzare per lo stesso motivo del turbogetto, per garantire la spinta richiesta. Non ha alcuna influenza sul ciclo termodinamico e quindi sulla spinta specifica.
+
+La temperatura totale di combustione nel post-bruciatore è stata imposta in un intervallo compreso tra 1500 K e 2100 K al fine di massimizzare la spinta specifica. 
+
+Infine, il fattore di espansione nell'ugello è stato imposto per garantire il vincolo geometrico sul diametro di efflusso. In particolare è un fattore moltiplicativo applicato alla pressione di uscita:
+\begin{equation*}
+    P_{e} = P_s\pi_{esp}
+\end{equation*}
+dove $P_s$ è la pressione statica a $25000$ m di quota.
+
+\subsection{Ottimizzazione della presa supersonica}
+La presa supersonica adotta una configurazione a compressione esterna su tre rampe, scelta come compromesso tra complessità geometrica e recupero di pressione totale. La ripartizione della deflessione totale tra i tre urti obliqui è stata determinata secondo il criterio di Oswatitsch, secondo cui, a parità di Mach di volo e deflessione complessiva, il recupero di pressione totale è massimizzato quando tutti gli urti hanno la medesima componente di Mach normale $M_n$. Il problema si riduce così alla ricerca di un unico parametro libero, il rapporto di pressione statica associato a $M_n$, che massimizza il recupero di pressione totale complessivo del sistema di tre urti obliqui più urto normale terminale. 
+
+Tale ricerca è stata condotta numericamente mediante una funzione di ottimizzazione scalare vincolata (\texttt{fminbnd}), che esplora l'intervallo di rapporti di pressione statica ammissibili, escludendo agli estremi le soluzioni fisicamente non accettabili (onde non compressive da un lato, distacco dell'urto o flusso a valle subsonico prematuro dall'altro). Ad ogni tentativo la funzione obiettivo ricostruisce in cascata i tre urti obliqui e l'urto normale terminale a partire dal valore di $M_n$ candidato, verificando la realizzabilità fisica della soluzione (angoli reali, Mach a valle supersonico), e restituisce il recupero di pressione totale risultante. Il valore di $M_n$ che massimizza tale recupero viene infine utilizzato per la ricostruzione dettagliata dei tre urti.

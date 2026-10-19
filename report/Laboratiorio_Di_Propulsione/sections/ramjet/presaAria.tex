@@ -1,0 +1,148 @@
+\label{sec:presa_ramjet}
+\section{Presa d'Aria Supersonica}
+
+% VERSIONE ACCORCIATA
+La presa d'aria del ramjet è stata dimensionata nel punto di progetto
+($M_0=3.5$, $h=25000$ m) con l'obiettivo di decelerare il flusso fino a
+condizioni compatibili con la combustione, massimizzando il recupero di
+pressione totale e contenendo al tempo stesso l'ingombro del componente.
+
+\paragraph{Architettura: presa a compressione esterna multirampa.}
+È stata adottata una configurazione a compressione esterna su tre rampe,
+ciascuna generatrice di un urto obliquo, seguite da un urto normale
+terminale che porta il flusso a condizioni subsoniche. Tale architettura
+è stata scelta per limitare le elevate perdite di pressione totale che,
+a $M_0=3.5$, caratterizzerebbero una decelerazione mediante un singolo
+urto normale. La configurazione a tre rampe rappresenta quindi un
+compromesso tra recupero di pressione totale, complessità geometrica e
+ingombro della presa. Il flusso è stato modellato come adiabatico e non
+viscoso, assumendo $T_0=\mathrm{cost}$ e considerando esclusivamente le
+perdite di pressione totale associate agli urti, trascurando gli effetti
+viscosi e di strato limite sulle rampe.
+
+\paragraph{Ottimizzazione degli urti.}
+Definito il numero di rampe, la deflessione complessiva è stata ripartita
+secondo il criterio di Oswatitsch. A parità di condizioni iniziali, il
+recupero di pressione totale viene massimizzato distribuendo la
+compressione tra urti di uguale intensità. Nel modello è stato quindi
+imposto lo stesso rapporto di pressione statica attraverso i tre urti
+obliqui e tale rapporto è stato determinato mediante la massimizzazione
+del recupero di pressione totale complessivo. Ne risultano deflessioni
+progressivamente crescenti, pari a $11.8^\circ$, $14.4^\circ$ e
+$17.7^\circ$.
+
+A valle del terzo urto il flusso permane supersonico; è stato quindi
+introdotto un urto normale terminale per raggiungere condizioni
+subsoniche. Questa soluzione comporta un'ulteriore perdita di pressione
+totale, ma permette di limitare il numero di rampe e di ottenere una
+configurazione geometricamente più compatta.
+
+\paragraph{Dimensionamento geometrico.}
+La geometria è stata costruita a partire dalla condizione teorica di
+\textit{shock-on-lip}, facendo convergere gli urti verso il labbro della
+presa. Rispetto alla configurazione ideale è stato tuttavia introdotto un
+margine longitudinale $\Delta s$, arretrando il cowl rispetto al punto
+teorico di convergenza. Tale margine è stato introdotto per rendere la
+geometria meno sensibile alle variazioni del numero di Mach rispetto al
+punto di progetto, che modificano l'inclinazione e quindi la posizione
+degli urti. L'area di cattura $A_{\mathrm{catt}}$ è stata invece
+determinata dalla portata d'aria richiesta dal ramjet mediante
+l'equazione di continuità.
+
+ Il procedimento di calcolo,
+il confronto tra differenti numeri di urti e il dimensionamento
+geometrico completo sono riportati in Appendice~\ref{app:presa_ramjet}.
+
+La configurazione ottenuta presenta un recupero di pressione totale
+$\pi_{\mathrm{tot}}=0.731$ e un'efficienza adiabatica
+$\eta_d=0.879$. L'urto normale terminale porta il flusso a
+$M_2=0.72$: tale valore, pur essendo subsonico, risulta ancora elevato
+per l'ingresso nella camera di combustione e richiede pertanto
+un'ulteriore diffusione subsonica a valle della presa.
+
+
+\input{Graphics/ramjet/presaGrafico}
+
+
+
+
+\begin{figure}[H]
+    \centering
+
+    % --- MINIPAGE DI SINISTRA: IMMAGINE ---
+    \begin{minipage}[c]{0.55\textwidth}
+        \centering
+        \input{Graphics/ramjet/presaDimensioni}
+    \end{minipage}%
+    \hfill
+    % --- MINIPAGE DI DESTRA: TABELLA ---
+    \begin{minipage}[c]{0.44\textwidth}
+        \centering
+
+
+               \captionof{table}{Parametri principali della presa d'aria supersonica del ramjet.}
+               
+        \scriptsize
+        \renewcommand{\arraystretch}{1}
+        \setlength{\tabcolsep}{3.5pt}
+
+ 
+        \fontsize{11pt}{11pt}\selectfont
+        \begin{tabular}{lcc}
+            \toprule
+            \textbf{Parametro} & \textbf{Valore} & \textbf{Unità} \\
+            \midrule
+            $\delta_1$ & 11.8 & $^\circ$ \\
+            $\delta_2$ & 14.4 & $^\circ$ \\
+            $\delta_3$ & 17.7 & $^\circ$ \\
+            $\theta_1$ & 26.0 & $^\circ$ \\
+            $\theta_2$ & 33.3 & $^\circ$ \\
+            $\theta_3$ & 46.1 & $^\circ$ \\
+            \midrule
+            $\pi_{\mathrm{tot}}$ & 0.731 & -- \\
+            $\eta_d$             & 0.879 & -- \\
+            $M_2$                & 0.720 & -- \\
+            $T_{02}$             & 765 & K \\
+            $P_{02}$             & 142 & kPa \\
+            \midrule
+            $A_{\mathrm{catt}}$  & 2.42 & m$^2$ \\
+            $A_2$                & 0.526 & m$^2$ \\
+            $h_{\mathrm{catt}}$  & 1.10 & m \\
+            $L_{\mathrm{super}}$ & 2.25 & m \\
+            $\Delta s$           & 0.225 & m \\
+            \bottomrule
+        \end{tabular}
+
+ 
+    \label{tab:miei_parametri}
+
+        \label{tab:miei_parametri}
+    \end{minipage}
+
+\end{figure}
+
+
+%-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

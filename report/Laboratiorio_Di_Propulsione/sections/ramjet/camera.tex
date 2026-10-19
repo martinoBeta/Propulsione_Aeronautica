@@ -1,0 +1,39 @@
+
+
+\section{Camera di combustione}
+\label{sec:camera_combustione}
+
+La camera di combustione del ramjet coincide con il postbruciatore utilizzato dal motore turbogetto, essendo principalmente utilizzato in regime supersonico, il postbruciatore viene quindi dimensionato in questa modalità
+
+\subsection{Anulus}
+ L'anulus è posizionato successivamente alla presa d'aria. Viene modellato come un condotto toroidale esterno al motore turbogetto atto a portare il flusso d'aria all'interno della camera di combustione del ramjet. L'area di uscita la quale viene calcolata imponendo un numero di Mach in uscita \(M_{03}=0.6\) risulta pari a \(A_{out}=0.578\) \(m^{2}\) con raggio \(r_{out}=0.6889\) \(m\).
+L'intero sistema viene considerato ideale. Nel dimensionamento si assume che, a valle della turbina, il corpo centrale
+si raccordi progressivamente fino a chiudersi, consentendo di modellare il
+postbruciatore mediante una sezione circolare piena equivalente.
+
+%aggiungi aree
+
+\subsection{Camera/Postbruciatore}
+Per garantire un'adeguata stabilità di fiamma si assume un ulteriore rallentamento dell'aria in ingresso imponendo un numero di Mach pari a \(0.25\) in entrata al postbruciatore. Inoltre viene considerato un valore di bloccaggio \(B=0.25\) per gli stabilizzatori di fiamma, mentre il rapporto lunghezza/diametro è stato fissato a \(L/H=2.8\).
+Dato che in questo caso la combustione avviene all'interno del postbruciatore, diversamente dal caso subsonico, la perdita di pressione assume un valore maggiore, ovvero \(\pi_{ab}=0.96\) mentre la temperatura totale raggiunta grazie alla combustione è di \(T_{04}=2100 \text{ K}\).
+Dal punto di vista del carburante viene utilizzato lo stesso tipo di carburante usato nel turbogetto (JP-7).
+
+\begin{table}[H]
+    \centering
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \begin{tabular}{cllc}
+         \toprule
+         \textbf{Grandezza} & \textbf{Simbolo} & \textbf{Valore} & \textbf{Unità di misura} \\
+         \midrule
+         Rapporto f & $f$ & $0.0413$ & - \\
+         Raggio & $r$ & $0.610$ & \text{m} \\
+         Lunghezza & $L$ & $3.42$ & \text{m} \\
+         Diametro stabilizzatore di fiamma & $d$ & $0.305$ & \text{m} \\
+         Pressione totale in uscita & $P_{04}$ & $137$ & \text{kPa} \\
+         \bottomrule
+    \end{tabular}
+\caption{Valori ottenuti per la camera di combustione/postbruciatore}
+\label{tab:camera_combustione ramjet}
+\end{table}
+%aggiungere disegno

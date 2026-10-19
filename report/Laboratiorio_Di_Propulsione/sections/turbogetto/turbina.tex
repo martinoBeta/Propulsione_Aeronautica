@@ -1,0 +1,294 @@
+\label{sec:turbina}
+\hspace{2cm}
+\section{Turbina}
+
+%\subsection{Rafreddamento}
+La turbina rappresenta uno dei componenti più sollecitati dal punto di vista termomeccanico. Le alte temperature raggiunte in camera di combustione impongono il raffreddamento delle palette, in modo particolare nei primi stadi dello statore e del rotore, esposti alle condizioni più critiche.  Poiché la modellazione  dell'intero sistema di raffreddamento richiederebbe una trattazione indipendente, nel modello sono state introdotte alcune semplificazioni:
+\begin{itemize}
+    \item L'aria spillata viene stimata in base alla temperatura di combustione, ricavata mediante i grafici riportati nella bibliografia~\cite{slidesRobertoAndriani} e descritti nell'Appendice~\ref{ap:appendixA}.
+    \item Una miscelazione adiabatica nella turbina, tra l'aria appena uscita dalla camera di combustione e l'aria  spillata dal compressore.
+    \item Si è introdotto un singolo rendimento meccanico per tenere conto della potenza richiesta da sistemi elettrici, idraulici e attriti meccanici ($\eta_m = 0.95$). 
+\end{itemize}
+
+\subsection{Primo stadio della turbina}
+L'analisi è focalizzata sul singolo primo stadio i cui parametri operativi sono successivamente estesi per determinare il numero di stadi complessivi della turbina. 
+Nello sviluppo del modello si assumono le seguenti ipotesi semplificative:
+\begin{itemize}
+    \item Viene trascurata ogni perdita di pressione nello statore e rotore. Di conseguenza, la componente assiale della velocità viene considerata costante ($v_{z} = \text{cost}$).
+    \item Il raggio medio della turbina coincide con il raggio medio dell'ultimo stadio del compressore.
+    \item Turbogetto a singolo albero, pertanto la velocità angolare della turbina coincide con quella del compressore. 
+\end{itemize}
+
+\textbf{Statore}\\
+Per il calcolo dei parametri dello statore, il fluido viene fatto espandere fino al raggiungimento del blocco sonico, ossia una condizione di Mach pari a 1 all'uscita dello statore. La velocità in ingresso allo statore pari alla velocità di ingresso e uscita della turbina, è assunta completamente assiale con un numero di Mach all'ingresso pari a 0,5. Tale valore è stato scelto sulla base di un'analisi della variazione del numero di Mach in ingresso (Figura \ref{fig:turb:machRelativoEMachIngresso}) e delle dimensioni del turbogetto. In particolare,  un numero di Mach inferiore comporterebbe un aumento della potenza generata dallo stadio. Tuttavia, questa scelta determinerebbe anche un incremento dell'area di uscita della turbina e, di conseguenza, delle sue dimensioni. Poiché il guadagno in termini di potenza risulta limitato, si è ritenuto opportuno adottare un valore di Mach in ingresso pari a 0,5 minimizzando l'area di ingresso e di uscita della turbina.
+
+\textbf{Rotore}\\
+La velocità relativa in uscita dal rotore viene imposta in un intervallo di numero di Mach compreso tra 0,8 e 0,9. In particolare,un aumento del numero di Mach in uscita comporta un incremento del lavoro prodotto dallo stadio come mostrato nella Figura \ref{fig:turb:machRelativoEMachIngresso}. Inoltre, all'aumentare del numero di Mach in uscita si registra anche un leggero incremento del rendimento dello stadio. Pertanto si è scelto un numero di Mach pari a 0,9. 
+
+\textbf{Triangoli di velocità}
+
+Il lavoro estratto dal rotore può essere di tipo ad azione o a reazione. In particolare, la ripartizione dell'accelerazione del fluido, dipende dal grado di reazione dello stadio.
+
+
+
+\input{Graphics/turbogetto/turbina/triangoli}
+
+L'angolo di uscita dallo statore ($\alpha_1$ nella Figura \ref{fig:turb:triangoli}) non coincide con l'angolo ottimo, come mostrato nell'appendice \ref{ap:appendixB}. Sebbene il valore calcolato disti dall'ottimo teorico, questa differenza è dovuta al vincolo di progetto di tenere la velocità assiale costante. 
+
+\begin{table}[H]
+\centering
+\caption{Principali parametri della turbina e grandezze fluidodinamiche
+del singolo stadio.}
+\label{tab:turbina:tabellaDati}
+
+\scriptsize
+\renewcommand{\arraystretch}{0.95}
+\fontsize{11pt}{11pt}\selectfont
+\renewcommand{\arraystretch}{1}
+\begin{tabular*}{0.92\textwidth}
+{@{\extracolsep{\fill}} lcc lcc}
+    \toprule
+
+    \multicolumn{6}{c}{\textbf{Parametri della turbina}} \\
+    \midrule
+
+    \textbf{Parametro} & \textbf{Valore} & \textbf{Unità} &
+    \textbf{Parametro} & \textbf{Valore} & \textbf{Unità} \\
+    \midrule
+
+    $\dot{L}$            & 11.3  & MW
+    & $\eta_t$           & 0.912 & -- \\
+
+    $N_{\mathrm{stadi}}$ & 2     & --
+    & $P_{05}$           & 112   & kPa \\
+
+    $T_{05}$             & 1240  & K
+    & $\beta$            & 0.303   & -- \\
+
+    $A_{4}$             & 0.113   & m$^2$
+    & $A_{5}$           & 0.329   & m$^2$ \\
+
+    $x_{\mathrm{spill}}$ & 9.49  & \%
+    &                    &       & \\
+
+    \midrule
+
+    \multicolumn{6}{c}{\textbf{Primo stadio}} \\
+    \midrule
+
+    $\dot{L}_{\mathrm{st}}$ & 8.09 & MW
+    & $v_z$                   & 385  & m/s \\
+
+    $R$                     & 0.229 & --
+    & $U$                   & 320  & m/s \\
+
+
+    \midrule
+\end{tabular*}
+
+% ============================================================
+% STATORE / ROTORE con colonne simmetriche
+% ============================================================
+
+\begin{tabular*}{0.92\textwidth}{
+@{\extracolsep{\fill}}
+l
+>{\centering\arraybackslash}p{0.12\textwidth}
+>{\centering\arraybackslash}p{0.12\textwidth}
+>{\centering\arraybackslash}p{0.12\textwidth}
+>{\centering\arraybackslash}p{0.12\textwidth}
+c
+}
+    \textbf{Grandezza} &
+    \multicolumn{2}{c}{\textbf{Statore}} &
+    \multicolumn{2}{c}{\textbf{Rotore}} &
+    \textbf{Unità} \\
+
+    \cmidrule(lr){2-3}
+    \cmidrule(lr){4-5}
+
+    &
+    \textbf{In} &
+    \textbf{Out} &
+    \textbf{In} &
+    \textbf{Out} &
+    \\
+
+    $T_0$
+    & 1620 & 1620
+    & 1530 & 1320
+    & K \\
+
+    $P_0$
+    & 371 & 371
+    & 371 & 152
+    & kPa \\
+
+    $v$
+    & 385 & 728
+    & 728 & 404
+    & m/s \\
+
+    $v_{\theta}$
+    & 0.00 & 618
+    & 618 & -124
+    & m/s \\
+
+    $w_{\theta}$
+    & 0 & 298
+    & 298 & -444
+    & m/s \\
+
+    $A$
+    & 0.113 & 0.0843
+    & 0.171 & 0.331
+    & m$^2$ \\
+
+    \bottomrule
+\end{tabular*}
+
+\end{table}
+
+
+Nella Tabella \ref{tab:turbina:tabellaDati}, la temperatura totale in uscita dallo statore non combacia con la temperatura totale all'ingresso dello rotore. Questa discrepanza è dovuta al raffreddamento della turbina. Per permettere questo calcolo si è assunto di effettuare una miscelazione adiabatica a pressione costante subito dopo l'uscita dallo statore con tutta l'area di raffreddamento, senza alcuna variazione di velocità. Pertanto anche l'area di ingresso della turbina comprende solo i gas combusti in uscita dalla camera di combustione. 
+
+
+\input{Graphics/turbogetto/turbina/turbos}
+
+
+
+
+
+
+
+
+
+
+
+\cici{ % togliere se si vuole vedere la tabella
+
+\begin{table}[H]
+\centering
+\caption{Principali parametri della turbina e grandezze fluidodinamiche
+del singolo stadio.}
+\label{tab:turbina:tabellaDati}
+
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+
+% ============================================================
+% TABELLA SINISTRA
+% ============================================================
+\begin{minipage}[t]{0.39\textwidth}
+    \centering
+
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Parametro} &
+        \textbf{Valore} &
+        \textbf{Unità} \\
+        \midrule
+
+        \multicolumn{3}{l}{\textbf{Turbina globale}} \\
+        \midrule
+
+        $\dot{L}$            
+        & 1200  & MW \\
+
+        $\eta_N$             
+        & 0.907 & -- \\
+
+        $N_{\mathrm{stadi}}$ 
+        & 2     & -- \\
+
+        $P_{05}$             
+        & 137   & kPa \\
+
+        $T_{05}$             
+        & 1110  & K \\
+
+        $\beta$              
+        & 2.2   & -- \\
+
+        $A_{04}$             
+        & 0.7   & m$^2$ \\
+
+        $A_{05}$             
+        & 0.3   & m$^2$ \\
+
+        $x_{\mathrm{spill}}$ 
+        & 8.89  & \% \\
+
+        \addlinespace[2pt]
+
+        \multicolumn{3}{l}{\textbf{Singolo stadio}} \\
+        \midrule
+
+        $\dot{L}_{\mathrm{st}}$
+        & 1288 & MW \\
+
+        $\eta_{\mathrm{iso}}$
+        & 0.90 & -- \\
+
+        $R$
+        & 0.23 & -- \\
+
+        $U$
+        & 350 & m/s \\
+
+        $v_z$
+        & 200 & m/s \\
+
+        \bottomrule
+    \end{tabular}
+
+\end{minipage}
+\hfill
+% ============================================================
+% TABELLA DESTRA
+% ============================================================
+\begin{minipage}[t]{0.57\textwidth}
+    \centering
+
+    \begin{tabular}{lcccc}
+        \toprule
+        &
+        \multicolumn{2}{c}{\textbf{Statore}} &
+        \multicolumn{2}{c}{\textbf{Rotore}} \\
+        \cmidrule(lr){2-3}
+        \cmidrule(lr){4-5}
+
+        \textbf{Grandezza} &
+        \textbf{In} &
+        \textbf{Out} &
+        \textbf{In} &
+        \textbf{Out} \\
+        \midrule
+
+        $T_0$ [K]
+        & 1288 & 1288 & 1288 & 1243 \\
+
+        $P_0$ [kPa]
+        & 283 & 283 & 283 & 180 \\
+
+        $v$ [m/s]
+        & 701 & 701 & 701 & 340 \\
+
+        $v_{\theta}$ [m/s]
+        & 634 & 634 & 634 & -163 \\
+
+        $w_{\theta}$ [m/s]
+        & 300 & 300 & 300 & -463 \\
+
+        $A$ [m$^2$]
+        & 0.5 & 0.5 & 0.5 & 0.5 \\
+
+        \bottomrule
+    \end{tabular}
+
+\end{minipage}
+
+\end{table}
+
+
+} %% togliere se si vuole vedere la tabella con \cici

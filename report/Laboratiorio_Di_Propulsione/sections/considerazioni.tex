@@ -1,0 +1,44 @@
+\label{ch:chapter_finale}%
+\chapter{Conclusioni e sviluppi futuri}
+
+\section{Conclusioni}
+
+La metodologia sviluppata ha consentito di ottenere una configurazione turbogetto--ramjet
+compatibile con i requisiti assegnati nei due punti di progetto, integrando nello stesso
+processo il dimensionamento termodinamico e geometrico dei principali componenti. Il
+turbogetto, dimensionato per una spinta di 25 kN a $M=0.85$ e $h=12$ km, presenta un
+TSFC di 0.135 kg/(N$\cdot$h) e un ingombro radiale massimo di 539 mm, con tutti i vincoli
+aerodinamici e geometrici imposti in ottimizzazione rispettati. Il ramjet, dimensionato per 65 kN a $M=3.5$ e $h=25$ km,
+presenta un TSFC di 0.231 kg/(N$\cdot$h), ampiamente entro il limite di missione, con un
+diametro di efflusso di 1.57 m compatibile con il vincolo geometrico imposto.
+
+%---------------------------------------
+\section{Sviluppi futuri}
+
+La struttura modulare della procedura di calcolo consente di aumentare
+progressivamente il livello di dettaglio del modello, introducendo nuovi
+sottosistemi oppure sostituendo quelli esistenti con formulazioni più
+accurate. In seguito sono riportati possibili miglioramenti.
+
+Un primo affinamento riguarda il modello termodinamico. Le proprietà dei fluidi sono state
+valutate assumendo $c_p$ e $\gamma$ costanti e la combustione senza determinazione esplicita della
+composizione dei prodotti. L'introduzione di proprietà dipendenti dalla temperatura e di un
+modello di equilibrio chimico consentirebbe di aggiornare localmente entalpia, temperatura e
+rendimento del ciclo.
+
+La modellazione del flusso interno può essere estesa introducendo perdite viscose distribuite
+nei condotti e perdite localizzate nelle transizioni geometriche. Un modello quasi-
+monodimensionale, eventualmente affiancato da analisi CFD nei componenti più critici,
+permetterebbe di valutare perdite di pressione totale, sviluppo dello strato limite, separazioni e
+disuniformità del flusso nelle sezioni di interfaccia.
+
+Per il compressore, il dimensionamento può essere esteso ai singoli stadi, aggiornando
+localmente triangoli di velocità, grado di reazione, solidità e coefficienti di diffusione.
+L'introduzione di correlazioni per perdite di profilo, flussi secondari e giochi di estremità
+permetterebbe inoltre di verificare i margini rispetto a stallo e choking lungo l'intera macchina.
+
+Per la turbina, il modello di raffreddamento può essere sostituito da una ripartizione stadio
+per stadio della portata spillata tra statore e rotore, includendo raffreddamento interno,
+film cooling e miscelazione con il flusso principale. Il conseguente bilancio termico locale
+consentirebbe di stimare la temperatura del metallo e di introdurre direttamente
+nell'ottimizzazione vincoli termici e aerodinamici sui singoli stadi.

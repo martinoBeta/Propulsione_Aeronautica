@@ -1,0 +1,217 @@
+\section{Presa d'Aria Supersonica}
+\label{app:presa_ramjet}
+
+
+\subsection{Ottimizzazione degli angoli di rampa}
+
+La ripartizione della deflessione totale tra i tre urti obliqui è stata determinata secondo il criterio di Oswatitsch, imponendo che i tre urti abbiano la medesima componente di Mach normale $M_n$. Il problema si riduce alla ricerca di un unico parametro libero, il rapporto di pressione statica associato a $M_n$, che massimizza il recupero di pressione totale complessivo del sistema di tre urti obliqui più urto normale terminale. Tale ricerca è stata condotta numericamente mediante una funzione di ottimizzazione scalare vincolata (\texttt{fminbnd}), che esplora l'intervallo di rapporti di pressione statica ammissibili, escludendo agli estremi le soluzioni fisicamente non accettabili (onde non compressive da un lato, distacco dell'urto o flusso a valle subsonico prematuro dall'altro). Ad ogni tentativo la funzione obiettivo ricostruisce in cascata i tre urti obliqui e l'urto normale terminale a partire dal valore di $M_n$ candidato, verificando ad ogni stadio la realizzabilità fisica della soluzione (angoli reali, Mach a valle supersonico), e restituisce il recupero di pressione totale risultante. Il valore di $M_n$ che massimizza tale recupero viene poi utilizzato per la ricostruzione dettagliata dei tre urti nella fase successiva.
+
+\subsection{Urti obliqui}
+
+Noto $M_n$ dall'ottimizzazione, gli angoli e le grandezze a valle di ciascun urto obliquo sono calcolati in cascata, utilizzando come numero di Mach a monte di ciascun urto quello ottenuto a valle dell'urto precedente. Per il generico urto $i$-esimo, l'angolo dell'onda si ricava da
+\begin{equation*}
+    \theta_i = \arcsin\!\left(\frac{M_n}{M_{i-1}}\right),
+\end{equation*}
+mentre l'angolo di deflessione del flusso attraverso la relazione $\theta$-$\beta$-$M$:
+\begin{equation*}
+    \delta_i = \arctan\!\left[\frac{2\cot\theta_i\left(M_{i-1}^2\sin^2\theta_i - 1\right)}{M_{i-1}^2(\gamma+\cos 2\theta_i)+2}\right].
+\end{equation*}
+Il numero di Mach a valle dell'urto si ottiene dalla componente normale post-urto, comune a tutti e tre gli urti data la costanza di $M_n$,
+\begin{equation*}
+    M_i = \frac{1}{\sin(\theta_i-\delta_i)}\sqrt{\frac{1+\dfrac{\gamma-1}{2}M_n^2}{\gamma M_n^2 - \dfrac{\gamma-1}{2}}},
+\end{equation*}
+e viene utilizzato come Mach a monte per il calcolo dell'urto successivo. Il recupero di pressione totale di ciascun urto, essendo funzione della sola componente normale $M_n$ (identica per costruzione nei tre urti), risulta lo stesso per tutti e tre:
+\begin{equation*}
+    \pi_i = \left[\frac{\frac{\gamma+1}{2}M_n^2}{1+\frac{\gamma-1}{2}M_n^2}\right]^{\frac{\gamma}{\gamma-1}} \left[\frac{1}{\frac{2\gamma}{\gamma+1}M_n^2 - \frac{\gamma-1}{\gamma+1}}\right]^{\frac{1}{\gamma-1}}.
+\end{equation*}
+
+\subsection{Urto normale terminale}
+
+Il terzo urto obliquo lascia il flusso ancora supersonico ($M_3>1$); la chiusura della presa avviene mediante un urto normale, per il quale il Mach a valle si ricava dalla consueta relazione delle onde d'urto normali,
+\begin{equation*}
+    M_4 = \sqrt{\frac{M_3^2 + \dfrac{2}{\gamma-1}}{\dfrac{2\gamma}{\gamma-1}M_3^2 - 1}},
+\end{equation*}
+mentre il recupero di pressione totale $\pi_4$ è dato dalla stessa espressione utilizzata per gli urti obliqui, valutata questa volta direttamente su $M_3$ (Mach a monte dell'urto normale).
+
+\subsection{Calcolo gasdinamico a cascata}
+
+Il recupero di pressione totale complessivo si ottiene moltiplicando i quattro contributi in cascata,
+\begin{equation*}
+    P_{01}=P_{00}\,\pi_1, \quad P_{02}=P_{01}\,\pi_2, \quad P_{03}=P_{02}\,\pi_3, \quad P_{04}=P_{03}\,\pi_4, \qquad \pi_{tot} = \frac{P_{04}}{P_{00}}.
+\end{equation*}
+L'intero processo di compressione è stato considerato adiabatico, per cui la temperatura totale si conserva dalle condizioni di volo indisturbate fino all'uscita della presa. Le condizioni statiche in ingresso alla camera di combustione (stazione 2) si ottengono dalle relazioni isoentropiche applicate al Mach subsonico $M_4$ a valle dell'urto normale:
+\begin{equation*}
+    T_2 = \frac{T_{00}}{1+\dfrac{\gamma-1}{2}M_4^2}, \qquad
+    P_2 = \frac{P_{04}}{\left(1+\dfrac{\gamma-1}{2}M_4^2\right)^{\gamma/(\gamma-1)}}, \qquad
+    \rho_2 = \frac{P_2}{R\,T_2},
+\end{equation*}
+da cui la velocità di ingresso in camera $V_2 = M_4\sqrt{\gamma R T_2}$. L'efficienza adiabatica della presa, che confronta il recupero di pressione totale reale con quello di una compressione isentropica alla stessa deflessione complessiva, è definita come
+\begin{equation*}
+    \eta_d = \frac{\pi_{tot}^{(\gamma-1)/\gamma}\left(1+\dfrac{\gamma-1}{2}M_0^2\right) - 1}{\dfrac{\gamma-1}{2}M_0^2}.
+\end{equation*}
+
+\subsection{Dimensionamento geometrico}
+
+L'area di cattura è ricavata dalla portata d'aria richiesta dal motore, applicando la continuità alle condizioni di volo indisturbate:
+\begin{equation*}
+    A_{catt} = \frac{\dot{m}}{\rho_0 V_0}.
+\end{equation*}
+Assumendo una sezione di cattura quadrata, l'altezza e la larghezza caratteristiche risultano $h_{catt}=\sqrt{A_{catt}/2}$ e $w_{catt}=2\,h_{catt}$.
+
+La geometria delle rampe è stata determinata imponendo la condizione di \textit{shock-on-lip}, secondo cui il labbro del cowl esterno intercetta esattamente il punto di intersezione del terzo urto obliquo. La lunghezza della prima rampa e la lunghezza della relativa onda d'urto si ricavano per via trigonometrica dal triangolo rettangolo formato dall'altezza di cattura e dall'angolo dell'onda:
+\begin{equation*}
+    L_{super} = \frac{h_{catt}}{\tan\theta_1}, \qquad L_{onda,1} = \frac{h_{catt}}{\sin\theta_1}.
+\end{equation*}
+Per la seconda e la terza rampa, le lunghezze delle rampe e delle rispettive onde d'urto si ottengono applicando il teorema dei seni al triangolo definito dall'onda incidente e dalla rampa successiva:
+\begin{equation*}
+    L_{rampa,12} = L_{onda,1}\,\frac{\sin(\theta_2+\delta_1-\theta_1)}{\sin(\pi-\theta_2)}, \qquad
+    L_{onda,2} = L_{onda,1}\,\frac{\sin(\theta_1-\delta_1)}{\sin(\pi-\theta_2)},
+\end{equation*}
+\begin{equation*}
+    L_{rampa,23} = L_{onda,2}\,\frac{\sin(\theta_3+\delta_2-\theta_2)}{\sin(\pi-\theta_3)}, \qquad
+    L_{onda,3} = L_{onda,2}\,\frac{\sin(\theta_2-\delta_2)}{\sin(\pi-\theta_3)}.
+\end{equation*}
+La rampa di gola, su cui si richiude l'urto normale perpendicolarmente al flusso proveniente dal terzo urto obliquo, e l'altezza di gola si ricavano dall'ultimo triangolo caratteristico:
+\begin{equation*}
+    L_{rampa,34} = L_{onda,3}\cos(\theta_3-\delta_3), \qquad h_{gola} = L_{onda,3}\sin(\theta_3-\delta_3).
+\end{equation*}
+L'area di gola è infine ottenuta dalla continuità alle condizioni di ingresso camera,
+\begin{equation*}
+    A_{gola} = \frac{\dot{m}}{\rho_2 V_2}, \qquad w_{gola} = \frac{A_{gola}}{h_{gola}},
+\end{equation*}
+mentre $\Delta s$ il margine longitudinale del cowl rispetto allo shock-on-lip è stimato come:
+\begin{equation*}
+     \Delta s = 0.1\,L_{super}
+\end{equation*}
+
+
+
+
+\section{Anulus} 
+Per il calcolo della sezione in ingresso utilizziamo la portata in entrata, essendo questa nota insieme al diametro esterno del turbogetto, quindi:
+\begin{equation*}
+    A_{in}=\frac{\dot{m}}{\rho u_{in}}
+\end{equation*}
+\begin{equation*}
+    r_{in}= \sqrt{\frac{A_{in}}{\pi} + r_{ext}^2 }
+\end{equation*}
+Il valore del numero di Mach all'uscita è fissato a \[M=0.6\], da questo si dimensiona l'area in uscita con la quale si può ottenere questo valore
+\begin{equation*}
+    A_{{out}} = A_{{in}} \frac{Ma_{{in}}}{Ma_{{out}}} ( \frac{1 + \frac{\gamma-1}{2} Ma_{{out}}^2}{1 + \frac{\gamma-1}{2} Ma_{{in}}^2})^{\frac{\gamma+1}{2(\gamma-1)}}
+\end{equation*}
+\begin{equation*}
+    r_{out}= \sqrt{\frac{A_{out}}{\pi} + r_{ext}^2 }
+\end{equation*}
+Per il calcolo della velocità in uscita:
+\begin{equation*}
+    T_{out}=\frac{T_{0_{in}}}{1+\frac{\gamma-1}{2}M_{out}^2}
+\end{equation*}
+\begin{equation*}
+    u_{out}=M_{out}\sqrt{\gamma R T_{out}}
+\end{equation*}
+
+\section{Camera di combustione}
+In seguito all'anulus si impone un'ulteriore rallentamento fino ad ottenere \[M=0.25\] noto questo possiamo calcolare l'area della camera di combustione
+\begin{equation*}
+    A_{{camera}} = \frac{\dot{m}_{air} \sqrt{T_{0_{in}}}}{P_{0_{in}} M_{in} \sqrt{\frac{\gamma_{aria}}{R_{aria}}}} \left( 1 + \frac{\gamma_{aria}-1}{2} M_{in}^2 \right)^{\frac{\gamma_{aria}+1}{2(\gamma_{aria}-1)}}
+\end{equation*}
+\begin{equation*}
+    D_{camera}=2\sqrt{\frac{A_{camera}}{\pi}}
+\end{equation*}
+Fissato il valore del rapporto lunghezza/diametro \text{LH} e il bloccaggio \text{B} posso calcolare la lunghezza e le dimensioni dei stabilizzatori di fiamma
+\begin{equation*}
+    L=D_{camera}LH
+\end{equation*}
+\begin{equation*}
+    D_{fh}=B\frac{D_{camera}}{2}
+\end{equation*}
+La temperatura totale si conserva mentre ho una perdita di pressione dato che $\pi_{ab}=0.96$. Ottenute queste grandezze, è possibile ricavare la portata di carburante necessaria:
+\begin{equation*}
+    f = \frac{c_{p,g} T_{\max} - c_{p,a} T_{0,\text{in}}}{\Delta h_{\text{fuel}} \cdot \eta_c - c_{p,g} T_{\max}},
+    \label{eq:rapporto_f}
+\end{equation*}
+la portata di carburante può quindi essere calcolata come:
+\begin{equation*}
+    \dot{m}_{\text{fuel}} = f \dot{m}_{\text{air}}.
+    \label{eq:portata_fuel}
+\end{equation*}
+
+
+
+
+\section{Ugello}
+Noti i valori in ingresso (essendo gli stessi di uscita della camera di combustione) e considerato di avere una pressione in uscita pari a \[P_5=\pi_{esp}P_{amb}\] possiamo procedere in maniere analoga al caso subsonico
+
+Nel caso il componente fosse ideale, la temperatura in uscita sarebbe:
+\begin{equation*}
+    T_{5_{\text{is}}} = T_{04} \text{NPR}^{\frac{1-\gamma}{\gamma}}
+\end{equation*}
+dove \(\text{NPR} = \frac{P_{04}}{P_{5}}\).
+Considerando che la temperatura totale si conserva possiamo quindi ricavare il valore effettivo:
+\begin{equation*}
+    T_{5} = T_{04} - \eta_{n}(T_{05} - T_{5_{\text{is}}})
+\end{equation*}
+e trovare poi la velocità di efflusso con annesso numero di Mach:
+\begin{equation*}
+    u_{e} = \sqrt{2C_{p}(T_{04} - T_{5})}
+\end{equation*}
+\begin{equation*}
+    M_{5} =\frac{u_{e}} {\sqrt{\gamma R T_{5}}}
+\end{equation*}
+Inoltre si ha, naturalmente, una variazione della pressione totale:
+\begin{equation*}
+    T_{05} =T_{04}
+\end{equation*}
+\begin{equation*}
+    P_{05}=P_{04}(1 + \frac{\gamma-1}{2}M_{5}^2)^\frac{\gamma}{\gamma-1}
+\end{equation*}
+Per il dimensionamento delle aree di gola e di efflusso si fa affidamento alle seguenti formule:
+\[ A^{\star}=\frac{\dot{m}\sqrt{RT_{05}}}{\Gamma P_{05}} \]
+\[A_e=A^{\star}\frac{1}{M_5} \left( \frac{1+\frac{\gamma-1}{2}M_5^{2}}{\frac{\gamma+1}{2}} \right)^{\frac{\gamma+1}{2(\gamma-1)}}\]
+
+\section{Prestazioni}
+\label{appC:prestazioni}
+
+In regime supersonico, a differenza del turbogetto, l'ugello del ramjet non è generalmente adattato: il vincolo geometrico imposto sul diametro di efflusso (Sezione~\ref{sec:presa_ramjet}) comporta un'espansione incompleta, con pressione statica di uscita $P_E$ diversa dalla pressione ambiente $P_U$ alla quota di crociera. Il calcolo delle prestazioni deve quindi includere, oltre al termine di quantità di moto, il contributo di spinta di pressione associato allo squilibrio tra $P_E$ e $P_U$ sulla sezione di efflusso $A_E$.
+
+\textbf{Spinta} \\
+\begin{equation*}
+    F = \dot{m}_{\text{gas}}\, u_e - \dot{m}_{\text{aria}}\, V_0 + A_E\,(P_E - P_U)
+\end{equation*}
+dove $u_e$ è la velocità di efflusso, $V_0$ la velocità di volo e $\dot{m}_{\text{gas}}$, $\dot{m}_{\text{aria}}$ le portate massiche rispettivamente in uscita dall'ugello e in ingresso alla presa d'aria.
+
+\textbf{Velocità di efflusso equivalente} \\
+Per esprimere in forma compatta i rendimenti energetici del ciclo, il contributo di spinta di pressione viene ricondotto a un incremento della velocità di efflusso, definendo una velocità equivalente $u_{eq}$ tale che il solo termine di quantità di moto valutato con $u_{eq}$ restituisca la spinta totale:
+\begin{equation*}
+    u_{eq} = u_e + \frac{A_E\,(P_E - P_U)}{\dot{m}_{\text{gas}}}
+\end{equation*}
+Questa grandezza sostituisce $u_e$ nel calcolo dei rendimenti energetici, in modo da tenere conto correttamente anche del contributo di pressione nell'energia cinetica del getto.
+
+\textbf{Consumo Specifico a Spinta (TSFC)} \\
+Il consumo specifico di combustibile per unità di spinta $TSFC$ è espresso in $\left[\frac{\text{kg}}{\text{N}\cdot\text{h}}\right]$:
+\begin{equation*}
+    TSFC = \frac{\dot{m}_{\text{comb}}}{F}\cdot 3600
+\end{equation*}
+
+\textbf{Rendimenti del Motore} \\
+I rendimenti descrivono la conversione dell'energia chimica del combustibile in potenza propulsiva, valutati mediante la velocità di efflusso equivalente $u_{eq}$:
+\begin{itemize}
+    \item \textbf{Rendimento Termico ($\eta_{\text{th}}$):}
+    \begin{equation*}
+        \eta_{\text{th}} = \frac{\frac{1}{2}\dot{m}_{\text{gas}}\,u_{eq}^2 - \frac{1}{2}\dot{m}_{\text{aria}}\,V_0^2}{\dot{m}_{\text{comb}}\,LHV}
+    \end{equation*}
+    \item \textbf{Rendimento Propulsivo ($\eta_p$):}
+    \begin{equation*}
+        \eta_p = \frac{F\,V_0}{\frac{1}{2}\dot{m}_{\text{gas}}\,u_{eq}^2 - \frac{1}{2}\dot{m}_{\text{aria}}\,V_0^2}
+    \end{equation*}
+    \item \textbf{Rendimento Globale ($\eta_g$):}
+    \begin{equation*}
+        \eta_g = \eta_{\text{th}}\,\eta_p = \frac{F\,V_0}{\dot{m}_{\text{comb}}\,LHV}
+    \end{equation*}
+\end{itemize}
+
+\textbf{Spinta Specifica}
+\begin{equation*}
+    F_s = \frac{F}{\dot{m}_{\text{aria}}}
+\end{equation*}
+Analogamente al turbogetto, la spinta specifica costituisce il parametro di ottimizzazione utilizzato nel simulatore per contenere le dimensioni del propulsore a parità di spinta richiesta.

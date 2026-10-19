@@ -1,0 +1,67 @@
+\section{Camera di Combustione}
+\label{sec:camera}
+
+Il dimensionamento è stato condotto nel punto di progetto turbogetto ($M=0.85$, $h=12000$ m), a partire dalle condizioni totali in uscita dal diffusore ($P_{03}'$, $T_{03}'$, $M_{03}'$) e imponendo come vincolo la temperatura totale di uscita $T_{04}$ (TIT), scelta contenuta per limitare il carico termico sulla turbina.
+
+\paragraph{Diffusore di raccordo compressore-camera.}
+A monte della camera è presente un breve diffusore anulare, che decelera il flusso in uscita dal compressore ($M_3\approx0.32$) fino al Mach di ingresso in camera imposto per contenere le perdite nel combustore ($M_{3.5}=0.2$). La temperatura totale si conserva (trasformazione adiabatica), mentre la pressione totale subisce una perdita contenuta ($\pi_d=0.97$). Il semi-angolo di apertura è stato limitato a $\theta=3^\circ$ per evitare distacchi dello strato limite. Le condizioni risultanti in uscita ($P_{03}'=394.2$ kPa, $T_{03}'=570.9$ K) costituiscono l'ingresso del modello di camera descritto di seguit.
+
+\paragraph{Scelte di progettazione.}
+Si è adottato JP-7 ($f_{st}=0.068$) per l'elevata stabilità termica alle alte temperature di parete e per il potere calorifico, caratteristiche che lo rendono standard per motori a ciclo combinato operanti anche nel regime supersonico del secondo punto di progetto. La camera è di tipo anulare a doppia zona: una zona primaria (\textit{liner}), in cui l'aria ``calda'' reagisce fino a $T_{comb}$, prossima alle condizioni stechiometriche, e una zona di diluizione in cui l'aria ``fredda'' by-passata viene miscelata adiabaticamente per riportare la temperatura al valore target $T_{04}$. La doppia zona è necessaria perché una combustione condotta direttamente al rapporto aria/combustibile globale risulterebbe troppo povera per una fiamma stabile; l'architettura riproduce quella dei combustori anulari aeronautici reali, disaccoppiando stabilità di fiamma e temperatura di uscita.
+
+%-----------------------------------------
+\cici{
+\begin{table}[H]
+    \centering
+    \caption{Vincoli di progetto della camera di combustione e relativo significato fisico.}
+    \label{tab:vincoli_camera}
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \begin{tabular}
+        \toprule
+        \textbf{Vincolo} & \textbf{Significato fisico} \\
+        \midrule
+        $T_{comb}$ & Fissa $\phi = f_{liner}/f_{st}$ nella zona primaria; mantiene $\phi$ in un intorno fisicamente sostenibile, evitando fiamma instabile o vicina allo spegnimento. \\
+        $\Delta P/q_{ref}=\text{cost}$ & Fissa $A_{ref}$ tramite la correlazione classica per combustori anulari; governa il compromesso tra ingombro trasversale e perdita di pressione totale. \\
+        $I = \dot{Q}/(V\,P_{03}')$ & Fissa il volume di reazione $V$ e quindi $L_c$; il vincolo di chiusura è $t_{res}=L_c/U_{liner} > 8$ ms (tempo caratteristico di combustione del JP-7), a garanzia della completezza della reazione. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+}
+%------------------------------------
+\begin{table}[H]
+    \centering
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \caption{Parametri principali della camera di combustione.}
+    \label{tab:camera_combustione}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Grandezza} & \textbf{Simbolo} & \textbf{Valore} & \textbf{Unità} \\
+        \midrule
+        Temperatura zona primaria & $T_{comb}$ & 2300 & K \\
+        Rapporto di equivalenza & $\phi$ & 0.757 & -- \\
+        Portata combustibile & $\dot{m}_{comb}$ & 0.938 & kg/s \\
+        Sezione di riferimento & $A_{ref}$ & 0.396 & m$^2$ \\
+        Volume camera & $V$ & 0.507 & m$^3$ \\
+        Lunghezza assiale & $L_c$ & 1.28 & m \\
+        Tempo di residenza & $t_{res}$ & 40.0 & ms \\
+        Perdita di pressione & $\Delta P/P_{03}'$ & 6.00 & \% \\
+        Temperatura in camera di combustione & $T_{04}$ & 1620 & K \\ 
+        \bottomrule
+    \end{tabular}
+\end{table}
+Il dimensionamento della camera è stato condotto imponendo la temperatura
+$T_{comb}$ nella zona primaria, dalla quale viene determinato il rapporto
+di equivalenza $\phi=f_{liner}/f_{st}$. La sezione di riferimento
+$A_{ref}$ è stata ricavata imponendo un valore costante del rapporto
+$\Delta P/q_{ref}$, mentre il volume di reazione $V$ è stato determinato
+mediante il parametro di intensità di combustione
+$I=\dot{Q}/(VP_{03}')$. L'intensità di combustione è stata fissata pari a
+\(I=20\,\mathrm{MW/(m^3\,bar)}\), valore corrispondente al limite inferiore
+dell'intervallo \(20{-}50\,\mathrm{MW/(m^3\,bar)}\) indicato in letteratura
+per camere di combustione per i motori aeronautici \cite{cohen2001gas}.
+La lunghezza della camera risultante è stata infine
+verificata imponendo un tempo di residenza $t_{res}>8$ ms.
+
+I risultati principali sono riassunti in Tabella~\ref{tab:camera_combustione}. I valori ottenuti rientrano nei range tipici per combustori anulari aeronautici: $\phi=0.757$ è moderatamente magro ma stabile (range tipico $[0.6,\,1.2]$); $t_{res}=40.0$ ms offre un margine ampio rispetto al vincolo minimo di 8 ms, indicando che la zona di reazione non opera al limite della propria capacità di completare la combustione. La perdita di pressione (6\%) si colloca nella parte alta del range tipico 3--6\%, compensata da una sezione frontale contenuta ($A_{ref}=0.396$ m$^2$, ben al di sotto del vincolo di 0.8 m$^2$) complessiva del propulsore.

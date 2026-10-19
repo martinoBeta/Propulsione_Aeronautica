@@ -1,0 +1,73 @@
+\section{Codice di Calcolo MATLAB}
+\label{app:codici}
+
+In questa appendice viene riportato il codice sviluppato in ambiente MATLAB per l'ottimizzazione e il dimensionamento del sistema propulsivo. Tutte le funzioni devono essere posizionate nella cartella /FunzioniMotore
+
+\section{Script di ottimizzazione turbogetto-ramjet}
+\lstinputlisting[caption={main.m}]{codice/main.m}
+
+\section{Funzioni Motore}
+Di seguito sono riportate le funzioni MATLAB necessarie per l'esecuzione dello script main.m. Per il dimensionamento del turbogetto vengono impiegate le seguenti funzioni:
+
+\begin{itemize}
+    \item structMotore.m
+    \item structParametri.m
+    \item runnerMotore.m 
+    \item Parametri.m
+    \item PresaDaria.m 
+    \item Compressore.m
+    \item StimaSpillaggio.m
+    \item Diffusore.m
+    \item CameraCombustione.m 
+    \item Turbina.m
+    \item Ugello.m
+    \item Performance.m
+\end{itemize}
+Per il ramjet vengono invece utilizzate le seguenti funzioni:
+\begin{itemize}
+    \item structRamjet.m
+    \item runnerRamjet.m 
+    \item Parametri.m
+    \item PresaDaria.m 
+    \item Anulus.m 
+    \item CameraCombustioneRamjet.m
+    \item UgelloRamjet.m
+    \item Performance.m
+\end{itemize}
+
+\subsection{structMotore.m}
+\lstinputlisting[caption={structMotore.m}]{codice/structMotore.m}
+\subsection{structParametri.m}
+\lstinputlisting[caption={structParametri.m}]{codice/structParametri.m}
+\subsection{runnerMotore.m}
+\lstinputlisting[caption={runnerMotore.m}]{codice/runnerMotore.m}
+\subsection{Parametri.m}
+\lstinputlisting[caption={Parametri.m}]{codice/Parametri.m}
+\subsection{PresaDaria.m}
+\lstinputlisting[caption={PresaDaria.m}]{codice/PresaDaria.m}
+\subsection{Compressore.m}
+\lstinputlisting[caption={Compressore.m}]{codice/Compressore.m}
+\subsection{StimaSpillaggio.m}
+\lstinputlisting[caption={StimaSpillaggio.m}]{codice/StimaSpillaggio.m}
+\subsection{Diffusore.m}
+\lstinputlisting[caption={Diffusore.m}]{codice/Diffusore.m}
+\subsection{CameraCombustione.m}
+\lstinputlisting[caption={CameraCombustione.m}]{codice/CameraCombustione.m}
+\subsection{Turbina.m}
+\lstinputlisting[caption={Turbina.m}]{codice/Turbina.m}
+\subsection{Ugello.m}
+\lstinputlisting[caption={Ugello.m}]{codice/Ugello.m}
+\subsection{Performance.m}
+\lstinputlisting[caption={Performance.m}]{codice/Performance.m}
+\subsection{structRamjet.m}
+\lstinputlisting[caption={structRamjet.m}]{codice/structRamjet.m}
+\subsection{runnerRamjet.m}
+\lstinputlisting[caption={runnerRamjet.m}]{codice/runnerRamjet.m}
+\subsection{Anulus.m}
+\lstinputlisting[caption={Anulus.m}]{codice/Anulus.m}
+\subsection{CameraCombustioneRamjet.m}
+\lstinputlisting[caption={CameraCombustioneRamjet.m}]{codice/CameraCombustioneRamjet.m}
+\subsection{UgelloRamjet.m}
+\lstinputlisting[caption={UgelloRamjet.m}]{codice/UgelloRamjet.m}
+
+

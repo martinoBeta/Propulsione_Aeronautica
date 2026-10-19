@@ -1,0 +1,58 @@
+\section{Ugello}
+\label{sec:turboUgello}
+
+% VERSIONE COMPRESSA
+%------------------------------------------------
+L'espansione dei gas combusti è affidata a un ugello convergente-divergente,
+assunto operante in condizioni di espansione ottima e modellato con rendimento
+$\eta_n=0.95$. La presenza del postbruciatore, inattivo durante il
+funzionamento subsonico del turbogetto, è considerata mediante una perdita
+di pressione totale $\pi_{ab}=0.98$.
+
+Le aree di gola e di efflusso sono state dimensionate imponendo la condizione
+di adattamento $P_e=P_{amb}$. Poiché le condizioni operative differiscono
+tra turbogetto e ramjet, è stata prevista una geometria variabile dell'ugello,
+in grado di modificare entrambe le sezioni caratteristiche. Il procedimento
+di calcolo è riportato in Appendice~\ref{appB:ugello}.
+
+
+
+%---------------------------------------
+
+%L'ugello è l'ultimo componente del motore e ha il compito di espandere i gas combusti in modo da generare una spinta che possa essere utilizzata dal velivolo.
+
+%Volendo massimizzare le prestazioni, viene preso in considerazione l'utilizzo di un ugello convergente-divergente. Per semplificare la trattazione del componente si considera di essere in un caso di espansione ottima. Inoltre, si suppone di avere un componente non isentropico con rendimento \(\eta_n=0.95\).
+
+%A causa della presenza di un postbruciatore (che nella fase di volo subsonico rimane spento), i gas in uscita dalla turbina subiranno una perdita di carico \(\pi_{ab}=0.98\).
+
+%Note le pressioni, ed una volta ricavata la differenza di temperatura attraverso il nozzle pressure ratio (NPR) totale è possibile ottenere un valore per la velocità in uscita la quale permette di calcolare l'ingombro delle sezioni di gola e di efflusso.
+%Il valore delle aree non è stato considerato fisso per entrambe le modalità di funzionamento in quanto viene considerato l'utilizzo di un sistema a geometria variabile in modo da garantire un'alta flessibilità di utilizzo nei vari regimi di volo.
+
+\begin{table}[H]
+    \centering
+
+    \caption{Valori ottenuti}
+    \label{tab:my_table}
+
+    \fontsize{11pt}{11pt}\selectfont
+    \renewcommand{\arraystretch}{1}
+    \setlength{\tabcolsep}{3.5pt}
+
+    \begin{tabular}{cllc}
+        \toprule
+        \textbf{Grandezza} & 
+        \textbf{Simbolo} & 
+        \textbf{Valore} & 
+        \textbf{Unità di misura} \\
+        \midrule
+
+        Pressione totale in uscita     & $P_{06}$ & $98.9$  & \text{kPa} \\
+        Temperatura totale in uscita   & $T_{06}$ & $1240$  & \text{K} \\
+        Mach di efflusso               & $M_{06}$ & $1.74$  & -- \\
+        Velocità di efflusso           & $V_e$    & $978$   & \text{m/s} \\
+        Area di gola                   & $A^\star$& $0.274$  & $\text{m}^2$ \\
+        Area di efflusso               & $A_e$    & $0.385$  & $\text{m}^2$ \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
